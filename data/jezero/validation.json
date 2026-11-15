@@ -1,0 +1,35 @@
+{
+ "traverse_cells": 1444,
+ "slope_deg_on_traverse": {
+  "median": 3.02,
+  "p90": 8.56,
+  "p99": 14.6,
+  "max": 18.31
+ },
+ "slope_deg_whole_area": {
+  "median": 3.54,
+  "p90": 11.71,
+  "p99": 21.69,
+  "max": 35.64
+ },
+ "fraction_of_area_steeper_than": {
+  "10": 0.1373,
+  "15": 0.0538,
+  "20": 0.0168,
+  "25": 0.0021,
+  "30": 0.0001
+ },
+ "fraction_of_traverse_steeper_than": {
+  "10": 0.081,
+  "15": 0.0097,
+  "20": 0.0,
+  "25": 0.0,
+  "30": 0.0
+ },
+ "waypoint_elevation_minus_model_m": {
+  "n": 464,
+  "median": 1.0,
+  "median_abs_deviation": 1.84
+ },
+ "note": "Slope is measured at the grid's cell size; a rover-scale hazard (a rock, a ripple) smaller than one cell is invisible to it."
+}

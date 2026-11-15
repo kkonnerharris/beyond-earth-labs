@@ -1,0 +1,18 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+.next/
+# Large or regenerable data: rebuilt by the scripts in science/bel (see docs/DATA.md)
+data/patches/
+data/features/
+data/cache/
+data/logs/
+data/jezero/terrain.bin
+.localdb/
+*.log
+mission/bin/
+data/missions/
+data/tilecache/
+*.tsbuildinfo

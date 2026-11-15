@@ -1,0 +1,47 @@
+{
+ "models": [
+  {
+   "version": "v1",
+   "directory": "terrain-head-v1",
+   "summary": {
+    "run": "20261115T012908Z-eval",
+    "cells": 4534,
+    "held_out_r2": {
+     "earth": 0.315,
+     "mars": 0.6353,
+     "moon": 0.8187
+    },
+    "baseline_r2_mars": {
+     "hand_ridge": 0.5191,
+     "hand_rf": 0.5163
+    },
+    "linear_probe_r2_mars": 0.5997,
+    "retrieval_gap_closed": {
+     "head": 0.525,
+     "dinov2_body_norm": 0.1276,
+     "dinov2_raw": 0.172,
+     "handcrafted": -0.1815
+    }
+   },
+   "checks": [
+    {
+     "check": "A. beats the best classical baseline on held-out Mars regions",
+     "candidate": 0.6353,
+     "reference": 0.5191,
+     "passed": true
+    },
+    {
+     "check": "B. closes more of the retrieval gap than untrained DINOv2 features",
+     "candidate": 0.525,
+     "reference": 0.172,
+     "passed": true
+    }
+   ],
+   "passed": true,
+   "deployed": true,
+   "compared_with": null,
+   "decided_utc": "2026-11-15T01:42:59+00:00",
+   "decision": "deployed"
+  }
+ ]
+}

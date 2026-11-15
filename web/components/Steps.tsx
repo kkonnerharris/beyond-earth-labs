@@ -1,0 +1,632 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import type { AnalogResult, Climate, Clps, Mission, Profile, RegionInfo, Route, Terrain } from "@/lib/api";
+import { fmtDistance, fmtDuration, fmtEnergy, resourceLabel } from "@/lib/geo";
+import { Chip, Grid, Meter, Note, Row, Section, Stat } from "./ui";
+
+const ATTR_LABEL: Record<string, [string, string]> = {
+  slope_median_deg: ["Median slope", "°"],
+  slope_p90_deg: ["Steep-ground slope (90th pct.)", "°"],
+  relief_m: ["Relief", "m"],
+  roughness_m: ["Roughness", "m"],
+  tri_m: ["Ruggedness index", "m"],
+};
+const PROCESS_LABEL: Record<string, string> = {
+  volcanic: "Volcanic", fluvial: "River-carved", lacustrine: "Lake / playa", aeolian: "Wind-shaped",
+  impact: "Impact", tectonic: "Tectonic", periglacial: "Ground ice", hydrothermal: "Hydrothermal",
+  megaflood: "Megaflood", vegetated: "Vegetated",
+};
+
+/* ------------------------------------------------------------------ 1. Region */
+
+export function StepRegion({ terrain, regions, selected, onSelect, onJezero, lunar }: {
+  terrain: Terrain | null; regions: RegionInfo[]; selected: string | null;
+  onSelect: (r: RegionInfo) => void; onJezero: () => void; lunar?: boolean;
+}) {
+  const v = terrain?.validation;
+  const sorted = useMemo(() => [...regions].sort((a, b) => a.name.localeCompare(b.name)), [regions]);
+  return (
+    <>
+      {!lunar && <Section title="Mission area" kind="obs" action={<button className="btn" onClick={onJezero}>Go to map</button>}>
+        {terrain ? (
+          <>
+            <p className="mb-2.5 text-[13px] text-text">{terrain.name}: a {(terrain.grid.size_m / 1000).toFixed(1)} km square on the western delta, including the Perseverance landing site.</p>
+            <Grid>
+              <Stat label="Lowest ground" value={terrain.statistics.elevation_m[0].toFixed(0)} unit="m" />
+              <Stat label="Highest ground" value={terrain.statistics.elevation_m[1].toFixed(0)} unit="m" />
+              <Stat label="Median slope" value={terrain.statistics.slope_deg.median.toFixed(1)} unit="°" />
+              <Stat label="Steepest cell" value={terrain.statistics.slope_deg.max.toFixed(1)} unit="°" />
+            </Grid>
+            <p className="mt-2.5 text-[11.5px] leading-snug text-muted">
+              Elevation: {terrain.elevation_source.title} ({terrain.elevation_source.mission}, {terrain.elevation_source.instrument}),
+              doi:{terrain.elevation_source.doi}. Slope is measured over a {terrain.grid.cell_m} m baseline.
+            </p>
+          </>
+        ) : <Note>Terrain has not loaded. Is the science service running?</Note>}
+      </Section>}
+
+      {!lunar && v?.waypoint_elevation_minus_model_m && (
+        <Section title="Checked against the real rover" kind="calc">
+          <p className="mb-2 text-[12px] leading-snug text-muted">
+            Perseverance&apos;s published positions are an independent test of this map.
+          </p>
+          <Row label={`Elevation at ${v.waypoint_elevation_minus_model_m.n} rover waypoints, mission minus map`}>
+            {v.waypoint_elevation_minus_model_m.median.toFixed(1)} m median
+          </Row>
+          <Row label="Steepest ground the rover crossed">{v.slope_deg_on_traverse?.max.toFixed(1)}°</Row>
+          <Row label="Share of the area steeper than 20°">{((v.fraction_of_area_steeper_than?.["20"] ?? 0) * 100).toFixed(1)}%</Row>
+          <Row label="Share of the rover's path steeper than 20°">{((v.fraction_of_traverse_steeper_than?.["20"] ?? 0) * 100).toFixed(1)}%</Row>
+          <p className="mt-2 text-[11.5px] leading-snug text-muted">{v.note}</p>
+        </Section>
+      )}
+
+      <Section title={lunar ? "Lunar regions" : "Other regions"} kind="calc">
+        <p className="mb-2 text-[12px] leading-snug text-muted">
+          {lunar
+            ? "Median slope and relief of each region, measured from LOLA elevation. Select one to compare it with Earth."
+            : "Median slope and relief from MOLA elevation. Regional analysis and Earth analogs work for any of these. Detailed routes need metre-scale elevation, which this build has for Jezero only."}
+        </p>
+        <ul className={`scroll-thin -mx-1 overflow-y-auto ${lunar ? "max-h-[38vh]" : "max-h-64"}`}>
+          {sorted.map((r) => (
+            <li key={r.region}>
+              <button onClick={() => onSelect(r)} aria-pressed={selected === r.region}
+                      className={`flex w-full items-baseline justify-between gap-2 rounded px-2 py-1.5 text-left transition-colors hover:bg-raised ${selected === r.region ? "bg-raised text-text" : "text-muted"}`}>
+                <span className="truncate text-[12.5px]">{r.name}</span>
+                <span className="num shrink-0 text-[11px] text-faint">{r.measured.slope_median_deg?.toFixed(1)}° · {r.measured.relief_m?.toFixed(0)} m</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </Section>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------ Lunar deliveries */
+
+export function ClpsBrowser({ clps, selected, onRegion }: { clps: Clps | null; selected: string | null; onRegion: (region: string) => void }) {
+  const [show, setShow] = useState<"all" | "past" | "planned">("all");
+  if (!clps) return <Section title="NASA lunar deliveries" kind="obs"><p className="text-[12px] text-muted">Loading NASA&apos;s delivery list…</p></Section>;
+  const rows = clps.deliveries.filter((d) => show === "all" || d.tense === show);
+  return (
+    <Section title="NASA lunar deliveries (CLPS)" kind="obs">
+      <p className="mb-2 text-[12px] leading-snug text-muted">
+        Commercial landers carrying NASA payloads to the Moon. Each entry is NASA&apos;s own sentence. Where a named site falls in a region this build has measured, you can open its terrain and Earth analogs.
+      </p>
+      <div className="mb-2 grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Show deliveries">
+        {([["all", "All"], ["past", "Flown"], ["planned", "Planned"]] as const).map(([k, label]) => (
+          <button key={k} role="radio" aria-checked={show === k} onClick={() => setShow(k)} className={`btn ${show === k ? "border-mars text-mars-soft" : ""}`}>{label}</button>
+        ))}
+      </div>
+      <ul className="flex flex-col gap-1.5">
+        {rows.map((d) => (
+          <li key={d.id} className={`rounded-md border px-2.5 py-2 ${d.region && d.region === selected ? "border-mars bg-mars/10" : "border-line bg-raised"}`}>
+            <div className="flex items-center gap-2">
+              <span className="num text-[11.5px] font-medium text-text">{d.id}</span>
+              <span className={`chip ${d.tense === "past" ? "chip-obs" : "chip-assume"}`}>{d.tense === "past" ? "Flown" : "Planned"}</span>
+              <span className="flex-1" />
+              {d.site && <span className="truncate text-[11px] text-muted">{d.site}</span>}
+            </div>
+            <p className="mt-1 text-[12px] leading-snug text-muted">{d.nasa_text}</p>
+            {d.region && (
+              <button className="btn mt-1.5 h-7 w-full text-[11.5px]" onClick={() => onRegion(d.region!)} title={d.region_basis}>
+                Terrain and Earth analogs for this site
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-[11px] leading-snug text-faint">
+        Source: {clps.source.publisher}, &quot;{clps.source.title}&quot;, page last updated {clps.source.page_last_updated}, read {clps.source.read_on}. {clps.note}
+      </p>
+    </Section>
+  );
+}
+
+/* ----------------------------------------------------------------- 2. Analogs */
+
+function SimBar({ label, value, kind }: { label: string; value: number; kind: "model" | "calc" }) {
+  return (
+    <div className="grid grid-cols-[112px_1fr_38px] items-center gap-2">
+      <span className="text-[11.5px] text-muted">{label}</span>
+      <Meter value={value} max={1} tone={kind === "model" ? "mars" : "signal"} label={label} />
+      <span className="num text-right text-[11.5px]">{value.toFixed(2)}</span>
+    </div>
+  );
+}
+
+export function StepAnalogs({ result, loading, error, region, onRun, modelReady }: {
+  result: AnalogResult | null; loading: boolean; error: string | null; region: RegionInfo | null;
+  onRun: () => void; modelReady: boolean;
+}) {
+  const [open, setOpen] = useState<string | null>(null);
+  return (
+    <>
+      <Section title="Earth analog search" kind="model">
+        <p className="mb-2.5 text-[12.5px] leading-snug text-muted">
+          The terrain network compares {region?.name ?? "the selected region"} with {""}
+          every Earth region it knows, then elevation data on both planets checks the match independently.
+        </p>
+        <button className="btn btn-primary w-full" onClick={onRun} disabled={loading || !modelReady || !region}>
+          {loading ? "Comparing terrain…" : `Find Earth analogs for ${region?.name ?? "…"}`}
+        </button>
+        {!modelReady && <div className="mt-2"><Note tone="warn">No trained terrain model is available yet, so analog search is switched off.</Note></div>}
+        {error && <div className="mt-2"><Note tone="bad">{error}</Note></div>}
+      </Section>
+
+      {result && (
+        <>
+          <Section title={`Measured terrain: ${result.query.name}`} kind="calc">
+            <Grid>
+              <Stat label="Median slope" value={result.query.measured.slope_median_deg?.toFixed(2)} unit="°" />
+              <Stat label="Relief" value={result.query.measured.relief_m?.toFixed(0)} unit="m" />
+              <Stat label="Roughness" value={result.query.measured.roughness_m?.toFixed(0)} unit="m" />
+            </Grid>
+            <p className="mt-2 text-[11.5px] leading-snug text-muted">
+              Median of {result.query.cells} cells of 11.2 km, from {result.query.body === "moon" ? "LOLA" : "MOLA"} elevation at 467 m. Documented processes: {result.query.processes.map((q) => PROCESS_LABEL[q] ?? q).join(", ") || "none listed"}.
+            </p>
+          </Section>
+
+          <Section title="Ranked candidates">
+            <ol className="flex flex-col gap-2">
+              {result.candidates.map((c) => {
+                const supported = c.support.startsWith("geologically");
+                const control = c.support.startsWith("control");
+                const expanded = open === c.region;
+                return (
+                  <li key={c.region} className="rounded-md border border-line bg-raised">
+                    <button className="w-full px-3 py-2.5 text-left" onClick={() => setOpen(expanded ? null : c.region)} aria-expanded={expanded}>
+                      <div className="flex items-baseline gap-2">
+                        <span className="num text-[11px] text-faint">{String(c.rank).padStart(2, "0")}</span>
+                        <span className="flex-1 text-[13px] font-medium text-text">{c.name}</span>
+                        <span className="num text-[13px] text-mars-soft">{c.score.toFixed(2)}</span>
+                      </div>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                        <span className={`chip ${supported ? "chip-obs" : control ? "chip-sim" : "chip-calc"}`}>{c.support}</span>
+                        {c.shared_processes.map((q) => <span key={q} className="chip">{PROCESS_LABEL[q] ?? q}</span>)}
+                      </div>
+                      <div className="mt-2 flex flex-col gap-1">
+                        <SimBar label="Network similarity" value={(c.embedding_similarity + 1) / 2} kind="model" />
+                        <SimBar label="Measured similarity" value={c.physical_similarity} kind="calc" />
+                      </div>
+                    </button>
+                    {expanded && (
+                      <div className="border-t border-line px-3 py-2.5">
+                        <table className="w-full text-[11.5px]">
+                          <thead><tr className="text-left text-faint"><th className="pb-1 font-medium">Measured attribute</th><th className="pb-1 text-right font-medium">{result.query.body === "moon" ? "Moon" : "Mars"}</th><th className="pb-1 text-right font-medium">Earth</th><th className="pb-1 text-right font-medium">Ratio</th></tr></thead>
+                          <tbody>
+                            {c.attributes.map((a) => (
+                              <tr key={a.attribute} className="border-t border-line/60">
+                                <td className="py-1 text-muted">{ATTR_LABEL[a.attribute]?.[0] ?? a.attribute}</td>
+                                <td className="num py-1 text-right">{a.query.toFixed(a.query < 10 ? 2 : 0)} {ATTR_LABEL[a.attribute]?.[1]}</td>
+                                <td className="num py-1 text-right">{a.candidate.toFixed(a.candidate < 10 ? 2 : 0)} {ATTR_LABEL[a.attribute]?.[1]}</td>
+                                <td className={`num py-1 text-right ${a.ratio > 2 ? "text-warn" : ""}`}>{a.ratio.toFixed(2)}×</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <p className="mt-2 text-[11.5px] leading-snug text-muted">{c.note}</p>
+                        <p className="mt-1 text-[11px] leading-snug text-faint">
+                          {supported
+                            ? `Why it is useful: published work documents this site as a ${c.documented_analog_for.join(" and ")} analog, and it shares a formation process with the target. `
+                            : control
+                              ? "This is a control region. A high rank here would mean the comparison is being fooled by appearance. "
+                              : "The terrain shape matches, but no shared formation process is documented, so treat it as a look-alike only. "}
+                          {c.citation && `Source: ${c.citation}.`} {c.lat.toFixed(2)}°, {c.lon.toFixed(2)}°.
+                        </p>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+            <p className="mt-2.5 text-[11px] leading-snug text-faint">{result.method}</p>
+          </Section>
+        </>
+      )}
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------- 3. Route */
+
+function Profile({ legs, limit }: { legs: Route[]; limit: number }) {
+  const pts: { d: number; z: number; s: number }[] = [];
+  let offset = 0;
+  for (const leg of legs) {
+    for (const q of leg.points) pts.push({ d: offset + q.dist_m, z: q.elevation_m, s: q.slope_deg });
+    offset += leg.distance_m;
+  }
+  if (pts.length < 2) return null;
+  const W = 352, H = 84, pad = 4;
+  const zmin = Math.min(...pts.map((q) => q.z)), zmax = Math.max(...pts.map((q) => q.z));
+  const X = (d: number) => pad + (d / offset) * (W - 2 * pad);
+  const Y = (z: number) => H - pad - ((z - zmin) / Math.max(zmax - zmin, 1)) * (H - 2 * pad);
+  const line = pts.map((q, i) => `${i ? "L" : "M"}${X(q.d).toFixed(1)},${Y(q.z).toFixed(1)}`).join("");
+  const steep = pts.filter((q) => q.s > 0.75 * limit);
+  return (
+    <figure>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img"
+           aria-label={`Elevation profile along the route, from ${zmin.toFixed(0)} to ${zmax.toFixed(0)} metres`}>
+        <path d={`${line}L${X(offset)},${H}L${X(0)},${H}Z`} fill="rgba(226,115,60,0.12)" />
+        <path d={line} fill="none" stroke="#e2733c" strokeWidth="1.5" />
+        {steep.map((q, i) => <circle key={i} cx={X(q.d)} cy={Y(q.z)} r="1.6" fill="#e8b84a" />)}
+      </svg>
+      <figcaption className="text-[10.5px] leading-snug text-faint">
+        Elevation along the {fmtDistance(offset)} route, from <span className="num">{zmin.toFixed(0)} m</span> to <span className="num">{zmax.toFixed(0)} m</span>. Amber dots are within 25% of the slope limit.
+      </figcaption>
+    </figure>
+  );
+}
+
+export function StepRoute({ mission, profiles, placing, setPlacing, onPlan, onClear, busy }: {
+  mission: Mission; profiles: Profile[]; placing: boolean; setPlacing: (v: boolean) => void;
+  onPlan: (mover: string, objective: string, risk: number) => void; onClear: () => void; busy: boolean;
+}) {
+  const locked = mission.sim.phase !== "idle";
+  const prof = profiles.find((q) => q.key === mission.mover);
+  const plan = mission.plan;
+  return (
+    <>
+      <Section title="Who is travelling" kind="assume">
+        <div className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Mover">
+          {profiles.map((q) => (
+            <button key={q.key} role="radio" aria-checked={mission.mover === q.key} disabled={locked || busy}
+                    onClick={() => onPlan(q.key, mission.objective, mission.risk_weight)}
+                    className={`rounded-md border px-2 py-2 text-left transition-colors disabled:opacity-40 ${mission.mover === q.key ? "border-mars bg-mars/10" : "border-line-strong bg-raised hover:border-muted"}`}>
+              <div className="text-[12px] font-medium leading-tight text-text">{q.name}</div>
+              <div className="num mt-1 text-[10.5px] text-muted">{q.kind === "astronaut" ? "on foot" : `${(q.speed_flat_ms * 3.6).toFixed(q.speed_flat_ms < 0.1 ? 2 : 1)} km/h`} · ≤{q.max_slope_deg}°</div>
+            </button>
+          ))}
+        </div>
+        {prof && <p className="mt-2 text-[11px] leading-snug text-faint">{prof.basis}</p>}
+      </Section>
+
+      <Section title="Science targets" action={mission.targets.length > 0 && <button className="btn" onClick={onClear} disabled={locked || busy}>Clear</button>}>
+        <button className={`btn w-full ${placing ? "btn-primary" : ""}`} onClick={() => setPlacing(!placing)} disabled={locked}>
+          {placing ? "Click the map to place a target (Esc to stop)" : "Add targets on the map"}
+        </button>
+        {mission.targets.length === 0
+          ? <p className="mt-2 text-[12px] text-muted">No targets yet. The delta front, west of the landing site, is where Perseverance went.</p>
+          : (
+            <ol className="mt-2.5 flex flex-col gap-1">
+              {mission.targets.map((t, i) => (
+                <li key={t.id} className="flex items-baseline gap-2 text-[12px]">
+                  <span className="num grid h-4 w-4 shrink-0 place-items-center rounded-full bg-mars text-[9.5px] font-semibold text-ink">{i + 1}</span>
+                  <span className="flex-1 truncate text-text">{t.name}</span>
+                  <span className="num text-[11px] text-muted">{t.elevation_m.toFixed(0)} m · {t.slope_deg.toFixed(1)}°</span>
+                </li>
+              ))}
+            </ol>
+          )}
+      </Section>
+
+      <Section title="Planning preference" kind="assume">
+        <div className="mb-2.5 grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="Objective">
+          {[["time", "Fastest"], ["energy", "Least energy"]].map(([k, label]) => (
+            <button key={k} role="radio" aria-checked={mission.objective === k} disabled={locked || busy}
+                    onClick={() => onPlan(mission.mover, k, mission.risk_weight)}
+                    className={`btn ${mission.objective === k ? "border-mars text-mars-soft" : ""}`}>{label}</button>
+          ))}
+        </div>
+        <label className="block">
+          <div className="flex justify-between text-[12px] text-muted"><span>Caution on steep or rough ground</span><span className="num text-text">{mission.risk_weight.toFixed(1)}</span></div>
+          <input type="range" min={0} max={6} step={0.5} defaultValue={mission.risk_weight} disabled={locked || busy} key={mission.risk_weight}
+                 onMouseUp={(e) => onPlan(mission.mover, mission.objective, Number((e.target as HTMLInputElement).value))}
+                 onKeyUp={(e) => onPlan(mission.mover, mission.objective, Number((e.target as HTMLInputElement).value))} />
+        </label>
+      </Section>
+
+      {plan && (
+        <Section title={`Route plan ${plan.revision}`} kind="calc">
+          <Grid>
+            <Stat label="Distance" value={fmtDistance(plan.distance_m)} />
+            <Stat label="Duration" value={fmtDuration(plan.seconds)} />
+            <Stat label="Energy" value={fmtEnergy(plan.joules)} />
+            <Stat label="Steepest ground" value={plan.max_slope_deg.toFixed(1)} unit="°" tone={plan.max_slope_deg > 0.75 * (prof?.max_slope_deg ?? 20) ? "warn" : undefined} />
+            <Stat label="Slope limit" value={prof?.max_slope_deg ?? "–"} unit="°" />
+            <Stat label="Legs" value={plan.legs.length} />
+          </Grid>
+          <div className="mt-3"><Profile legs={plan.legs} limit={prof?.max_slope_deg ?? 20} /></div>
+          <ul className="mt-2.5 flex flex-col gap-1 text-[12px] leading-snug text-muted">
+            {plan.legs.map((leg, i) => <li key={i}><span className="text-faint">Leg {i + 1}.</span> {leg.explanation.slice(0, 2).join(" ")}</li>)}
+          </ul>
+        </Section>
+      )}
+    </>
+  );
+}
+
+/* -------------------------------------------------------------------- 4. Crew */
+
+export function StepCrew({ mission, reserves }: { mission: Mission; reserves: { oxygen: number; battery: number } }) {
+  const f = mission.plan?.feasibility;
+  const r = resourceLabel(mission.sim.resource);
+  const s = mission.sim;
+  const running = s.phase !== "idle";
+  return (
+    <>
+      <Section title="Can this traverse be done safely?" kind="calc">
+        {!f ? <Note>Add a target to get a consumables check.</Note> : (
+          <>
+            <Note tone={f.ok ? "good" : "bad"}>{f.reason}</Note>
+            <div className="mt-3">
+              <div className="mb-1 flex justify-between text-[11.5px] text-muted"><span>{r.name} needed, with reserve</span><span className="num text-text">{f.needed_with_reserve.toFixed(r.digits)} of {f.available.toFixed(r.digits)} {r.unit}</span></div>
+              <Meter value={f.needed_with_reserve} max={f.available} mark={f.needed} tone={f.ok ? "good" : "bad"} label={`${r.name} needed`} />
+              <p className="mt-1 text-[11px] text-faint">The white line marks the need without the {(f.reserve_fraction * 100).toFixed(0)}% reserve.</p>
+            </div>
+          </>
+        )}
+      </Section>
+
+      <Section title="Mission rules" kind="assume">
+        <Row label="Oxygen kept in reserve on foot">{(reserves.oxygen * 100).toFixed(0)}%</Row>
+        <Row label="Battery kept in reserve when driving">{(reserves.battery * 100).toFixed(0)}%</Row>
+        <Row label="Dust optical depth that ends a traverse">2</Row>
+        <p className="mt-2 text-[11.5px] leading-snug text-muted">
+          At every moment the mover must be able to reach base on what it carries with the reserve intact. If continuing would break that, the mission service turns the traverse back and records why.
+        </p>
+      </Section>
+
+      <Section title="Live safety margin" kind="sim">
+        {!running ? <p className="text-[12px] text-muted">Starts when the simulation runs.</p> : (
+          <>
+            <div className="mb-1 flex justify-between text-[11.5px] text-muted"><span>{r.name} remaining</span><span className="num text-text">{s.remaining.toFixed(r.digits)} {r.unit}</span></div>
+            <Meter value={s.remaining} max={s.capacity} mark={s.return_need_with_reserve} tone={s.return_margin < 0 ? "bad" : s.return_margin < 0.15 * s.capacity ? "warn" : "signal"} label={`${r.name} remaining`} />
+            <p className="mt-1 text-[11px] text-faint">The white line is what the trip home needs from here, with reserve.</p>
+            <div className="mt-2.5"><Grid>
+              <Stat label="Way home" value={fmtDistance(s.return_distance_m)} />
+              <Stat label="Margin for the return" value={s.return_margin.toFixed(r.digits)} unit={r.unit} tone={s.return_margin < 0 ? "bad" : undefined} />
+              <Stat label="Pace" value={`${(s.pace_factor * 100).toFixed(0)}%`} tone={s.pace_factor < 1 ? "warn" : undefined} />
+            </Grid></div>
+          </>
+        )}
+      </Section>
+
+      <Section title="Radiation exposure" kind="calc">
+        <div className="mb-1 flex justify-between text-[11.5px] text-muted"><span>Surface stay of {mission.sols} sols against the career limit</span><span className="num text-text">{mission.habitat.radiation_msv_stay.toFixed(0)} mSv · {(mission.habitat.radiation_share_of_career_limit * 100).toFixed(0)}%</span></div>
+        <Meter value={mission.habitat.radiation_share_of_career_limit} max={1} tone={mission.habitat.radiation_share_of_career_limit > 0.75 ? "bad" : mission.habitat.radiation_share_of_career_limit > 0.5 ? "warn" : "signal"} label="Share of the career radiation limit" />
+        <div className="mt-2">
+          <Row label="Dose per sol on the surface">{mission.habitat.radiation_msv_per_sol.toFixed(2)} mSv</Row>
+          {mission.plan && <Row label="During this traverse">{(mission.habitat.radiation_msv_per_sol * mission.plan.seconds / 88775).toFixed(3)} mSv</Row>}
+        </div>
+        <p className="mt-2 text-[11.5px] leading-snug text-muted">
+          The dose rate is what Curiosity&apos;s radiation detector measured at Gale crater in 2012 to 2013, not a measurement at Jezero. It changes with the solar cycle, and the trip to Mars and back adds more. No shielding is modelled, and no space-weather feed is connected. Both figures are in the Habitat step&apos;s assumptions, flagged for checking.
+        </p>
+      </Section>
+
+      <Section title="Crew health monitoring" kind="sim">
+        <p className="text-[12px] leading-snug text-muted">
+          This build models crew condition only through workload: metabolic rate on the planned route sets oxygen use, and a simulated health anomaly slows the pace and recalculates the way home. It shows no physiological readings, because none are measured, and it is not a medical system.
+        </p>
+      </Section>
+    </>
+  );
+}
+
+/* ----------------------------------------------------------------- 5. Habitat */
+
+const CROPS: [string, string][] = [["potato", "White potato"], ["wheat", "Wheat"], ["soybean", "Soybean"], ["lettuce", "Lettuce"], ["tomato", "Tomato"]];
+
+function FieldSite({ climate, error }: { climate: Climate | null; error: string | null }) {
+  if (error) return <Section title="Field site on Earth" kind="obs"><Note tone="warn">NASA POWER data did not load: {error}</Note></Section>;
+  if (!climate) return <Section title="Field site on Earth" kind="obs"><p className="text-[12px] text-muted">Loading NASA POWER records…</p></Section>;
+  const e = climate.periods.early, r = climate.periods.recent, c = climate.change;
+  const sign = (v: number, digits = 1) => `${v > 0 ? "+" : ""}${v.toFixed(digits)}`;
+  const tmin = Math.min(...r.monthly_temperature_c), tmax = Math.max(...r.monthly_temperature_c);
+  return (
+    <Section title="Field site on Earth" kind="obs">
+      <p className="mb-2.5 text-[12px] leading-snug text-muted">
+        Before a greenhouse flies, its crops and systems are tested outdoors at an analog site. These are NASA&apos;s climate records for <span className="text-text">{climate.region.name}</span>, the best terrain match found for this mission area.
+      </p>
+      <div className="mb-2 flex h-12 items-end gap-[3px]" role="img" aria-label={`Monthly mean temperature ${r.years[0]} to ${r.years[1]}, from ${tmin.toFixed(0)} to ${tmax.toFixed(0)} degrees Celsius`}>
+        {r.monthly_temperature_c.map((t, i) => (
+          <div key={i} className="flex-1 rounded-[2px]" title={`${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i]}: ${t.toFixed(1)} °C`}
+               style={{ height: `${12 + ((t - tmin) / Math.max(tmax - tmin, 1)) * 88}%`, background: t >= 10 ? "#58c98b" : "#2c3c4f" }} />
+        ))}
+      </div>
+      <p className="mb-2 text-[11px] text-faint">Monthly mean air temperature, {r.years[0]} to {r.years[1]}. Green months are warm enough to grow ({climate.conventions.growing_season}).</p>
+      <Row label={`Mean temperature, ${r.years[0]}–${r.years[1]}`}>{r.mean_temperature_c.toFixed(1)} °C{c && <span className="text-muted"> ({sign(c.temperature_c)} since {e.years[0]}–{e.years[1]})</span>}</Row>
+      <Row label="Rain and snow per year">{r.annual_precipitation_mm.toFixed(0)} mm{c && <span className="text-muted"> ({sign(c.precipitation_percent, 0)}%)</span>}</Row>
+      <Row label="Growing season">{r.growing_season_days} days{c && <span className="text-muted"> ({sign(c.growing_season_days, 0)} days)</span>}</Row>
+      <Row label="Sunlight for plants in season">{r.growing_season_light_mol_m2_day?.toFixed(0) ?? "–"} mol/m²/day</Row>
+      <p className="mt-2 text-[11.5px] leading-snug text-muted">
+        On Mars that light has to come from lamps: the greenhouse above budgets 17 to 115 mol/m²/day depending on the crop.
+      </p>
+      <p className="mt-1.5 text-[11px] leading-snug text-faint">{climate.source.title}. {climate.source.note}</p>
+    </Section>
+  );
+}
+
+export function StepHabitat({ mission, onChange, busy, climate, climateError }: {
+  mission: Mission; busy: boolean; climate: Climate | null; climateError: string | null;
+  onChange: (crew: number, sols: number, crops: Record<string, number>, overrides: Record<string, number>) => void;
+}) {
+  const h = mission.habitat;
+  const crops = mission.crop_area_m2;
+  const set = (patch: Partial<{ crew: number; sols: number; crops: Record<string, number>; overrides: Record<string, number> }>) =>
+    onChange(patch.crew ?? mission.crew, patch.sols ?? mission.sols, patch.crops ?? crops, patch.overrides ?? mission.overrides);
+  const tau = h.assumptions.find((a) => a.key === "dust_opacity_tau")?.value ?? 0.5;
+  const array = h.assumptions.find((a) => a.key === "solar_array_m2")?.value ?? 400;
+  const powerOk = h.power_margin_kwh_per_sol >= 0;
+  return (
+    <>
+      <Section title={`Habitat at ${mission.base.name}`} kind="assume">
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block"><span className="text-[12px] text-muted">Crew</span>
+            <input className="field num mt-1" type="number" min={1} max={12} defaultValue={mission.crew} key={`c${mission.crew}`} disabled={busy}
+                   onBlur={(e) => set({ crew: Math.max(1, Math.min(12, Number(e.target.value) || mission.crew)) })} /></label>
+          <label className="block"><span className="text-[12px] text-muted">Surface stay (sols)</span>
+            <input className="field num mt-1" type="number" min={1} max={1000} defaultValue={mission.sols} key={`s${mission.sols}`} disabled={busy}
+                   onBlur={(e) => set({ sols: Math.max(1, Math.min(1000, Number(e.target.value) || mission.sols)) })} /></label>
+        </div>
+        <label className="mt-3 block">
+          <div className="flex justify-between text-[12px] text-muted"><span>Solar array</span><span className="num text-text">{array.toFixed(0)} m²</span></div>
+          <input type="range" min={100} max={2000} step={50} defaultValue={array} key={`a${array}`} disabled={busy}
+                 onMouseUp={(e) => set({ overrides: { ...mission.overrides, solar_array_m2: Number((e.target as HTMLInputElement).value) } })}
+                 onKeyUp={(e) => set({ overrides: { ...mission.overrides, solar_array_m2: Number((e.target as HTMLInputElement).value) } })} />
+        </label>
+        <label className="mt-1 block">
+          <div className="flex justify-between text-[12px] text-muted"><span>Dust optical depth</span><span className="num text-text">{tau.toFixed(1)}</span></div>
+          <input type="range" min={0.2} max={5} step={0.1} defaultValue={tau} key={`t${tau}`} disabled={busy || mission.sim.dust_tau > 0}
+                 onMouseUp={(e) => set({ overrides: { ...mission.overrides, dust_opacity_tau: Number((e.target as HTMLInputElement).value) } })}
+                 onKeyUp={(e) => set({ overrides: { ...mission.overrides, dust_opacity_tau: Number((e.target as HTMLInputElement).value) } })} />
+        </label>
+      </Section>
+
+      <Section title="Greenhouse" kind="assume">
+        {CROPS.map(([key, name]) => (
+          <label key={key} className="mb-1 block">
+            <div className="flex justify-between text-[12px] text-muted"><span>{name}</span><span className="num text-text">{(crops[key] ?? 0).toFixed(0)} m²</span></div>
+            <input type="range" min={0} max={200} step={10} defaultValue={crops[key] ?? 0} key={`${key}${crops[key] ?? 0}`} disabled={busy}
+                   onMouseUp={(e) => set({ crops: { ...crops, [key]: Number((e.target as HTMLInputElement).value) } })}
+                   onKeyUp={(e) => set({ crops: { ...crops, [key]: Number((e.target as HTMLInputElement).value) } })} />
+          </label>
+        ))}
+        <p className="text-[11px] leading-snug text-faint">Crop yields, light and water needs are nominal controlled-environment values entered from memory of NASA&apos;s life-support baseline document and are flagged for checking.</p>
+      </Section>
+
+      <Section title="Budget per sol" kind="calc">
+        <div className="mb-1 flex justify-between text-[11.5px] text-muted"><span>Electrical load against solar supply</span><span className={`num ${powerOk ? "text-good" : "text-bad"}`}>{h.power_margin_kwh_per_sol >= 0 ? "+" : ""}{h.power_margin_kwh_per_sol.toFixed(0)} kWh</span></div>
+        <Meter value={h.load_kwh_per_sol} max={Math.max(h.solar_kwh_per_sol, h.load_kwh_per_sol)} mark={h.solar_kwh_per_sol} tone={powerOk ? "good" : "bad"} label="Electrical load" />
+        <div className="mt-2.5">
+          <Row label="Solar energy collected">{h.solar_kwh_per_sol.toFixed(0)} kWh</Row>
+          <Row label="Load, of which grow lights">{h.load_kwh_per_sol.toFixed(0)} kWh · {h.grow_light_kwh_per_sol.toFixed(0)} kWh</Row>
+          <Row label="Battery endurance at this load">{h.battery_hours_at_load.toFixed(1)} h</Row>
+          <Row label="Oxygen breathed · from plants">{h.oxygen_need_kg_per_sol.toFixed(2)} kg · {h.oxygen_from_plants_kg_per_sol.toFixed(2)} kg</Row>
+          <Row label="Water used by crew · through crops">{h.water_need_kg_per_sol.toFixed(1)} kg · {h.water_through_crops_kg_per_sol.toFixed(0)} kg</Row>
+          <Row label="Water lost to recycling">{h.water_makeup_kg_per_sol.toFixed(1)} kg</Row>
+          <Row label="Food energy grown on site">{(h.food_grown_share * 100).toFixed(0)}%</Row>
+        </div>
+      </Section>
+
+      <Section title={`Whole stay: ${mission.sols} sols`} kind="calc">
+        <Grid>
+          <Stat label="Water to supply" value={(h.water_makeup_kg_mission / 1000).toFixed(1)} unit="t" />
+          <Stat label="Oxygen to supply" value={(h.oxygen_makeup_kg_mission / 1000).toFixed(2)} unit="t" />
+          <Stat label="Food to ship (dry)" value={(h.food_shipped_dry_kg_mission / 1000).toFixed(2)} unit="t" />
+        </Grid>
+        <ul className="mt-2.5 flex flex-col gap-1 text-[12px] leading-snug text-muted">{h.findings.map((q, i) => <li key={i}>{q}</li>)}</ul>
+      </Section>
+
+      <FieldSite climate={climate} error={climateError} />
+
+      <Section title="Assumptions behind these numbers">
+        <ul className="flex flex-col gap-2">
+          {h.assumptions.map((a) => (
+            <li key={a.key} className="text-[11.5px] leading-snug">
+              <div className="flex items-baseline justify-between gap-2"><span className="text-text">{a.label}</span><span className="num text-muted">{a.value} {a.unit}</span></div>
+              <div className="text-faint">{a.basis}{a.verify && <span className="text-warn"> Needs checking against the source.</span>}</div>
+            </li>
+          ))}
+        </ul>
+      </Section>
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------- 6. Simulate */
+
+const EMERGENCIES: [string, string, string][] = [
+  ["obstacle", "Obstacle ahead", "Blocks the route about 150 m ahead"],
+  ["dust_storm", "Dust storm", "Optical depth rises to 4"],
+  ["leak", "Leak or power fault", "Extra loss of the limiting consumable"],
+  ["crew_health", "Health or mobility fault", "Pace falls to 60%"],
+];
+
+export function ScoreCard({ mission }: { mission: Mission }) {
+  const sc = mission.score;
+  if (!sc) return null;
+  return (
+    <Section title="Mission score" kind="sim">
+      <div className="flex items-baseline gap-3">
+        <span className="num text-[30px] font-medium leading-none text-text">{sc.total.toFixed(0)}</span>
+        <span className="text-[12px] text-muted">of 100</span>
+        <span className="flex-1" />
+        <span className={`text-[13px] font-medium ${sc.total >= 70 ? "text-good" : sc.total >= 40 ? "text-warn" : "text-bad"}`}>{sc.rank}</span>
+      </div>
+      <ul className="mt-3 flex flex-col gap-2">
+        {sc.lines.map((l) => (
+          <li key={l.label}>
+            <div className="mb-1 flex justify-between text-[12px]"><span className="text-text">{l.label}</span><span className="num text-muted">{l.points.toFixed(0)} / {l.max}</span></div>
+            <Meter value={l.points} max={l.max} tone={l.points >= l.max ? "good" : l.points > 0 ? "warn" : "bad"} label={`${l.label} score`} />
+            <p className="mt-1 text-[11.5px] leading-snug text-muted">{l.why}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-[11px] leading-snug text-faint">{sc.note} Reset and try a different mover, route or caution setting.</p>
+    </Section>
+  );
+}
+
+export function StepSim({ mission, running, speed, setSpeed, onStart, onPause, onReset, onEmergency, busy }: {
+  mission: Mission; running: boolean; speed: number; setSpeed: (v: number) => void;
+  onStart: () => void; onPause: () => void; onReset: () => void; onEmergency: (kind: string) => void; busy: boolean;
+}) {
+  const s = mission.sim;
+  const r = resourceLabel(s.resource);
+  const live = s.phase === "moving" || s.phase === "at_target";
+  const phase = { idle: "Ready", moving: "Under way", at_target: "Working at a target", holding: "Holding position",
+                  complete: "Back at base", aborted: "Simulated failure" }[s.phase];
+  const visited = mission.targets.filter((t) => t.visited).length;
+  return (
+    <>
+      <Section title="Mission simulation" kind="sim">
+        <div className="mb-2.5 flex items-center gap-2">
+          <span className={`inline-block h-2 w-2 rounded-full ${live ? "bg-good" : s.phase === "aborted" ? "bg-bad" : "bg-faint"}`} />
+          <span className="text-[13px] font-medium text-text">{phase}</span>
+          <span className="flex-1" />
+          <span className="num text-[13px] text-muted">T+ {fmtDuration(s.seconds)}</span>
+        </div>
+        <div className="flex gap-1.5">
+          {s.phase === "idle"
+            ? <button className="btn btn-primary flex-1" onClick={onStart} disabled={busy || !mission.plan}>Start traverse</button>
+            : <button className="btn btn-primary flex-1" onClick={running ? onPause : onStart} disabled={!live}>{running ? "Pause" : "Resume"}</button>}
+          <button className="btn" onClick={onReset} disabled={busy || s.phase === "idle"}>Reset</button>
+        </div>
+        <label className="mt-3 block">
+          <div className="flex justify-between text-[12px] text-muted"><span>Time compression</span><span className="num text-text">{speed}×</span></div>
+          <input type="range" min={0} max={5} step={1} value={[10, 30, 60, 120, 600, 3600].indexOf(speed)}
+                 onChange={(e) => setSpeed([10, 30, 60, 120, 600, 3600][Number(e.target.value)])} aria-label="Time compression" />
+        </label>
+        {mission.plan && !mission.plan.feasibility.ok && s.phase === "idle" && <div className="mt-2"><Note tone="bad">The service will refuse to start this plan. {mission.plan.feasibility.reason}</Note></div>}
+      </Section>
+
+      <ScoreCard mission={mission} />
+
+      <Section title="Telemetry" kind="sim">
+        <Grid>
+          <Stat label="Distance" value={fmtDistance(s.distance_m)} />
+          <Stat label="Speed" value={(s.speed_ms * 3.6).toFixed(s.speed_ms < 0.3 ? 3 : 1)} unit="km/h" />
+          <Stat label="Ground slope" value={s.slope_deg.toFixed(1)} unit="°" />
+          <Stat label={r.name} value={`${((s.remaining / Math.max(s.capacity, 1e-9)) * 100).toFixed(0)}%`} tone={s.remaining / s.capacity < 0.25 ? "warn" : undefined} />
+          <Stat label="Targets visited" value={`${visited} / ${mission.targets.length}`} />
+          <Stat label="Replans" value={s.replans} tone={s.replans > 0 ? "warn" : undefined} />
+        </Grid>
+      </Section>
+
+      <Section title="Inject an emergency" kind="sim">
+        <div className="grid grid-cols-2 gap-1.5">
+          {EMERGENCIES.map(([kind, label, hint]) => (
+            <button key={kind} className="btn btn-danger h-auto flex-col items-start gap-0.5 py-2 text-left" disabled={!live || busy} onClick={() => onEmergency(kind)}>
+              <span>{label}</span><span className="text-[10.5px] font-normal text-faint">{hint}</span>
+            </button>
+          ))}
+        </div>
+        {!live && <p className="mt-2 text-[11.5px] text-muted">Available while the traverse is under way.</p>}
+      </Section>
+
+      <Section title="Mission log">
+        <ol className="scroll-thin flex max-h-72 flex-col-reverse gap-1.5 overflow-y-auto" aria-live="polite">
+          {[...mission.events].reverse().map((e, i) => (
+            <li key={mission.events.length - i} className="grid grid-cols-[52px_1fr] gap-2 text-[11.5px] leading-snug">
+              <span className="num text-faint">{(e.t_seconds / 60).toFixed(0)} min</span>
+              <span className={e.kind === "emergency" ? "text-[#f3a79f]" : e.kind === "decision" ? "text-warn" : e.kind === "warning" ? "text-bad" : e.kind === "arrival" ? "text-good" : "text-muted"}>{e.message}</span>
+            </li>
+          ))}
+        </ol>
+      </Section>
+    </>
+  );
+}

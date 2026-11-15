@@ -1,0 +1,1474 @@
+{
+ "earth:alps": {
+  "key": "alps",
+  "name": "Bernese Alps, Switzerland",
+  "body": "earth",
+  "lat": 46.5,
+  "lon": 8.0,
+  "processes": [
+   "vegetated"
+  ],
+  "note": "Glaciated high mountains",
+  "citation": "",
+  "analog_for": [],
+  "control": true
+ },
+ "earth:appalachian": {
+  "key": "appalachian",
+  "name": "Ridge and Valley, Pennsylvania",
+  "body": "earth",
+  "lat": 40.8,
+  "lon": -77.5,
+  "processes": [
+   "vegetated",
+   "tectonic"
+  ],
+  "note": "Forested fold belt",
+  "citation": "",
+  "analog_for": [],
+  "control": true
+ },
+ "earth:atacama": {
+  "key": "atacama",
+  "name": "Atacama Desert (Yungay), Chile",
+  "body": "earth",
+  "lat": -24.1,
+  "lon": -69.9,
+  "processes": [
+   "lacustrine",
+   "aeolian",
+   "fluvial"
+  ],
+  "note": "Hyperarid soils with Mars-like low organics",
+  "citation": "Navarro-Gonzalez et al. (2003) Science 302, 1018",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:corn_belt": {
+  "key": "corn_belt",
+  "name": "Corn Belt, central Illinois",
+  "body": "earth",
+  "lat": 40.1,
+  "lon": -88.9,
+  "processes": [
+   "vegetated"
+  ],
+  "note": "Row-crop farmland on glacial till",
+  "citation": "",
+  "analog_for": [],
+  "control": true
+ },
+ "earth:craters_moon": {
+  "key": "craters_moon",
+  "name": "Craters of the Moon, Idaho",
+  "body": "earth",
+  "lat": 43.4,
+  "lon": -113.5,
+  "processes": [
+   "volcanic",
+   "tectonic"
+  ],
+  "note": "Basaltic rift lava field; NASA FINESSE and BASALT field sites",
+  "citation": "Lim et al. (2019) Astrobiology 19, 245",
+  "analog_for": [
+   "mars",
+   "moon"
+  ],
+  "control": false
+ },
+ "earth:danakil": {
+  "key": "danakil",
+  "name": "Dallol / Danakil Depression, Ethiopia",
+  "body": "earth",
+  "lat": 14.2,
+  "lon": 40.3,
+  "processes": [
+   "hydrothermal",
+   "lacustrine",
+   "volcanic"
+  ],
+  "note": "Hydrothermal evaporite system",
+  "citation": "Cavalazzi et al. (2019) Astrobiology 19, 553",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:death_valley": {
+  "key": "death_valley",
+  "name": "Death Valley, California",
+  "body": "earth",
+  "lat": 36.3,
+  "lon": -116.9,
+  "processes": [
+   "lacustrine",
+   "fluvial",
+   "tectonic",
+   "aeolian"
+  ],
+  "note": "Alluvial fans, playas and evaporites; long-used Mars field site",
+  "citation": "Farr (2004) Planet. Space Sci. 52, 3",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:ganges": {
+  "key": "ganges",
+  "name": "Ganges Plain, India",
+  "body": "earth",
+  "lat": 26.5,
+  "lon": 81.0,
+  "processes": [
+   "vegetated",
+   "fluvial"
+  ],
+  "note": "Intensively farmed alluvial plain",
+  "citation": "",
+  "analog_for": [],
+  "control": true
+ },
+ "earth:grand_canyon": {
+  "key": "grand_canyon",
+  "name": "Grand Canyon, Arizona",
+  "body": "earth",
+  "lat": 36.1,
+  "lon": -112.1,
+  "processes": [
+   "fluvial",
+   "tectonic"
+  ],
+  "note": "Canyon morphology often compared with Valles Marineris (different origin)",
+  "citation": "Morphological comparison only; no formation analogy claimed",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:hanksville": {
+  "key": "hanksville",
+  "name": "Hanksville / Mars Desert Research Station, Utah",
+  "body": "earth",
+  "lat": 38.41,
+  "lon": -110.79,
+  "processes": [
+   "fluvial",
+   "lacustrine",
+   "aeolian"
+  ],
+  "note": "Inverted river channels and clay-rich badlands",
+  "citation": "Clarke & Stoker (2011) Int. J. Astrobiol. 10, 161",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:haughton": {
+  "key": "haughton",
+  "name": "Haughton Impact Structure, Devon Island",
+  "body": "earth",
+  "lat": 75.4,
+  "lon": -89.7,
+  "processes": [
+   "impact",
+   "periglacial"
+  ],
+  "note": "Polar desert impact crater; Haughton-Mars Project",
+  "citation": "Lee & Osinski (2005) Meteorit. Planet. Sci. 40, 1755",
+  "analog_for": [
+   "mars",
+   "moon"
+  ],
+  "control": false
+ },
+ "earth:hawaii": {
+  "key": "hawaii",
+  "name": "Mauna Kea / Mauna Loa, Hawaii",
+  "body": "earth",
+  "lat": 19.6,
+  "lon": -155.5,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Basaltic shields; HI-SEAS habitat and BASALT field site",
+  "citation": "Lim et al. (2019) Astrobiology 19, 245",
+  "analog_for": [
+   "mars",
+   "moon"
+  ],
+  "control": false
+ },
+ "earth:iceland": {
+  "key": "iceland",
+  "name": "Icelandic Highlands (Askja / Dyngjusandur)",
+  "body": "earth",
+  "lat": 65.0,
+  "lon": -16.7,
+  "processes": [
+   "volcanic",
+   "fluvial",
+   "aeolian"
+  ],
+  "note": "Basaltic sand plains and lava; olivine-sorting sands studied as a Mars analog",
+  "citation": "Mangold et al. (2011) Earth Planet. Sci. Lett. 310, 233",
+  "analog_for": [
+   "mars",
+   "moon"
+  ],
+  "control": false
+ },
+ "earth:kansas": {
+  "key": "kansas",
+  "name": "High Plains, Kansas",
+  "body": "earth",
+  "lat": 38.5,
+  "lon": -99.0,
+  "processes": [
+   "vegetated"
+  ],
+  "note": "Rangeland and irrigated farmland",
+  "citation": "",
+  "analog_for": [],
+  "control": true
+ },
+ "earth:lanzarote": {
+  "key": "lanzarote",
+  "name": "Lanzarote, Canary Islands",
+  "body": "earth",
+  "lat": 29.0,
+  "lon": -13.7,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Basaltic volcanic field; ESA PANGAEA astronaut training",
+  "citation": "ESA PANGAEA astronaut geology training programme",
+  "analog_for": [
+   "mars",
+   "moon"
+  ],
+  "control": false
+ },
+ "earth:licancabur": {
+  "key": "licancabur",
+  "name": "Licancabur / Altiplano lakes, Chile-Bolivia",
+  "body": "earth",
+  "lat": -22.8,
+  "lon": -67.8,
+  "processes": [
+   "volcanic",
+   "lacustrine"
+  ],
+  "note": "High-altitude volcanic lakes under strong UV",
+  "citation": "Cabrol et al. (2009) JGR 114, G00D06",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:lonar": {
+  "key": "lonar",
+  "name": "Lonar Crater, India",
+  "body": "earth",
+  "lat": 19.98,
+  "lon": 76.51,
+  "processes": [
+   "impact",
+   "volcanic"
+  ],
+  "note": "Impact crater in basalt",
+  "citation": "Fredriksson et al. (1973) Science 180, 862",
+  "analog_for": [
+   "mars",
+   "moon"
+  ],
+  "control": false
+ },
+ "earth:lut": {
+  "key": "lut",
+  "name": "Lut Desert yardangs, Iran",
+  "body": "earth",
+  "lat": 30.5,
+  "lon": 58.0,
+  "processes": [
+   "aeolian"
+  ],
+  "note": "Mega-yardang field; analog for Medusae Fossae",
+  "citation": "Ehsani & Quiel (2008) Remote Sens. Environ. 112, 3284",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:mojave": {
+  "key": "mojave",
+  "name": "Mojave volcanic fields (Cima / Amboy), California",
+  "body": "earth",
+  "lat": 34.9,
+  "lon": -115.8,
+  "processes": [
+   "volcanic",
+   "aeolian"
+  ],
+  "note": "Basaltic cones and flows with desert pavement",
+  "citation": "Farr (2004) Planet. Space Sci. 52, 3",
+  "analog_for": [
+   "mars",
+   "moon"
+  ],
+  "control": false
+ },
+ "earth:namib": {
+  "key": "namib",
+  "name": "Namib Sand Sea, Namibia",
+  "body": "earth",
+  "lat": -24.7,
+  "lon": 15.3,
+  "processes": [
+   "aeolian"
+  ],
+  "note": "Large linear dune field; dune-morphology comparison",
+  "citation": "Lancaster (1989) The Namib Sand Sea, Balkema",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:ozarks": {
+  "key": "ozarks",
+  "name": "Ozark forest, Missouri",
+  "body": "earth",
+  "lat": 37.3,
+  "lon": -91.0,
+  "processes": [
+   "vegetated",
+   "fluvial"
+  ],
+  "note": "Forested dissected plateau",
+  "citation": "",
+  "analog_for": [],
+  "control": true
+ },
+ "earth:pilbara": {
+  "key": "pilbara",
+  "name": "Pilbara Craton, Western Australia",
+  "body": "earth",
+  "lat": -21.2,
+  "lon": 119.3,
+  "processes": [
+   "volcanic",
+   "fluvial"
+  ],
+  "note": "3.5-billion-year-old stromatolite terrain; biosignature analog",
+  "citation": "Van Kranendonk et al. (2008) Precambrian Res. 167, 93",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:qaidam": {
+  "key": "qaidam",
+  "name": "Qaidam Basin, Tibetan Plateau",
+  "body": "earth",
+  "lat": 38.0,
+  "lon": 91.5,
+  "processes": [
+   "aeolian",
+   "lacustrine"
+  ],
+  "note": "Cold hyperarid basin with yardangs and evaporites",
+  "citation": "Xiao et al. (2017) Earth-Sci. Rev. 164, 84",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:rio_tinto": {
+  "key": "rio_tinto",
+  "name": "Rio Tinto, Spain",
+  "body": "earth",
+  "lat": 37.7,
+  "lon": -6.55,
+  "processes": [
+   "hydrothermal",
+   "fluvial"
+  ],
+  "note": "Acidic iron-sulfate river system; Meridiani analog",
+  "citation": "Fernandez-Remolar et al. (2005) Earth Planet. Sci. Lett. 240, 149",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:scabland": {
+  "key": "scabland",
+  "name": "Channeled Scabland, Washington",
+  "body": "earth",
+  "lat": 47.4,
+  "lon": -118.5,
+  "processes": [
+   "megaflood"
+  ],
+  "note": "Megaflood-carved basalt; analog for Martian outflow channels",
+  "citation": "Baker & Milton (1974) Icarus 23, 27",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:sfvf": {
+  "key": "sfvf",
+  "name": "San Francisco Volcanic Field and Meteor Crater, Arizona",
+  "body": "earth",
+  "lat": 35.4,
+  "lon": -111.5,
+  "processes": [
+   "volcanic",
+   "impact"
+  ],
+  "note": "Apollo geology training ground; NASA Desert RATS field tests",
+  "citation": "Ross et al. (2013) Acta Astronaut. 90, 182",
+  "analog_for": [
+   "mars",
+   "moon"
+  ],
+  "control": false
+ },
+ "earth:tibesti": {
+  "key": "tibesti",
+  "name": "Emi Koussi, Tibesti, Chad",
+  "body": "earth",
+  "lat": 19.8,
+  "lon": 18.5,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Shield volcano compared with Elysium Mons",
+  "citation": "Malin (1977) Geol. Soc. Am. Bull. 88, 908",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:uyuni": {
+  "key": "uyuni",
+  "name": "Salar de Uyuni, Bolivia",
+  "body": "earth",
+  "lat": -20.1,
+  "lon": -67.5,
+  "processes": [
+   "lacustrine"
+  ],
+  "note": "World's largest salt flat; evaporite basin analog",
+  "citation": "Cabrol et al. (2009) JGR 114, G00D06",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "earth:white_sands": {
+  "key": "white_sands",
+  "name": "White Sands, New Mexico",
+  "body": "earth",
+  "lat": 32.8,
+  "lon": -106.3,
+  "processes": [
+   "aeolian",
+   "lacustrine"
+  ],
+  "note": "Gypsum dune field; analog for sulfate dunes",
+  "citation": "Szynkiewicz et al. (2010) Geomorphology 121, 69",
+  "analog_for": [
+   "mars"
+  ],
+  "control": false
+ },
+ "mars:acidalia": {
+  "key": "acidalia",
+  "name": "Acidalia Planitia",
+  "body": "mars",
+  "lat": 45.0,
+  "lon": 338.0,
+  "processes": [
+   "periglacial",
+   "megaflood"
+  ],
+  "note": "Northern plains with mounds and polygons",
+  "citation": "Tanaka et al. (2014) USGS SIM 3292",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:amazonis": {
+  "key": "amazonis",
+  "name": "Amazonis Planitia",
+  "body": "mars",
+  "lat": 25.0,
+  "lon": 196.0,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Among the smoothest plains on Mars",
+  "citation": "Fuller & Head (2002) JGR 107, 5081",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:arabia": {
+  "key": "arabia",
+  "name": "Arabia Terra",
+  "body": "mars",
+  "lat": 20.0,
+  "lon": 5.0,
+  "processes": [
+   "impact",
+   "aeolian"
+  ],
+  "note": "Heavily cratered, layered highlands",
+  "citation": "Tanaka et al. (2014) USGS SIM 3292",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:aram": {
+  "key": "aram",
+  "name": "Aram Chaos",
+  "body": "mars",
+  "lat": 2.6,
+  "lon": 338.6,
+  "processes": [
+   "megaflood",
+   "lacustrine"
+  ],
+  "note": "Chaos terrain in an old crater",
+  "citation": "Glotch & Christensen (2005) JGR 110, E09006",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:ares": {
+  "key": "ares",
+  "name": "Ares Vallis (Pathfinder)",
+  "body": "mars",
+  "lat": 19.1,
+  "lon": 326.7,
+  "processes": [
+   "megaflood"
+  ],
+  "note": "Catastrophic flood channel mouth",
+  "citation": "Golombek et al. (1997) Science 278, 1743",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:arsia": {
+  "key": "arsia",
+  "name": "Arsia Mons flank",
+  "body": "mars",
+  "lat": -8.3,
+  "lon": 239.9,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Shield volcano with lava flows and pit chains",
+  "citation": "Plescia (2004) JGR 109, E03003",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:ascraeus": {
+  "key": "ascraeus",
+  "name": "Ascraeus Mons",
+  "body": "mars",
+  "lat": 11.9,
+  "lon": 255.9,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Shield volcano",
+  "citation": "Plescia (2004) JGR 109, E03003",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:athabasca": {
+  "key": "athabasca",
+  "name": "Athabasca Valles",
+  "body": "mars",
+  "lat": 8.6,
+  "lon": 155.0,
+  "processes": [
+   "megaflood",
+   "volcanic"
+  ],
+  "note": "Young flood channel draped by lava",
+  "citation": "Jaeger et al. (2007) Science 317, 1709",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:candor": {
+  "key": "candor",
+  "name": "Candor Chasma",
+  "body": "mars",
+  "lat": -6.6,
+  "lon": 289.2,
+  "processes": [
+   "tectonic",
+   "lacustrine"
+  ],
+  "note": "Layered sulfate deposits in a canyon",
+  "citation": "Murchie et al. (2009) JGR 114, E00D05",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:chryse": {
+  "key": "chryse",
+  "name": "Chryse Planitia (Viking 1)",
+  "body": "mars",
+  "lat": 22.5,
+  "lon": 312.0,
+  "processes": [
+   "megaflood",
+   "volcanic"
+  ],
+  "note": "Outflow channel deposits",
+  "citation": "Golombek et al. (1997) Science 278, 1743",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:cimmeria": {
+  "key": "cimmeria",
+  "name": "Terra Cimmeria",
+  "body": "mars",
+  "lat": -35.0,
+  "lon": 145.0,
+  "processes": [
+   "impact",
+   "fluvial"
+  ],
+  "note": "Cratered highlands with gullies",
+  "citation": "Tanaka et al. (2014) USGS SIM 3292",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:daedalia": {
+  "key": "daedalia",
+  "name": "Daedalia Planum",
+  "body": "mars",
+  "lat": -21.8,
+  "lon": 232.0,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Long lava flow field",
+  "citation": "Giacomini et al. (2009) Planet. Space Sci. 57, 556",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:eberswalde": {
+  "key": "eberswalde",
+  "name": "Eberswalde Crater",
+  "body": "mars",
+  "lat": -24.0,
+  "lon": 326.7,
+  "processes": [
+   "fluvial",
+   "lacustrine",
+   "impact"
+  ],
+  "note": "Preserved river delta",
+  "citation": "Malin & Edgett (2003) Science 302, 1931",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:elysium_insight": {
+  "key": "elysium_insight",
+  "name": "Elysium Planitia (InSight)",
+  "body": "mars",
+  "lat": 4.5,
+  "lon": 135.6,
+  "processes": [
+   "volcanic",
+   "impact"
+  ],
+  "note": "Smooth lava plains; InSight landing site",
+  "citation": "Golombek et al. (2020) Nat. Commun. 11, 1014",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:elysium_mons": {
+  "key": "elysium_mons",
+  "name": "Elysium Mons",
+  "body": "mars",
+  "lat": 25.0,
+  "lon": 147.2,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Shield volcano",
+  "citation": "Plescia (2004) JGR 109, E03003",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:gale": {
+  "key": "gale",
+  "name": "Gale Crater",
+  "body": "mars",
+  "lat": -5.4,
+  "lon": 137.8,
+  "processes": [
+   "impact",
+   "lacustrine",
+   "fluvial",
+   "aeolian"
+  ],
+  "note": "Mount Sharp sediments; Curiosity landing site",
+  "citation": "Grotzinger et al. (2014) Science 343, 1242777",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:gusev": {
+  "key": "gusev",
+  "name": "Gusev Crater",
+  "body": "mars",
+  "lat": -14.5,
+  "lon": 175.4,
+  "processes": [
+   "impact",
+   "volcanic",
+   "fluvial"
+  ],
+  "note": "Basaltic plains and Columbia Hills; Spirit landing site",
+  "citation": "Squyres et al. (2004) Science 305, 794",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:hadriacus": {
+  "key": "hadriacus",
+  "name": "Hadriacus Mons / Dao Vallis",
+  "body": "mars",
+  "lat": -32.1,
+  "lon": 91.8,
+  "processes": [
+   "volcanic",
+   "fluvial"
+  ],
+  "note": "Old low volcano cut by channels",
+  "citation": "Crown & Greeley (1993) JGR 98, 3431",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:hellas": {
+  "key": "hellas",
+  "name": "Hellas Planitia floor",
+  "body": "mars",
+  "lat": -42.0,
+  "lon": 70.0,
+  "processes": [
+   "impact",
+   "periglacial"
+  ],
+  "note": "Deep impact basin floor",
+  "citation": "Tanaka & Leonard (1995) JGR 100, 5407",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:hesperia": {
+  "key": "hesperia",
+  "name": "Hesperia Planum",
+  "body": "mars",
+  "lat": -22.0,
+  "lon": 110.0,
+  "processes": [
+   "volcanic",
+   "tectonic"
+  ],
+  "note": "Ridged volcanic plains",
+  "citation": "Tanaka et al. (2014) USGS SIM 3292",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:isidis": {
+  "key": "isidis",
+  "name": "Isidis Planitia",
+  "body": "mars",
+  "lat": 13.0,
+  "lon": 88.0,
+  "processes": [
+   "impact",
+   "volcanic"
+  ],
+  "note": "Basin plains with cone chains",
+  "citation": "Ivanov et al. (2012) Icarus 218, 24",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:jezero": {
+  "key": "jezero",
+  "name": "Jezero Crater",
+  "body": "mars",
+  "lat": 18.38,
+  "lon": 77.58,
+  "processes": [
+   "impact",
+   "fluvial",
+   "lacustrine",
+   "volcanic"
+  ],
+  "note": "Delta and paleolake; Perseverance landing site",
+  "citation": "Fassett & Head (2005) GRL 32, L14201; Mangold et al. (2021) Science 374, 711",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:kasei": {
+  "key": "kasei",
+  "name": "Kasei Valles",
+  "body": "mars",
+  "lat": 24.6,
+  "lon": 294.0,
+  "processes": [
+   "megaflood"
+  ],
+  "note": "Largest outflow channel system",
+  "citation": "Baker (1982) The Channels of Mars",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:lunae": {
+  "key": "lunae",
+  "name": "Lunae Planum",
+  "body": "mars",
+  "lat": 10.0,
+  "lon": 294.0,
+  "processes": [
+   "volcanic",
+   "tectonic"
+  ],
+  "note": "Ridged plains",
+  "citation": "Tanaka et al. (2014) USGS SIM 3292",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:mawrth": {
+  "key": "mawrth",
+  "name": "Mawrth Vallis",
+  "body": "mars",
+  "lat": 22.3,
+  "lon": 343.5,
+  "processes": [
+   "fluvial",
+   "megaflood"
+  ],
+  "note": "Phyllosilicate-rich layered terrain",
+  "citation": "Bibring et al. (2006) Science 312, 400",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:medusae": {
+  "key": "medusae",
+  "name": "Medusae Fossae Formation",
+  "body": "mars",
+  "lat": -3.0,
+  "lon": 197.0,
+  "processes": [
+   "aeolian",
+   "volcanic"
+  ],
+  "note": "Wind-carved friable deposits (yardangs)",
+  "citation": "Bradley et al. (2002) JGR 107, 5058",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:melas": {
+  "key": "melas",
+  "name": "Melas Chasma (Valles Marineris)",
+  "body": "mars",
+  "lat": -10.4,
+  "lon": 287.5,
+  "processes": [
+   "tectonic",
+   "fluvial"
+  ],
+  "note": "Canyon floor and walls",
+  "citation": "Tanaka et al. (2014) USGS SIM 3292",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:meridiani": {
+  "key": "meridiani",
+  "name": "Meridiani Planum",
+  "body": "mars",
+  "lat": -2.0,
+  "lon": 354.5,
+  "processes": [
+   "aeolian",
+   "lacustrine"
+  ],
+  "note": "Sulfate-rich sandstones and hematite plains; Opportunity landing site",
+  "citation": "Squyres et al. (2004) Science 306, 1698",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:nili": {
+  "key": "nili",
+  "name": "Nili Fossae",
+  "body": "mars",
+  "lat": 21.0,
+  "lon": 74.5,
+  "processes": [
+   "tectonic",
+   "volcanic",
+   "hydrothermal"
+  ],
+  "note": "Grabens with olivine and carbonate",
+  "citation": "Ehlmann et al. (2008) Science 322, 1828",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:nirgal": {
+  "key": "nirgal",
+  "name": "Nirgal Vallis",
+  "body": "mars",
+  "lat": -28.4,
+  "lon": 318.0,
+  "processes": [
+   "fluvial"
+  ],
+  "note": "Long sapping / runoff valley",
+  "citation": "Baker (1982) The Channels of Mars",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:noachis": {
+  "key": "noachis",
+  "name": "Noachis Terra (north)",
+  "body": "mars",
+  "lat": -35.0,
+  "lon": 350.0,
+  "processes": [
+   "impact"
+  ],
+  "note": "Type area of the oldest cratered highlands",
+  "citation": "Tanaka et al. (2014) USGS SIM 3292",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:noctis": {
+  "key": "noctis",
+  "name": "Noctis Labyrinthus",
+  "body": "mars",
+  "lat": -7.0,
+  "lon": 259.0,
+  "processes": [
+   "tectonic",
+   "volcanic"
+  ],
+  "note": "Maze of grabens and pits",
+  "citation": "Tanaka et al. (2014) USGS SIM 3292",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:olympus": {
+  "key": "olympus",
+  "name": "Olympus Mons",
+  "body": "mars",
+  "lat": 18.65,
+  "lon": 226.2,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Largest shield volcano",
+  "citation": "Plescia (2004) JGR 109, E03003",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:oxia": {
+  "key": "oxia",
+  "name": "Oxia Planum",
+  "body": "mars",
+  "lat": 18.2,
+  "lon": 335.5,
+  "processes": [
+   "fluvial",
+   "lacustrine"
+  ],
+  "note": "Clay-bearing plains; Rosalind Franklin landing site",
+  "citation": "Quantin-Nataf et al. (2021) Astrobiology 21, 345",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:sabaea": {
+  "key": "sabaea",
+  "name": "Terra Sabaea",
+  "body": "mars",
+  "lat": 2.0,
+  "lon": 42.0,
+  "processes": [
+   "impact",
+   "fluvial"
+  ],
+  "note": "Cratered highlands with valley networks",
+  "citation": "Tanaka et al. (2014) USGS SIM 3292",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:sirenum": {
+  "key": "sirenum",
+  "name": "Terra Sirenum",
+  "body": "mars",
+  "lat": -40.0,
+  "lon": 210.0,
+  "processes": [
+   "impact",
+   "tectonic"
+  ],
+  "note": "Cratered highlands with grabens",
+  "citation": "Tanaka et al. (2014) USGS SIM 3292",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:syria": {
+  "key": "syria",
+  "name": "Syria Planum",
+  "body": "mars",
+  "lat": -12.0,
+  "lon": 256.0,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "High volcanic plateau with small shields",
+  "citation": "Baptista et al. (2008) JGR 113, E09010",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:tempe": {
+  "key": "tempe",
+  "name": "Tempe Terra",
+  "body": "mars",
+  "lat": 40.0,
+  "lon": 289.0,
+  "processes": [
+   "tectonic",
+   "volcanic"
+  ],
+  "note": "Rifted volcanic highlands",
+  "citation": "Hauber & Kronberg (2001) JGR 106, 20587",
+  "analog_for": [],
+  "control": false
+ },
+ "mars:utopia": {
+  "key": "utopia",
+  "name": "Utopia Planitia (Viking 2)",
+  "body": "mars",
+  "lat": 47.6,
+  "lon": 134.3,
+  "processes": [
+   "periglacial",
+   "impact"
+  ],
+  "note": "Northern plains with ground ice",
+  "citation": "Stuurman et al. (2016) GRL 43, 9484",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:albategnius": {
+  "key": "albategnius",
+  "name": "Albategnius Highlands",
+  "body": "moon",
+  "lat": -11.2,
+  "lon": 4.1,
+  "processes": [
+   "impact"
+  ],
+  "note": "Central near-side highlands",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:apollo11": {
+  "key": "apollo11",
+  "name": "Mare Tranquillitatis (Apollo 11)",
+  "body": "moon",
+  "lat": 0.67,
+  "lon": 23.47,
+  "processes": [
+   "volcanic",
+   "impact"
+  ],
+  "note": "Mare basalt plain",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:apollo12": {
+  "key": "apollo12",
+  "name": "Oceanus Procellarum (Apollo 12)",
+  "body": "moon",
+  "lat": -3.01,
+  "lon": 336.58,
+  "processes": [
+   "volcanic",
+   "impact"
+  ],
+  "note": "Mare basalt plain",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:apollo14": {
+  "key": "apollo14",
+  "name": "Fra Mauro (Apollo 14)",
+  "body": "moon",
+  "lat": -3.65,
+  "lon": 342.53,
+  "processes": [
+   "impact"
+  ],
+  "note": "Imbrium ejecta hills",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:apollo15": {
+  "key": "apollo15",
+  "name": "Hadley-Apennine (Apollo 15)",
+  "body": "moon",
+  "lat": 26.13,
+  "lon": 3.63,
+  "processes": [
+   "volcanic",
+   "impact"
+  ],
+  "note": "Sinuous rille at a basin rim",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:apollo16": {
+  "key": "apollo16",
+  "name": "Descartes Highlands (Apollo 16)",
+  "body": "moon",
+  "lat": -8.97,
+  "lon": 15.5,
+  "processes": [
+   "impact"
+  ],
+  "note": "Central highlands",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:apollo17": {
+  "key": "apollo17",
+  "name": "Taurus-Littrow (Apollo 17)",
+  "body": "moon",
+  "lat": 20.19,
+  "lon": 30.77,
+  "processes": [
+   "volcanic",
+   "impact",
+   "tectonic"
+  ],
+  "note": "Mare-filled valley between massifs",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:apollo_basin": {
+  "key": "apollo_basin",
+  "name": "Apollo Basin (South Pole-Aitken)",
+  "body": "moon",
+  "lat": -36.0,
+  "lon": 208.0,
+  "processes": [
+   "impact",
+   "volcanic"
+  ],
+  "note": "Basin inside SPA",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:aristarchus": {
+  "key": "aristarchus",
+  "name": "Aristarchus Plateau",
+  "body": "moon",
+  "lat": 25.0,
+  "lon": 311.0,
+  "processes": [
+   "volcanic",
+   "impact"
+  ],
+  "note": "Pyroclastic plateau and Vallis Schroteri",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:copernicus": {
+  "key": "copernicus",
+  "name": "Copernicus Crater",
+  "body": "moon",
+  "lat": 9.62,
+  "lon": 339.92,
+  "processes": [
+   "impact"
+  ],
+  "note": "Young complex crater with rays",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:crisium": {
+  "key": "crisium",
+  "name": "Mare Crisium (Blue Ghost Mission 1)",
+  "body": "moon",
+  "lat": 18.56,
+  "lon": 61.81,
+  "processes": [
+   "volcanic",
+   "impact"
+  ],
+  "note": "Mare inside an impact basin",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:gruithuisen": {
+  "key": "gruithuisen",
+  "name": "Gruithuisen Domes",
+  "body": "moon",
+  "lat": 36.5,
+  "lon": 320.0,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Silicic volcanic domes",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:hertzsprung": {
+  "key": "hertzsprung",
+  "name": "Hertzsprung Basin",
+  "body": "moon",
+  "lat": 2.0,
+  "lon": 231.0,
+  "processes": [
+   "impact"
+  ],
+  "note": "Far-side peak-ring basin",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:humboldt": {
+  "key": "humboldt",
+  "name": "Humboldt Crater",
+  "body": "moon",
+  "lat": -27.0,
+  "lon": 81.0,
+  "processes": [
+   "impact",
+   "tectonic"
+  ],
+  "note": "Floor-fractured crater",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:imbrium": {
+  "key": "imbrium",
+  "name": "Mare Imbrium",
+  "body": "moon",
+  "lat": 35.0,
+  "lon": 343.0,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Mare lava flows",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:korolev": {
+  "key": "korolev",
+  "name": "Korolev (far-side highlands)",
+  "body": "moon",
+  "lat": -4.0,
+  "lon": 202.6,
+  "processes": [
+   "impact"
+  ],
+  "note": "Saturated cratered highlands",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:marius": {
+  "key": "marius",
+  "name": "Marius Hills",
+  "body": "moon",
+  "lat": 13.3,
+  "lon": 306.8,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Volcanic dome and cone field",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:mendeleev": {
+  "key": "mendeleev",
+  "name": "Mendeleev Basin",
+  "body": "moon",
+  "lat": 5.7,
+  "lon": 140.9,
+  "processes": [
+   "impact"
+  ],
+  "note": "Far-side basin with crater chain",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:moscoviense": {
+  "key": "moscoviense",
+  "name": "Mare Moscoviense",
+  "body": "moon",
+  "lat": 27.0,
+  "lon": 148.0,
+  "processes": [
+   "volcanic",
+   "impact"
+  ],
+  "note": "Far-side mare",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:nectaris": {
+  "key": "nectaris",
+  "name": "Mare Nectaris",
+  "body": "moon",
+  "lat": -15.0,
+  "lon": 35.0,
+  "processes": [
+   "volcanic",
+   "impact"
+  ],
+  "note": "Small circular mare",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:orientale": {
+  "key": "orientale",
+  "name": "Orientale Basin",
+  "body": "moon",
+  "lat": -19.4,
+  "lon": 267.2,
+  "processes": [
+   "impact"
+  ],
+  "note": "Multi-ring basin",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:procellarum": {
+  "key": "procellarum",
+  "name": "Oceanus Procellarum (central)",
+  "body": "moon",
+  "lat": 18.0,
+  "lon": 303.0,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Young mare flows",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:ptolemaeus": {
+  "key": "ptolemaeus",
+  "name": "Ptolemaeus",
+  "body": "moon",
+  "lat": -9.2,
+  "lon": 358.2,
+  "processes": [
+   "impact"
+  ],
+  "note": "Old flat-floored crater in highlands",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:reiner": {
+  "key": "reiner",
+  "name": "Reiner Gamma",
+  "body": "moon",
+  "lat": 7.5,
+  "lon": 301.0,
+  "processes": [
+   "volcanic"
+  ],
+  "note": "Lunar swirl on mare",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:serenitatis": {
+  "key": "serenitatis",
+  "name": "Mare Serenitatis",
+  "body": "moon",
+  "lat": 28.0,
+  "lon": 17.5,
+  "processes": [
+   "volcanic",
+   "tectonic"
+  ],
+  "note": "Mare with wrinkle ridges",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:tsiolkovskiy": {
+  "key": "tsiolkovskiy",
+  "name": "Tsiolkovskiy Crater",
+  "body": "moon",
+  "lat": -20.4,
+  "lon": 129.1,
+  "processes": [
+   "impact",
+   "volcanic"
+  ],
+  "note": "Mare-floored far-side crater",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:tycho": {
+  "key": "tycho",
+  "name": "Tycho Crater",
+  "body": "moon",
+  "lat": -43.3,
+  "lon": 348.8,
+  "processes": [
+   "impact"
+  ],
+  "note": "Young complex crater",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ },
+ "moon:vaporum": {
+  "key": "vaporum",
+  "name": "Mare Vaporum",
+  "body": "moon",
+  "lat": 13.3,
+  "lon": 3.6,
+  "processes": [
+   "volcanic",
+   "impact"
+  ],
+  "note": "Small mare south of the Apennines",
+  "citation": "Wilhelms (1987) The Geologic History of the Moon, USGS Prof. Paper 1348",
+  "analog_for": [],
+  "control": false
+ }
+}

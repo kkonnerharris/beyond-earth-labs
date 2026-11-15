@@ -1,0 +1,27 @@
+[19:29:08] {"dataset_version": "terra-cells-v1", "cells": 4534, "bodies": {"earth": {"cells": 1251, "regions": 29, "median": {"slope_median_deg": 1.357, "slope_p90_deg": 3.239, "relief_m": 255.92, "roughness_m": 30.579, "tri_m": 43.69}}, "mars": {"cells": 1911, "regions": 39, "median": {"slope_median_deg": 0.859, "slope_p90_deg": 2.064, "relief_m": 217.383, "roughness_m": 22.321, "tri_m": 25.316}}, "moon": {"cells": 1372, "regions": 28, "median": {"slope_median_deg": 0.746, "slope_p90_deg": 2.208, "relief_m": 217.514, "roughness_m": 23.039, "tri_m": 25.732}}}}
+[19:29:36] E1 seed 0 fold 0 done
+[19:29:56] E1 seed 0 fold 1 done
+[19:30:16] E1 seed 0 fold 2 done
+[19:30:37] E1 seed 0 fold 3 done
+[19:30:57] E1 seed 0 fold 4 done
+[19:31:16] E1 seed 1 fold 0 done
+[19:31:35] E1 seed 1 fold 1 done
+[19:31:54] E1 seed 1 fold 2 done
+[19:32:13] E1 seed 1 fold 3 done
+[19:32:32] E1 seed 1 fold 4 done
+[19:32:51] E1 seed 2 fold 0 done
+[19:33:11] E1 seed 2 fold 1 done
+[19:33:30] E1 seed 2 fold 2 done
+[19:33:49] E1 seed 2 fold 3 done
+[19:34:08] E1 seed 2 fold 4 done
+[19:35:45] E3 seed 0 done
+[19:37:12] E3 seed 1 done
+[19:38:38] E3 seed 2 done
+[19:38:49] E4 seed 0 done
+[19:39:01] E4 seed 1 done
+[19:39:13] E4 seed 2 done
+[19:39:32] E5 handcrafted done
+[19:39:34] E5 dinov2_raw done
+[19:39:40] E5 dinov2_body_norm done
+[19:39:42] E5 head_embedding done
+[19:39:42] wrote C:\Users\jharr\Projects\Hackathons\beyond-earth-labs\experiments\runs\20261115T012908Z-eval\metrics.json

@@ -1,0 +1,20 @@
+import type { Metadata } from "next";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import "./globals.css";
+
+const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex-sans" });
+const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono" });
+
+export const metadata: Metadata = {
+  title: "Beyond Earth Labs · Martian Map",
+  description:
+    "A layered map of Jezero Crater for planning and carrying out a Marswalk, built on NASA data with a cross-planetary terrain model.",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}
