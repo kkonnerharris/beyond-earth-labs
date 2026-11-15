@@ -5,7 +5,7 @@ Martian Map*. Six other Space Apps 2026 challenge themes shaped what the map can
 each of the seven, what it contributed, where to find it in the product, what NASA data it uses, how it
 connects to the rest, and what was left out.
 
-The team's brief set the rule the build followed: the Martian Map is the product, and every other theme
+The project brief set the rule the build followed: the Martian Map is the product, and every other theme
 has to work as a capability of that map, not as a separate app.
 
 > **About the rules.** The participant FAQ says a team works on one challenge. This entry is the Martian
@@ -14,7 +14,7 @@ has to work as a capability of that map, not as a separate app.
 
 > **About the titles.** The Martian Map and Space Mission Design Game titles were checked against their
 > pages on spaceappschallenge.org on 15 November 2026. The other five are written as they appear in the
-> team's brief and should be checked against the official challenge list before they are quoted.
+> project brief and should be checked against the official challenge list before they are quoted.
 
 ## At a glance
 

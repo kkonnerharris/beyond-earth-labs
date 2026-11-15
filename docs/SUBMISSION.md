@@ -5,7 +5,7 @@ the bracketed items.
 
 **Challenge:** Interplanetary Survival Guide: Martian Map
 **Project name:** Beyond Earth Labs
-**Team:** [team name and members]
+**Team:** Konner Harris (solo developer)
 **Repository:** https://github.com/kkonnerharris/beyond-earth-labs
 **Video:** [not recorded yet]
 
@@ -78,8 +78,9 @@ PyTorch, timm, rasterio, PROJ, scikit-learn, FastAPI, Go, Next.js, MapLibre GL J
 
 ## Use of AI tools
 
-See [AI_USE.md](AI_USE.md). Claude Code (Anthropic) wrote the code and documentation during the event
-under the team's direction. DINOv2 is used inside the product as an image encoder. No language model
+See [AI_USE.md](AI_USE.md). I am a solo developer. During the event I used Claude (Anthropic), through
+Claude Code on a Claude Max subscription, for project scaffolding, for choosing which NASA data to use,
+and for coding help. DINOv2 is used inside the product as an image encoder. No language model
 produces any number shown in the product.
 
 ## Space Apps awards this could be considered for

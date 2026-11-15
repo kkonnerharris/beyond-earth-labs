@@ -4,10 +4,22 @@ The Space Apps rules allow AI tools and require a description of their use. This
 
 ## Development
 
-- **Claude Code (Anthropic)** wrote the code and documentation in this repository during the event,
-  working from the team's written project brief. It also researched the official challenge statement and
-  tested each NASA data endpoint before the code relied on it.
-- The team directs the work, reviews the results, and is responsible for the submission.
+I am a solo developer. During the event I used **Claude (Anthropic)**, through Claude Code on a Claude
+Max subscription, working from my written project brief. I used it for three things:
+
+- **Project scaffolding.** It set up the structure of the repository: the Next.js web app (`web/`), the Go
+  mission service (`mission/`), the Python science service (`science/`), the scripts that start, test and
+  check them (`scripts/`), and the set of documents in `docs/`.
+- **Choosing which data to use.** It researched the official challenge statement, recommended which NASA
+  dataset to use for each job, and tested each data endpoint before the code relied on it. For example,
+  it recommended the 20 m CTX elevation model for routes because the 1 m HiRISE model was too large for
+  the build machine, NASA Solar System Treks tiles for map imagery, and Landsat HLS through a public
+  mirror because the home archive needs a login. The choices, and the datasets that were considered and
+  not used, are recorded in [DATA.md](DATA.md).
+- **Coding help.** I used it as a coding assistant on the code, the tests and the documentation,
+  including the pitch material in `docs/pitch/`.
+
+I direct the work, make the decisions, review the results, and am responsible for the submission.
 
 ## Inside the product
 
@@ -38,5 +50,5 @@ The Space Apps rules allow AI tools and require a description of their use. This
 - The times on site for the four science activities (`GOALS` in `web/components/Steps.tsx`, 10 to 45
   minutes) are round-number assumptions, not taken from a NASA source.
 - Five of the seven challenge titles in `docs/CHALLENGES.md` and `web/lib/parts.ts` are written as they
-  appear in the team's brief. Only the Martian Map and Space Mission Design Game titles were checked
+  appear in the project brief. Only the Martian Map and Space Mission Design Game titles were checked
   against the official site.
