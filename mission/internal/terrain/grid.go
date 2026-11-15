@@ -179,6 +179,31 @@ func (g *Grid) FromLonLat(lon, lat float64) (x, y float64) {
 	return x, y
 }
 
+// ElevationAt returns the elevation at a local point, interpolated between
+// cell centres so that it changes smoothly as a mover crosses a cell.
+// Points off the grid are clamped to its edge.
+func (g *Grid) ElevationAt(x, y float64) float64 {
+	h := g.Half()
+	fc := (x+h)/g.CellM - 0.5
+	fr := (h-y)/g.CellM - 0.5
+	max := float64(g.N - 1)
+	fc = math.Max(0, math.Min(max, fc))
+	fr = math.Max(0, math.Min(max, fr))
+	c0, r0 := int(math.Floor(fc)), int(math.Floor(fr))
+	c1, r1 := c0+1, r0+1
+	if c1 > g.N-1 {
+		c1 = g.N - 1
+	}
+	if r1 > g.N-1 {
+		r1 = g.N - 1
+	}
+	tc, tr := fc-float64(c0), fr-float64(r0)
+	z := func(r, c int) float64 { return float64(g.Elevation[g.Index(r, c)]) }
+	top := z(r0, c0)*(1-tc) + z(r0, c1)*tc
+	bottom := z(r1, c0)*(1-tc) + z(r1, c1)*tc
+	return top*(1-tr) + bottom*tr
+}
+
 // Sample is the terrain at one cell.
 type Sample struct {
 	Row        int     `json:"row"`

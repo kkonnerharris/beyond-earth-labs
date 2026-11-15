@@ -31,7 +31,7 @@ export type Plan = {
 export type Hazard = { id: string; x: number; y: number; radius_m: number; reason: string };
 
 export type Sim = {
-  phase: "idle" | "moving" | "at_target" | "holding" | "complete" | "aborted";
+  phase: "idle" | "moving" | "at_target" | "holding" | "complete" | "aborted" | "manual";
   seconds: number; x: number; y: number; lon: number; lat: number;
   elevation_m: number; slope_deg: number; heading_deg: number; speed_ms: number; distance_m: number;
   resource: string; capacity: number; remaining: number;
@@ -39,6 +39,8 @@ export type Sim = {
   leak_per_hour: number; pace_factor: number; dust_tau: number; turned_back: boolean; replans: number;
   active_legs: Route[]; emergencies: { id: string; kind: string; t_seconds: number; detail: string }[];
   track: [number, number][];
+  health: { monitored: boolean; metabolic_w: number; heart_rate_bpm: number; expected_heart_rate_bpm: number;
+            fatigue: number; anomaly: boolean; heart_rate_history: number[] };
 };
 
 export type Assumption = { key: string; label: string; value: number; unit: string; basis: string; verify: boolean };
@@ -107,6 +109,7 @@ export type LayerInfo = { key: string; body: string; title: string; mission: str
 
 export type AnalogCandidate = {
   rank: number; region: string; name: string; lat: number; lon: number; score: number;
+  body: "mars" | "moon" | "earth";
   embedding_similarity: number; physical_similarity: number; physical_distance_sd: number;
   support: string; shared_processes: string[]; documented_analog_for: string[]; citation: string; note: string;
   cells: number; attributes: { attribute: string; query: number; candidate: number; ratio: number }[];
@@ -114,13 +117,15 @@ export type AnalogCandidate = {
 
 export type AnalogResult = {
   query: { region: string; name: string; body: string; lat: number; lon: number; processes: string[];
-           citation: string; cells: number; measured: Record<string, number> };
+           citation: string; cells: number; measured: Record<string, number>;
+           target_body: "mars" | "moon" | "earth"; control: boolean; note: string };
   candidates: AnalogCandidate[]; method: string;
 };
 
 export type RegionInfo = {
   region: string; key: string; name: string; body: string; lat: number; lon: number; processes: string[];
   note: string; citation: string; cells: number; measured: Record<string, number | null>;
+  control?: boolean; analog_for?: string[];
 };
 
 export type ClimatePeriod = {
@@ -164,6 +169,9 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
 const M = "/svc/mission";
 const S = "/svc/science";
+// Map tiles go straight to the science service: hundreds of tile requests through the web proxy
+// were seen to drop connections. Everything else uses the same-origin proxy paths above.
+const TILES = process.env.NEXT_PUBLIC_SCIENCE_URL ?? "http://127.0.0.1:8310";
 const post = (body?: unknown): RequestInit => ({ method: "POST", body: body === undefined ? undefined : JSON.stringify(body) });
 
 export const missionApi = {
@@ -177,7 +185,8 @@ export const missionApi = {
     request<Mission>(`${M}/missions/${id}/plan`, post({ mover, objective, risk_weight })),
   habitat: (id: string, crew: number, sols: number, crop_area_m2: Record<string, number>, overrides: Record<string, number>) =>
     request<Mission>(`${M}/missions/${id}/habitat`, post({ crew, sols, crop_area_m2, overrides })),
-  sim: (id: string, action: "start" | "step" | "reset" | "emergency", body?: { seconds?: number; kind?: string }) =>
+  sim: (id: string, action: "start" | "step" | "reset" | "emergency" | "drive",
+        body?: { seconds?: number; kind?: string; heading_deg?: number; distance_m?: number }) =>
     request<Mission>(`${M}/missions/${id}/sim/${action}`, post(body ?? {})),
   sample: (lon: number, lat: number) =>
     request<{ sample: { elevation_m: number; slope_deg: number; roughness_m: number; lon: number; lat: number; x: number; y: number };
@@ -190,14 +199,24 @@ export const scienceApi = {
   m2020: () => request<M2020>(`${S}/jezero/m2020`),
   layers: () => request<LayerInfo[]>(`${S}/layers`),
   regions: (body: string) => request<RegionInfo[]>(`${S}/regions?body=${body}`),
-  analogs: (region: string, top = 8) => request<AnalogResult>(`${S}/analogs?region=${encodeURIComponent(region)}&top=${top}`),
+  analogs: (region: string, top = 8, target?: string) =>
+    request<AnalogResult>(`${S}/analogs?region=${encodeURIComponent(region)}&top=${top}${target ? `&target=${target}` : ""}`),
+  terrain3d: () => request<Terrain3D>(`${S}/jezero/terrain3d`),
+  demUrl: () => `${TILES}/jezero/dem/{z}/{x}/{y}.png`,
   model: () => request<Record<string, unknown>>(`${S}/model`),
   views: (x: number, y: number) => request<GroundViews>(`${S}/jezero/views?x=${x.toFixed(1)}&y=${y.toFixed(1)}`),
   clps: () => request<Clps>(`${S}/clps`),
   climate: (region: string) => request<Climate>(`${S}/earth/climate?region=${encodeURIComponent(region)}`),
   overlayUrl: (name: string) => `${S}/jezero/overlay/${name}.png`,
-  tileUrl: (key: string) => `${S}/tiles/${key}/{z}/{x}/{y}.png`,
+  tileUrl: (key: string) => `${TILES}/tiles/${key}/{z}/{x}/{y}.png`,
 };
 
 export const MARS_RADIUS_M = 3396190;
 export const MOON_RADIUS_M = 1737400;
+export type Body = "mars" | "moon" | "earth";
+export const BODY_RADIUS_M: Record<Body, number> = { mars: 3396190, moon: 1737400, earth: 6371008.8 };
+export const BODY_NAME: Record<Body, string> = { mars: "Mars", moon: "Moon", earth: "Earth" };
+export type Terrain3D = {
+  tiles: string; encoding: string; tile_size: number; max_zoom: number;
+  bounds_lonlat: [number, number, number, number]; base_elevation_m: number; note: string;
+};

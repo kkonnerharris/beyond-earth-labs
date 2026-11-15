@@ -1,7 +1,8 @@
 # Scientific methods and results
 
 All results below come from `experiments/runs/20261115T011739Z-transfer` (E2) and
-`experiments/runs/20261115T012908Z-eval` (E1, E3, E4, E5), on dataset `terra-cells-v1` (4,534 cells).
+`experiments/runs/20261115T012908Z-eval` (E1, E3, E4, E5) and `experiments/runs/20261115T182943Z-perworld`
+(E6), on dataset `terra-cells-v1` (4,534 cells).
 Reproduce them with the commands in the README. Print any run with `python scripts/show_metrics.py <metrics.json>`.
 
 ## 1. The question
@@ -115,6 +116,33 @@ them less often than chance, and the head is not better than the others at avoid
 
 A linear classifier identifies the body from an untrained DINOv2 feature 95.5% of the time (majority
 class 42%). From the trained embedding: 63%. The embedding still carries body-specific signal.
+
+### E6. One shared model, or one specialist per world? (the E1 folds, 3 seeds)
+
+Added on 15 November to ask whether Earth is better served by a model trained on Earth alone. A
+specialist is trained on one world's training regions only. "Ensemble" averages the specialist head and
+the specialist linear probe. Same folds and metric as E1; every method sees the same 15 folds.
+
+| Method | Mars | Moon | Earth |
+|---|---|---|---|
+| Shared head (the deployed recipe) | 0.64 | 0.82 | 0.31 |
+| Specialist head per world | 0.65 | 0.83 | 0.37 |
+| Specialist linear probe per world | 0.65 | 0.82 | 0.37 |
+| **Specialist ensemble per world** | **0.67** | **0.83** | **0.39** |
+
+Gain of the ensemble over the shared head, paired fold by fold: Mars +0.04 (better in 15 of 15 folds),
+Moon +0.01 (11 of 15), Earth +0.08 (9 of 15).
+
+- Specialists help on every world. The Mars gain is small and consistent. The Earth gain is the largest
+  on average and the least consistent: it loses in 6 folds of 15, and Earth's fold-to-fold spread (0.18)
+  is more than twice the gain.
+- Earth is still the weakest world by a wide margin. A different network head does not remove the cause:
+  vegetation and land cover, not landform, control brightness in the red band.
+- The shared linear probe scores lower here (0.60, 0.80, 0.27) than the shared head on every world.
+- **Not deployed.** The product ranks Earth analogs with the shared embedding, which specialists do not
+  have (a specialist's embedding is not comparable across worlds). The deployed model is unchanged.
+- The specialist recipe was chosen after a look at one seed, then confirmed on three. Four variants were
+  screened, so the 0.39 carries a small selection bias.
 
 ## 5. Validation gate
 

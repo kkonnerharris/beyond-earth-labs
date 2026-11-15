@@ -2,13 +2,20 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { missionApi, scienceApi, type AnalogResult, type Climate, type Clps, type GroundViews, type M2020, type Mission, type Profile, type RegionInfo, type Terrain } from "@/lib/api";
+import { BODY_NAME, missionApi, scienceApi, type AnalogResult, type Body, type Climate, type Clps, type GroundViews, type M2020, type Terrain3D, type Mission, type Profile, type RegionInfo, type Terrain } from "@/lib/api";
 import type { Focus, LayerState } from "@/components/MapView";
-import { ClpsBrowser, StepAnalogs, StepCrew, StepHabitat, StepRegion, StepRoute, StepSim } from "@/components/Steps";
+import { ClpsBrowser, FieldSite, GOALS, StepAnalogs, StepCrew, StepHabitat, StepRegion, StepRoute, StepSim } from "@/components/Steps";
 import { StepReview, type Evidence } from "@/components/Review";
+import { StepFooter, WorldBanner, type PartRow } from "@/components/Thread";
 import { Chip, Note, type Kind } from "@/components/ui";
+import { fmtDistance, fmtDuration } from "@/lib/geo";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
+const SpaceView = dynamic(() => import("@/components/SpaceView"), { ssr: false });
+
+// The optional 3D rover world runs as its own service (port 8320). It is not part of this repository,
+// so its button is shown only when that service answers.
+const WORLD_URL = process.env.NEXT_PUBLIC_WORLD_URL ?? "http://127.0.0.1:8320";
 
 const STEPS = ["Region", "Analogs", "Route", "Crew", "Habitat", "Simulate", "Review"] as const;
 
@@ -30,24 +37,48 @@ const LAYER_GROUPS: { title: string; items: { key: string; label: string; kind: 
 ];
 const DEFAULT_LAYERS: LayerState = { mars_viking: true, jezero_ctx: true, jezero_hirise: true, m2020: true, moon_wac: true };
 
-const COACH: { task: string; done: (c: { mission: Mission | null; analogs: boolean; triedFoot: boolean }) => boolean }[] = [
-  { task: "Open the Jezero map and read how it was checked against the real rover.", done: () => true },
-  { task: "Run the Earth analog search, then open the top candidate to see what was measured.", done: (c) => c.analogs },
-  { task: "Place two science targets and get a plan the service accepts.", done: (c) => !!c.mission && c.mission.targets.length >= 2 && !!c.mission.plan?.feasibility.ok },
-  { task: "Switch the mover to the astronaut on foot. Is the same plan still safe on oxygen?", done: (c) => c.triedFoot },
-  { task: "Grow at least 20% of the crew's food. What did it do to the power margin?", done: (c) => (c.mission?.habitat.food_grown_share ?? 0) >= 0.2 },
-  { task: "Start the traverse, inject an obstacle, and still score 70 or more.", done: (c) => (c.mission?.sim.replans ?? 0) > 0 && (c.mission?.score?.total ?? 0) >= 70 },
-  { task: "Find what the evidence says about learning on Earth and testing on Mars.", done: () => true },
+// Training mode: one task per step, in plain words, each checked against the live mission.
+type CoachCtx = { mission: Mission | null; analogs: boolean; triedFoot: boolean; probed: boolean; reviewed: boolean };
+const COACH: { task: string; why: string; done: (c: CoachCtx) => boolean }[] = [
+  { task: "The white line is where the real Perseverance rover drove. Click a point on it to see what the rover saw there.",
+    why: "A map that has been checked against a real rover is a map you can trust.",
+    done: (c) => c.probed },
+  { task: "Find places on Earth that are like Jezero, then open the first one to see what was measured.",
+    why: "Crews practise on Earth first, at places like the one they will explore.",
+    done: (c) => c.analogs },
+  { task: "Put two science targets on the map and get a route the mission service accepts.",
+    why: "A route has to stay off ground that is too steep to cross.",
+    done: (c) => !!c.mission && c.mission.targets.length >= 2 && !!c.mission.plan?.feasibility.ok },
+  { task: "Switch to the astronaut on foot. Is there still enough oxygen for the same trip?",
+    why: "Walking is slower than driving, and a suit carries only so much oxygen.",
+    done: (c) => c.triedFoot },
+  { task: "Grow at least 20% of the crew's food. Watch what happens to the power.",
+    why: "On Mars plants need lamps, and lamps need electricity.",
+    done: (c) => (c.mission?.habitat.food_grown_share ?? 0) >= 0.2 },
+  { task: "Start the trip, add an obstacle, and still score 70 or more.",
+    why: "Plans change. A good crew still does its science and gets home safely.",
+    done: (c) => (c.mission?.sim.replans ?? 0) > 0 && (c.mission?.score?.total ?? 0) >= 70 },
+  { task: "Open this step and find out: can a network learn on Earth and then understand Mars?",
+    why: "Good scientists also say what did not work.",
+    done: (c) => c.reviewed },
 ];
 
 export default function Workspace() {
-  const [body, setBody] = useState<"mars" | "moon">("mars");
+  const [body, setBody] = useState<Body>("mars");
+  const [threeD, setThreeD] = useState(false);
+  const [space, setSpace] = useState(false);
+  const [surface, setSurface] = useState(false);
+  const [world, setWorld] = useState(false);          // the full 3D rover world (separate service)
+  const [worldUp, setWorldUp] = useState(false);      // true once that optional service has answered
+  const [aim, setAim] = useState(0);
+  const [dem, setDem] = useState<Terrain3D | null>(null);
+  const [earthTarget, setEarthTarget] = useState<"mars" | "moon">("mars");
   const [terrain, setTerrain] = useState<Terrain | null>(null);
   const [m2020, setM2020] = useState<M2020 | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [reserves, setReserves] = useState({ oxygen: 0.25, battery: 0.2 });
-  const [regions, setRegions] = useState<Record<"mars" | "moon", RegionInfo[]>>({ mars: [], moon: [] });
-  const [selected, setSelected] = useState<Record<"mars" | "moon", string | null>>({ mars: "mars:jezero", moon: null });
+  const [regions, setRegions] = useState<Record<Body, RegionInfo[]>>({ mars: [], moon: [], earth: [] });
+  const [selected, setSelected] = useState<Record<Body, string | null>>({ mars: "mars:jezero", moon: null, earth: null });
   const [model, setModel] = useState<Evidence | null>(null);
   const [services, setServices] = useState<{ mission: boolean | null; science: boolean | null }>({ mission: null, science: null });
   const [mission, setMission] = useState<Mission | null>(null);
@@ -72,10 +103,15 @@ export default function Workspace() {
   const [mover, setMover] = useState("crew_rover");
   const [climate, setClimate] = useState<Climate | null>(null);
   const [climateError, setClimateError] = useState<string | null>(null);
+  const [goal, setGoal] = useState(0);                 // which science activity the next target gets
+  const [best, setBest] = useState<number | null>(null); // best mission score in this browser session
+  const [probed, setProbed] = useState(false);
+  const [reviewed, setReviewed] = useState(false);
   const inFlight = useRef(false);
   const focusKey = useRef(0);
 
-  const fly = useCallback((lon: number, lat: number, zoom: number) => setFocus({ lon, lat, zoom, key: ++focusKey.current }), []);
+  const fly = useCallback((lon: number, lat: number, zoom: number, pitch?: number, bearing?: number) =>
+    setFocus({ lon, lat, zoom, pitch, bearing, key: ++focusKey.current }), []);
   const warn = useCallback((text: string, tone: "bad" | "warn" = "bad") => {
     setToast({ text, tone });
     window.setTimeout(() => setToast((t) => (t?.text === text ? null : t)), 6000);
@@ -85,11 +121,14 @@ export default function Workspace() {
   useEffect(() => {
     missionApi.health().then(() => setServices((s) => ({ ...s, mission: true }))).catch(() => setServices((s) => ({ ...s, mission: false })));
     scienceApi.health().then(() => setServices((s) => ({ ...s, science: true }))).catch(() => setServices((s) => ({ ...s, science: false })));
+    fetch(WORLD_URL, { mode: "no-cors" }).then(() => setWorldUp(true)).catch(() => setWorldUp(false));
     scienceApi.terrain().then(setTerrain).catch((e) => warn(`Terrain did not load: ${e.message}`));
     scienceApi.m2020().then(setM2020).catch(() => undefined);
     missionApi.profiles().then((r) => { setProfiles(r.profiles); setReserves(r.reserves); }).catch(() => undefined);
     scienceApi.regions("mars").then((r) => setRegions((x) => ({ ...x, mars: r }))).catch(() => undefined);
     scienceApi.regions("moon").then((r) => setRegions((x) => ({ ...x, moon: r }))).catch(() => undefined);
+    scienceApi.regions("earth").then((r) => setRegions((x) => ({ ...x, earth: r }))).catch(() => undefined);
+    scienceApi.terrain3d().then(setDem).catch(() => setDem(null));
     scienceApi.model().then((m) => setModel(m as Evidence)).catch(() => setModel(null));
     scienceApi.clps().then(setClps).catch(() => undefined);
   }, [warn]);
@@ -111,6 +150,32 @@ export default function Workspace() {
     } finally { setBusy(false); }
   }, [warn]);
 
+  // Surface view: W or Up drives forward, S or Down backs up, A/D or Left/Right turn the view.
+  // Every move is computed by the mission service, with the same slope limits as a planned route.
+  const planned = mission?.sim.phase === "moving" || mission?.sim.phase === "at_target";
+  useEffect(() => {
+    if (!surface || !mission) return;
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+      const k = e.key.toLowerCase();
+      const turn = k === "a" || k === "arrowleft" ? -15 : k === "d" || k === "arrowright" ? 15 : 0;
+      const go = k === "w" || k === "arrowup" ? 1 : k === "s" || k === "arrowdown" ? -1 : 0;
+      if (!turn && !go) return;
+      e.preventDefault();
+      if (turn) { setAim((a) => (a + turn + 360) % 360); return; }
+      if (planned || inFlight.current) return;
+      inFlight.current = true;
+      const heading = go > 0 ? aim : (aim + 180) % 360;
+      missionApi.sim(mission.id, "drive", { heading_deg: heading, distance_m: mission.mover === "astronaut" ? 6 : 12 })
+        .then(setMission)
+        .catch((err: Error & { mission?: Mission }) => { if (err.mission) setMission(err.mission); warn(err.message, "warn"); })
+        .finally(() => { inFlight.current = false; });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [surface, mission?.id, mission?.mover, aim, planned, warn]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const create = () => command(async () => {
     const m = await missionApi.create(name.trim() || "Exploration mission", mover);
     fly(m.base.lon, m.base.lat, 12.6);
@@ -121,36 +186,40 @@ export default function Workspace() {
     if (body !== "mars" || !mission) return;
     if (placing && step === 2) {
       const n = mission.targets.length + 1;
-      command(() => missionApi.addTarget(mission.id, lon, lat, `Target ${n}`, "Image and sample the outcrop", 20));
+      const g = GOALS[goal] ?? GOALS[0];
+      command(() => missionApi.addTarget(mission.id, lon, lat, `Target ${n}`, g.objective, g.dwell_min));
       return;
     }
     setViews(null);
     missionApi.sample(lon, lat)
       .then((r) => {
+        setProbed(true);
         setProbe({ lon, lat, elevation_m: r.sample.elevation_m, slope_deg: r.sample.slope_deg, enterable: r.enterable });
         scienceApi.views(r.sample.x, r.sample.y).then(setViews).catch((e) => setViews({ available: false, reason: e.message }));
       })
       .catch(() => setProbe(null));
-  }, [body, mission, placing, step, command]);
+  }, [body, mission, placing, step, command, goal]);
 
   const selectRegion = useCallback((r: RegionInfo) => {
-    setSelected((s) => ({ ...s, [r.body as "mars" | "moon"]: r.region }));
-    fly(r.lon, r.lat, r.body === "moon" ? 5.6 : 6.4);
+    setSelected((s) => ({ ...s, [r.body as Body]: r.region }));
+    fly(r.lon, r.lat, r.body === "moon" ? 5.6 : r.body === "earth" ? 6.2 : 6.4);
   }, [fly]);
   const onRegionMarker = useCallback((id: string) => {
-    const r = [...regions.mars, ...regions.moon].find((q) => q.region === id);
+    const r = [...regions.mars, ...regions.moon, ...regions.earth].find((q) => q.region === id);
     if (r) selectRegion(r);
   }, [regions, selectRegion]);
 
   const region = useMemo(() => regions[body].find((r) => r.region === selected[body]) ?? null, [regions, body, selected]);
-  const runAnalogsFor = useCallback((id: string) => {
+  // Mars and Moon regions are compared with Earth; an Earth site is compared with Mars or the Moon.
+  const runAnalogsFor = useCallback((id: string, target?: "mars" | "moon") => {
     setAnalogBusy(true); setAnalogError(null);
-    scienceApi.analogs(id, 29)
-      .then((r) => setAnalogs((a) => ({ ...a, [id]: r })))
+    scienceApi.analogs(id, 40, target)
+      .then((r) => setAnalogs((a) => ({ ...a, [target ? `${id}|${target}` : id]: r })))
       .catch((e) => setAnalogError(e.message))
       .finally(() => setAnalogBusy(false));
   }, []);
-  const runAnalogs = () => { if (region) runAnalogsFor(region.region); };
+  const analogKey = region ? (region.body === "earth" ? `${region.region}|${earthTarget}` : region.region) : "";
+  const runAnalogs = () => { if (region) runAnalogsFor(region.region, region.body === "earth" ? earthTarget : undefined); };
 
   // The simulation clock is driven from here, but every step is computed by the mission service.
   const live = mission?.sim.phase === "moving" || mission?.sim.phase === "at_target";
@@ -168,21 +237,105 @@ export default function Workspace() {
 
   // The Earth field site is the best analog found for the mission area (Hanksville until a search has run).
   const fieldSite = analogs["mars:jezero"]?.candidates.find((c) => !c.support.startsWith("control"))?.region ?? "earth:hanksville";
+  const climateSite = body === "earth" ? selected.earth : body === "mars" && step === 4 ? fieldSite : null;
   useEffect(() => {
-    if (step !== 4 || !model || climate?.region.region === fieldSite) return;
-    setClimateError(null);
-    scienceApi.climate(fieldSite).then(setClimate).catch((e) => setClimateError(e.message));
-  }, [step, fieldSite, model, climate?.region.region]);
+    if (!climateSite || !model || climate?.region.region === climateSite) return;
+    setClimateError(null); setClimate(null);
+    scienceApi.climate(climateSite).then(setClimate).catch((e) => setClimateError(e.message));
+  }, [climateSite, model, climate?.region.region]);
 
-  const switchBody = (b: "mars" | "moon") => {
-    setBody(b); setPlacing(false); setProbe(null);
-    if (b === "moon") fly(3.6, 20, 2.6); else if (terrain) fly(terrain.grid.lon0, terrain.grid.lat0, 11.4);
+  const switchBody = (b: Body) => {
+    setBody(b); setPlacing(false); setProbe(null); setThreeD(false); setSurface(false);
+    if (b === "moon") fly(3.6, 20, 2.2);
+    else if (b === "earth") fly(-60, 25, 1.7);
+    else if (terrain) fly(terrain.grid.lon0, terrain.grid.lat0, 11.4);
   };
 
+  /** Open any region on its own world's map: the link that joins the Mars, Moon and Earth views. */
+  const openRegion = (id: string) => {
+    const r = [...regions.mars, ...regions.moon, ...regions.earth].find((q) => q.region === id);
+    if (!r) return;
+    if (r.body !== body) switchBody(r.body as Body);
+    if (id === "mars:jezero") {
+      // The mission area: go to the mission map, not the regional view.
+      setSelected((s) => ({ ...s, mars: id }));
+      if (terrain) fly(terrain.grid.lon0, terrain.grid.lat0, 11.4);
+      return;
+    }
+    selectRegion(r);
+    // Another Mars region is a look elsewhere; the Region step is the one that explains it.
+    if (r.body === "mars") { setStep(0); setPlacing(false); }
+  };
+
+  const goStep = (i: number) => {
+    const next = Math.max(0, Math.min(STEPS.length - 1, i));
+    setStep(next);
+    if (next !== 2) setPlacing(false);
+  };
+  useEffect(() => { if (step === 6 && mission) setReviewed(true); }, [step, mission]);
+  // The best score of the session, so a replay has something to beat.
+  const total = mission?.score?.total;
+  useEffect(() => { if (total !== undefined) setBest((b) => (b === null || total > b ? total : b)); }, [total]);
+
   const coach = COACH[step];
-  const coachCtx = { mission, analogs: Object.keys(analogs).length > 0, triedFoot };
+  const coachCtx: CoachCtx = { mission, analogs: Object.keys(analogs).length > 0, triedFoot, probed, reviewed };
   const coachScore = COACH.filter((c) => c.done(coachCtx)).length;
   const slopeOn = body === "mars" && !!layers.slope;
+
+  // What each step hands to the next. Words only: every value comes from the services.
+  const jezeroAnalogs = analogs["mars:jezero"];
+  const siteName = regions.earth.find((r) => r.region === fieldSite)?.name ?? "Hanksville";
+  const moverName = profiles.find((q) => q.key === mission?.mover)?.name ?? "mover";
+  const feas = mission?.plan?.feasibility;
+  const visited = mission?.targets.filter((t) => t.visited).length ?? 0;
+  const ran = !!mission && mission.sim.phase !== "idle" && mission.sim.phase !== "manual";
+  const carried: { text: string; tone?: "good" | "warn" | "bad" } = (() => {
+    if (step === 0) return { text: terrain ? "The Jezero map is loaded and checked against the real rover's path. Next, find where on Earth this ground can be rehearsed." : "The mission area has not loaded." };
+    if (step === 1) return jezeroAnalogs
+      ? { text: `Rehearsal site for Jezero: ${siteName}. It becomes the field site in the Habitat step.`, tone: "good" }
+      : { text: `No search for Jezero yet, so ${siteName} stands in as the field site until you run one.` };
+    if (!mission) return { text: "Create the mission to continue." };
+    if (step === 2) return mission.plan
+      ? { text: `${mission.targets.length} target${mission.targets.length === 1 ? "" : "s"}, ${fmtDistance(mission.plan.distance_m)} and ${fmtDuration(mission.plan.seconds)} for the ${moverName.toLowerCase()}. Next, check it can be done safely.`, tone: "good" }
+      : { text: "No route yet. Add a target on the map to get one." };
+    if (step === 3) return !feas ? { text: "No route to check yet. Add a target in the Route step." }
+      : feas.ok ? { text: "The route passes the consumables check with its reserve. Next, size the habitat it leaves from.", tone: "good" }
+      : { text: "The route fails the consumables check, so the traverse will be refused. Change the mover or move the targets.", tone: "bad" };
+    if (step === 4) return { text: `${(mission.habitat.food_grown_share * 100).toFixed(0)}% of food grown on site; power margin ${mission.habitat.power_margin_kwh_per_sol >= 0 ? "+" : ""}${mission.habitat.power_margin_kwh_per_sol.toFixed(0)} kWh per sol. Next, run the traverse.`,
+                             tone: mission.habitat.power_margin_kwh_per_sol >= 0 ? undefined : "warn" };
+    if (step === 5) return mission.score
+      ? { text: `Traverse finished: ${mission.score.total.toFixed(0)} of 100. The review shows what happened and what the evidence supports.`, tone: "good" }
+      : ran ? { text: `Traverse under way: ${visited} of ${mission.targets.length} targets visited, ${mission.sim.replans} replan${mission.sim.replans === 1 ? "" : "s"}.` }
+      : { text: mission.plan ? "The plan is ready. Start the traverse." : "No route yet. Add a target in the Route step." };
+    return { text: "This is the whole mission. Reset the simulation to replay it, or visit the Moon and Earth from the top bar." };
+  })();
+
+  // Review step: what every part of the product did in this mission.
+  const linkedClps = clps?.deliveries.filter((d) => d.region).length ?? 0;
+  const partRows: PartRow[] = !mission ? [] : [
+    { key: "map", result: mission.plan
+        ? `${mission.targets.length} target${mission.targets.length === 1 ? "" : "s"} on a ${fmtDistance(mission.plan.distance_m)} route for the ${moverName.toLowerCase()}${ran ? `; ${visited} visited, ${mission.sim.replans} replan${mission.sim.replans === 1 ? "" : "s"}` : ""}.`
+        : "No route was planned.",
+      action: { label: "Open route", run: () => goStep(2) } },
+    { key: "analogs", result: jezeroAnalogs
+        ? `The search picked ${siteName} as the place to rehearse Jezero.`
+        : `No search was run for Jezero, so ${siteName} stood in as the rehearsal site.`,
+      action: { label: "Open analogs", run: () => goStep(1) } },
+    { key: "health", result: !mission.sim.health.monitored ? "The robotic scout carries no crew, so nothing was monitored."
+        : !ran ? "The monitor starts with the traverse."
+        : `Heart rate ${mission.sim.health.heart_rate_bpm.toFixed(0)} bpm and fatigue ${(mission.sim.health.fatigue * 100).toFixed(0)}% at the last reading${mission.sim.health.anomaly ? ", with an alert active" : ", with no alert active"}. Simulated.`,
+      action: { label: "Open crew", run: () => goStep(3) } },
+    { key: "farm", result: `${(mission.habitat.food_grown_share * 100).toFixed(0)}% of the crew's food energy grown on site, with NASA climate records for ${siteName} beside it.`,
+      action: { label: "Open habitat", run: () => goStep(4) } },
+    { key: "game", result: mission.score
+        ? `${mission.score.total.toFixed(0)} of 100 (${mission.score.rank})${best !== null && best > mission.score.total ? `; best this session ${best.toFixed(0)}` : ""}.`
+        : "No score yet: it is given when the traverse ends.",
+      action: { label: "Open simulation", run: () => goStep(5) } },
+    { key: "trainer", result: training ? `${coachScore} of ${COACH.length} training tasks done.` : "Training mode is off. Turn it on for one task in each step.",
+      action: training ? undefined : { label: "Turn on training", run: () => setTraining(true) } },
+    { key: "clps", result: clps ? `${clps.deliveries.length} NASA lunar deliveries listed, ${linkedClps} linked to lunar terrain this build has measured.` : "NASA's delivery list did not load.",
+      action: { label: "Open the Moon", run: () => switchBody("moon") } },
+  ];
 
   return (
     <div className="grid h-screen grid-rows-[48px_1fr]">
@@ -193,15 +346,19 @@ export default function Workspace() {
           <span className="text-[12px] text-faint">Martian Map</span>
         </div>
         <div className="ml-2 flex rounded-md border border-line-strong p-0.5" role="radiogroup" aria-label="Body">
-          {(["mars", "moon"] as const).map((b) => (
+          {(["mars", "moon", "earth"] as const).map((b) => (
             <button key={b} role="radio" aria-checked={body === b} onClick={() => switchBody(b)}
                     className={`rounded px-3 py-1 text-[12px] font-medium transition-colors ${body === b ? "bg-raised text-text" : "text-muted hover:text-text"}`}>
-              {b === "mars" ? "Mars" : "Moon comparison"}
+              {BODY_NAME[b]}
             </button>
           ))}
         </div>
         <span className="flex-1" />
         {mission && <span className="truncate text-[12px] text-muted">{mission.name}</span>}
+        {worldUp && <button className="btn btn-primary h-7" onClick={() => setWorld(true)} title="Drive a rover and walk an astronaut across Jezero in a full 3D world">3D world</button>}
+        <button className={`btn h-7 ${space ? "border-mars text-mars-soft" : ""}`} aria-pressed={space} onClick={() => setSpace((v) => !v)}
+                title="See Earth, the Moon and Mars together">Space view</button>
+        <a href="/guide" target="_blank" rel="noreferrer" className="text-[12px] text-muted underline-offset-4 hover:text-text hover:underline">Guide</a>
         <label className="flex cursor-pointer items-center gap-2 text-[12px] text-muted">
           <input type="checkbox" checked={training} onChange={(e) => setTraining(e.target.checked)} className="accent-[var(--color-mars)]" />
           Training mode
@@ -223,7 +380,7 @@ export default function Workspace() {
             <>
               <nav className="grid grid-cols-7 border-b border-line" aria-label="Mission steps">
                 {STEPS.map((s, i) => (
-                  <button key={s} onClick={() => { setStep(i); if (i !== 2) setPlacing(false); }} aria-current={step === i ? "step" : undefined}
+                  <button key={s} onClick={() => goStep(i)} aria-current={step === i ? "step" : undefined}
                           disabled={!mission && i > 1}
                           className={`flex flex-col items-center gap-0.5 border-b-2 py-2 transition-colors disabled:opacity-35 ${step === i ? "border-mars text-text" : "border-transparent text-muted hover:text-text"}`}>
                     <span className="num text-[10px] text-faint">{i + 1}</span>
@@ -239,52 +396,120 @@ export default function Workspace() {
                     <span className="num text-[11px] text-muted">{coachScore} of {COACH.length} done</span>
                   </div>
                   <p className="mt-1 text-[12.5px] leading-snug text-text">
-                    <span className={coach.done(coachCtx) ? "text-good" : "text-warn"}>{coach.done(coachCtx) ? "Done. " : "Task. "}</span>{coach.task}
+                    <span className={coach.done(coachCtx) ? "text-good" : "text-warn"}>{coach.done(coachCtx) ? "Done. " : "Your task. "}</span>{coach.task}
                   </p>
+                  <p className="mt-1 text-[11.5px] leading-snug text-[#b59ae6]">Why it matters: {coach.why}</p>
+                  {coachScore === COACH.length && <p className="mt-1 text-[11.5px] font-medium text-good">All seven tasks done. You have planned and flown a whole Marswalk.</p>}
                 </div>
               )}
               <div className="scroll-thin min-h-0 flex-1 overflow-y-auto">
                 {step === 0 && <StepRegion terrain={terrain} regions={regions.mars} selected={selected.mars}
-                                           onSelect={selectRegion}
+                                           onSelect={selectRegion} onAnalogs={() => goStep(1)}
                                            onJezero={() => { setSelected((s) => ({ ...s, mars: "mars:jezero" })); if (terrain) fly(terrain.grid.lon0, terrain.grid.lat0, 11.6); }} />}
                 {step === 1 && <StepAnalogs result={region ? analogs[region.region] ?? null : null} loading={analogBusy} error={analogError}
-                                            region={region} onRun={runAnalogs} modelReady={!!model} />}
+                                            region={region} onRun={runAnalogs} modelReady={!!model} onOpen={openRegion} />}
                 {mission && step === 2 && <StepRoute mission={mission} profiles={profiles} placing={placing} setPlacing={setPlacing} busy={busy}
+                                                     goal={goal} setGoal={setGoal}
                                                      onPlan={(mv, obj, risk) => { if (mv === "astronaut") setTriedFoot(true); command(() => missionApi.plan(mission.id, mv, obj, risk)); }}
                                                      onClear={() => command(() => missionApi.clearTargets(mission.id))} />}
                 {mission && step === 3 && <StepCrew mission={mission} reserves={reserves} />}
-                {mission && step === 4 && <StepHabitat mission={mission} busy={busy} climate={climate} climateError={climateError}
+                {mission && step === 4 && <StepHabitat mission={mission} busy={busy} climate={climate} climateError={climateError} onOpenSite={openRegion}
                                                        onChange={(crew, sols, crops, overrides) => command(() => missionApi.habitat(mission.id, crew, sols, crops, overrides))} />}
                 {mission && step === 5 && <StepSim mission={mission} running={running} speed={speed} setSpeed={setSpeed} busy={busy}
+                                                   best={best} onCrew={() => goStep(3)}
                                                    onStart={() => { if (mission.sim.phase === "idle") command(() => missionApi.sim(mission.id, "start")).then(() => setRunning(true)); else setRunning(true); }}
                                                    onPause={() => setRunning(false)}
                                                    onReset={() => { setRunning(false); command(() => missionApi.sim(mission.id, "reset")); }}
                                                    onEmergency={(kind) => command(() => missionApi.sim(mission.id, "emergency", { kind }))} />}
-                {mission && step === 6 && <StepReview mission={mission} model={model} region={region} />}
+                {mission && step === 6 && <StepReview mission={mission} model={model} region={region} parts={partRows} best={best} />}
               </div>
+              <StepFooter step={step} steps={STEPS} carried={carried.text} tone={carried.tone} canNext={!!mission || step < 1} onStep={goStep} />
             </>
-          ) : (
+          ) : body === "moon" ? (
             <div className="scroll-thin min-h-0 flex-1 overflow-y-auto">
+              <WorldBanner missionName={mission?.name ?? null} onBack={() => switchBody("mars")} />
               <div className="border-b border-line px-4 py-3.5">
                 <h2 className="text-[14px] font-medium text-text">Lunar comparison</h2>
                 <p className="mt-1.5 text-[12px] leading-snug text-muted">
-                  The same pipeline reads the Moon: LROC Wide Angle Camera images and LOLA elevation from the Lunar Reconnaissance Orbiter, cut into the same 11 km cells and embedded by the same network. Pick a region to compare it with Earth test sites.
+                  The same pipeline reads the Moon: LROC Wide Angle Camera images and LOLA elevation from the Lunar Reconnaissance Orbiter, cut into the same 11 km cells and embedded by the same network that ranked Earth sites for your Mars mission. Pick a region, or one of NASA&apos;s lunar deliveries below, to compare it with Earth test sites.
                 </p>
                 <div className="mt-2"><Note>Lunar route planning is not in this build.</Note></div>
               </div>
               <StepAnalogs result={region ? analogs[region.region] ?? null : null} loading={analogBusy} error={analogError}
-                           region={region} onRun={runAnalogs} modelReady={!!model} />
+                           region={region} onRun={runAnalogs} modelReady={!!model} onOpen={openRegion} />
               <ClpsBrowser clps={clps} selected={selected.moon}
                            onRegion={(id) => { onRegionMarker(id); if (model && !analogs[id]) runAnalogsFor(id); }} />
               <StepRegion lunar terrain={null} regions={regions.moon} selected={selected.moon} onSelect={selectRegion} onJezero={() => undefined} />
+            </div>
+          ) : (
+            <div className="scroll-thin min-h-0 flex-1 overflow-y-auto">
+              <WorldBanner missionName={mission?.name ?? null} onBack={() => switchBody("mars")} />
+              <div className="border-b border-line px-4 py-3.5">
+                <h2 className="text-[14px] font-medium text-text">Earth test sites</h2>
+                <p className="mt-1.5 text-[12px] leading-snug text-muted">
+                  Hardware and crews for Mars and the Moon are rehearsed on Earth. Pick a site to see which Mars or Moon terrain it most resembles, and NASA&apos;s climate record for it. Imagery is NASA&apos;s Blue Marble; terrain is from the Shuttle Radar Topography Mission.
+                </p>
+                <div className="mt-2.5 grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="Compare with">
+                  {(["mars", "moon"] as const).map((t) => (
+                    <button key={t} role="radio" aria-checked={earthTarget === t} onClick={() => setEarthTarget(t)}
+                            className={`btn ${earthTarget === t ? "border-mars text-mars-soft" : ""}`}>Compare with {BODY_NAME[t]}</button>
+                  ))}
+                </div>
+              </div>
+              <StepAnalogs result={analogs[analogKey] ?? null} loading={analogBusy} error={analogError}
+                           region={region} onRun={runAnalogs} modelReady={!!model} target={earthTarget} onOpen={openRegion} />
+              {selected.earth && <FieldSite climate={climate} error={climateError} lead="What farming and field work face at this site." />}
+              <StepRegion earth terrain={null} regions={regions.earth} selected={selected.earth} onSelect={selectRegion} onJezero={() => undefined} />
             </div>
           )}
         </aside>
 
         {/* Map */}
         <main className="relative min-h-0">
-          <MapView body={body} terrain={terrain} m2020={m2020} mission={mission} layers={layers} regions={regions[body]}
+          <MapView body={body} terrain={terrain} dem={dem} threeD={threeD} surface={surface}
+                   aim={planned && mission ? mission.sim.heading_deg : aim} m2020={m2020} mission={mission} layers={layers} regions={regions[body]}
                    selectedRegion={selected[body]} focus={focus} placing={placing && step === 2} onClick={onMapClick} onRegion={onRegionMarker} />
+
+          {world && (
+            <div className="fixed inset-x-0 bottom-0 top-12 z-50 bg-black" role="dialog" aria-label="3D rover world">
+              <iframe src={`${WORLD_URL}/?intro=0`} title="3D rover world of Jezero Crater" className="h-full w-full border-0" allow="fullscreen" />
+              <button className="btn absolute bottom-4 left-1/2 -translate-x-1/2 bg-panel/95" onClick={() => setWorld(false)}>Back to the mission map</button>
+            </div>
+          )}
+
+          {space && (
+            <SpaceView counts={{ mars: regions.mars.length, moon: regions.moon.length, earth: regions.earth.length }}
+                       onClose={() => setSpace(false)}
+                       onPick={(b) => { setSpace(false); switchBody(b); }} />
+          )}
+
+          {/* View controls */}
+          <div className="absolute left-14 top-3 flex gap-1.5">
+            {body === "mars" && (
+              <button className={`btn bg-panel/95 ${threeD ? "border-mars text-mars-soft" : ""}`} aria-pressed={threeD} disabled={!dem}
+                      title={dem ? "Raise the surface from the measured elevation model" : "3D terrain is not available"}
+                      onClick={() => { if (terrain) { if (threeD) fly(terrain.grid.lon0, terrain.grid.lat0, 11.6); else if (mission) fly(mission.sim.lon, mission.sim.lat, 14.6, 70, -32); else fly(terrain.grid.lon0 - 0.012, terrain.grid.lat0 - 0.004, 12.5, 66, -30); } setThreeD((v) => !v); }}>
+                {threeD ? "3D terrain on" : "3D terrain"}
+              </button>
+            )}
+            {body === "mars" && mission && (
+              <button className={`btn bg-panel/95 ${surface ? "border-mars text-mars-soft" : ""}`} aria-pressed={surface} disabled={!dem}
+                      title="Ride close behind your rover or astronaut and drive by hand"
+                      onClick={() => {
+                        if (surface) { setSurface(false); fly(mission.sim.lon, mission.sim.lat, 14.6, 70, -32); }
+                        else { setAim(mission.sim.heading_deg); setThreeD(true); setSurface(true); }
+                      }}>
+                {surface ? "Surface view on" : "Surface view"}
+              </button>
+            )}
+            <button className="btn bg-panel/95" title={`Zoom out to see all of ${BODY_NAME[body]}`}
+                    onClick={() => { setThreeD(false); const c = body === "mars" ? [77.4, 18.4] : body === "moon" ? [3.6, 20] : [-60, 25]; fly(c[0], c[1], 1.6); }}>
+              Whole {body === "moon" ? "Moon" : "planet"}
+            </button>
+            {body === "mars" && terrain && (
+              <button className="btn bg-panel/95" onClick={() => fly(terrain.grid.lon0, terrain.grid.lat0, 11.6)}>Jezero</button>
+            )}
+          </div>
 
           {/* Layers */}
           {body === "mars" && (
@@ -359,6 +584,33 @@ export default function Workspace() {
             </div>
           )}
 
+          {/* Surface view heads-up strip */}
+          {surface && mission && body === "mars" && (
+            <div className="absolute bottom-10 left-1/2 w-[min(640px,86%)] -translate-x-1/2 rounded-lg border border-line-strong bg-panel/90 px-4 py-2.5 backdrop-blur">
+              <div className="flex items-center gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12.5px] font-medium text-text">
+                    {planned ? "Riding along the planned route" : mission.sim.phase === "idle" || mission.sim.phase === "manual" ? "Drive by hand" : "Traverse finished: reset to drive by hand"}
+                  </div>
+                  <div className="text-[11.5px] text-muted">
+                    {planned ? "The camera follows the mover." : <>
+                      <kbd className="num rounded border border-line-strong px-1">W</kbd> forward · <kbd className="num rounded border border-line-strong px-1">S</kbd> back · <kbd className="num rounded border border-line-strong px-1">A</kbd> <kbd className="num rounded border border-line-strong px-1">D</kbd> turn · arrow keys work too
+                    </>}
+                  </div>
+                </div>
+                <div className="num grid grid-cols-4 gap-x-4 text-[11px] text-muted">
+                  <span>heading<br /><span className="text-[13px] text-text">{Math.round(planned ? mission.sim.heading_deg : aim)}°</span></span>
+                  <span>slope<br /><span className={`text-[13px] ${mission.sim.slope_deg > 15 ? "text-warn" : "text-text"}`}>{mission.sim.slope_deg.toFixed(1)}°</span></span>
+                  <span>driven<br /><span className="text-[13px] text-text">{mission.sim.distance_m.toFixed(0)} m</span></span>
+                  <span>{mission.sim.resource === "oxygen_kg" ? "oxygen" : "battery"}<br /><span className={`text-[13px] ${mission.sim.return_margin < 0 ? "text-bad" : "text-text"}`}>{((mission.sim.remaining / Math.max(mission.sim.capacity, 1e-9)) * 100).toFixed(0)}%</span></span>
+                </div>
+              </div>
+              <p className="mt-1.5 text-[10.5px] leading-snug text-faint">
+                Moves are computed by the mission service with the same slope limits as a planned route. The rust tint over the grey orbital images is illustrative, and the model is enlarged.
+              </p>
+            </div>
+          )}
+
           {toast && (
             <div className="absolute left-1/2 top-3 w-[min(560px,80%)] -translate-x-1/2" role="alert"><Note tone={toast.tone}>{toast.text}</Note></div>
           )}
@@ -370,7 +622,7 @@ export default function Workspace() {
                 <p className="label text-mars-soft">Interplanetary Survival Guide · Martian Map</p>
                 <h1 className="mt-2 text-[22px] font-semibold leading-tight text-text">Plan a Marswalk at Jezero Crater</h1>
                 <p className="mt-2 text-[13px] leading-relaxed text-muted">
-                  A layered map built from four NASA missions. Pick targets, get a route that respects slope and consumables, compare the terrain with test sites on Earth, then run the traverse and see how the plan holds up.
+                  A layered map built from five NASA missions. One mission runs through seven steps: the map, a rehearsal site on Earth, a route, crew safety, a habitat, the traverse itself, and a review of what happened.
                 </p>
                 <label className="mt-4 block"><span className="text-[12px] text-muted">Mission name</span>
                   <input className="field mt-1" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} /></label>

@@ -1,0 +1,719 @@
+{
+ "run": "20261115T182943Z-perworld",
+ "data": {
+  "dataset_version": "terra-cells-v1",
+  "cells": 4534,
+  "bodies": {
+   "earth": {
+    "cells": 1251,
+    "regions": 29,
+    "median": {
+     "slope_median_deg": 1.357,
+     "slope_p90_deg": 3.239,
+     "relief_m": 255.92,
+     "roughness_m": 30.579,
+     "tri_m": 43.69
+    }
+   },
+   "mars": {
+    "cells": 1911,
+    "regions": 39,
+    "median": {
+     "slope_median_deg": 0.859,
+     "slope_p90_deg": 2.064,
+     "relief_m": 217.383,
+     "roughness_m": 22.321,
+     "tri_m": 25.316
+    }
+   },
+   "moon": {
+    "cells": 1372,
+    "regions": 28,
+    "median": {
+     "slope_median_deg": 0.746,
+     "slope_p90_deg": 2.208,
+     "relief_m": 217.514,
+     "roughness_m": 23.039,
+     "tri_m": 25.732
+    }
+   }
+  }
+ },
+ "backbone": "vit_small_patch14_dinov2.lvd142m",
+ "head_config": {
+  "in_dim": 768,
+  "hidden": 512,
+  "emb_dim": 128,
+  "dropout": 0.15,
+  "lr": 0.001,
+  "weight_decay": 0.01,
+  "epochs": 60,
+  "batch": 256,
+  "contrastive_weight": 0.5,
+  "temperature": 0.1,
+  "kernel_sigma": 0.75,
+  "coral_weight": 0.0,
+  "seed": 0,
+  "attribute_names": [
+   "slope_median_deg",
+   "slope_p90_deg",
+   "relief_m",
+   "roughness_m",
+   "tri_m"
+  ]
+ },
+ "seeds": 3,
+ "experiments": {
+  "E6": {
+   "design": "the E1 folds (5-fold over regions, stratified by body). 'per_world' methods train one model per body on that body's training regions only; 'ensemble_per_world' averages the per-world head and the per-world ridge. primary_r2 is the mean R2 over slope, relief and roughness.",
+   "results": {
+    "head": {
+     "earth": {
+      "slope_median_deg": {
+       "r2": 0.352,
+       "r2_sd": 0.1583,
+       "median_abs_error": 0.6783,
+       "median_abs_error_sd": 0.1603
+      },
+      "slope_p90_deg": {
+       "r2": 0.3585,
+       "r2_sd": 0.1877,
+       "median_abs_error": 1.6509,
+       "median_abs_error_sd": 0.4137
+      },
+      "relief_m": {
+       "r2": 0.2628,
+       "r2_sd": 0.2147,
+       "median_abs_error": 149.4808,
+       "median_abs_error_sd": 36.0326
+      },
+      "roughness_m": {
+       "r2": 0.3301,
+       "r2_sd": 0.2026,
+       "median_abs_error": 16.7696,
+       "median_abs_error_sd": 4.3185
+      },
+      "tri_m": {
+       "r2": 0.3886,
+       "r2_sd": 0.1388,
+       "median_abs_error": 19.4156,
+       "median_abs_error_sd": 4.7956
+      }
+     },
+     "mars": {
+      "slope_median_deg": {
+       "r2": 0.6179,
+       "r2_sd": 0.1281,
+       "median_abs_error": 0.4116,
+       "median_abs_error_sd": 0.1276
+      },
+      "slope_p90_deg": {
+       "r2": 0.6954,
+       "r2_sd": 0.0936,
+       "median_abs_error": 0.8846,
+       "median_abs_error_sd": 0.2881
+      },
+      "relief_m": {
+       "r2": 0.6124,
+       "r2_sd": 0.0992,
+       "median_abs_error": 96.7516,
+       "median_abs_error_sd": 35.4855
+      },
+      "roughness_m": {
+       "r2": 0.6757,
+       "r2_sd": 0.0781,
+       "median_abs_error": 8.5086,
+       "median_abs_error_sd": 1.9374
+      },
+      "tri_m": {
+       "r2": 0.6594,
+       "r2_sd": 0.0963,
+       "median_abs_error": 9.9929,
+       "median_abs_error_sd": 3.6873
+      }
+     },
+     "moon": {
+      "slope_median_deg": {
+       "r2": 0.846,
+       "r2_sd": 0.0478,
+       "median_abs_error": 0.3284,
+       "median_abs_error_sd": 0.1229
+      },
+      "slope_p90_deg": {
+       "r2": 0.8639,
+       "r2_sd": 0.0439,
+       "median_abs_error": 0.799,
+       "median_abs_error_sd": 0.3319
+      },
+      "relief_m": {
+       "r2": 0.778,
+       "r2_sd": 0.0935,
+       "median_abs_error": 85.5569,
+       "median_abs_error_sd": 31.3232
+      },
+      "roughness_m": {
+       "r2": 0.832,
+       "r2_sd": 0.0587,
+       "median_abs_error": 9.0808,
+       "median_abs_error_sd": 4.1564
+      },
+      "tri_m": {
+       "r2": 0.8506,
+       "r2_sd": 0.0571,
+       "median_abs_error": 8.6472,
+       "median_abs_error_sd": 3.7933
+      }
+     }
+    },
+    "dino_ridge": {
+     "earth": {
+      "slope_median_deg": {
+       "r2": 0.2737,
+       "r2_sd": 0.2196,
+       "median_abs_error": 0.8105,
+       "median_abs_error_sd": 0.2126
+      },
+      "slope_p90_deg": {
+       "r2": 0.3202,
+       "r2_sd": 0.2143,
+       "median_abs_error": 1.7991,
+       "median_abs_error_sd": 0.5
+      },
+      "relief_m": {
+       "r2": 0.2466,
+       "r2_sd": 0.3246,
+       "median_abs_error": 160.5376,
+       "median_abs_error_sd": 42.8057
+      },
+      "roughness_m": {
+       "r2": 0.3023,
+       "r2_sd": 0.2571,
+       "median_abs_error": 18.1568,
+       "median_abs_error_sd": 5.2357
+      },
+      "tri_m": {
+       "r2": 0.3588,
+       "r2_sd": 0.1586,
+       "median_abs_error": 21.3759,
+       "median_abs_error_sd": 6.2693
+      }
+     },
+     "mars": {
+      "slope_median_deg": {
+       "r2": 0.5759,
+       "r2_sd": 0.1328,
+       "median_abs_error": 0.5144,
+       "median_abs_error_sd": 0.1657
+      },
+      "slope_p90_deg": {
+       "r2": 0.6569,
+       "r2_sd": 0.1065,
+       "median_abs_error": 1.0955,
+       "median_abs_error_sd": 0.3267
+      },
+      "relief_m": {
+       "r2": 0.573,
+       "r2_sd": 0.1196,
+       "median_abs_error": 107.6388,
+       "median_abs_error_sd": 41.849
+      },
+      "roughness_m": {
+       "r2": 0.6502,
+       "r2_sd": 0.0937,
+       "median_abs_error": 9.6581,
+       "median_abs_error_sd": 2.4216
+      },
+      "tri_m": {
+       "r2": 0.6212,
+       "r2_sd": 0.1143,
+       "median_abs_error": 11.6364,
+       "median_abs_error_sd": 4.2124
+      }
+     },
+     "moon": {
+      "slope_median_deg": {
+       "r2": 0.8147,
+       "r2_sd": 0.0718,
+       "median_abs_error": 0.3908,
+       "median_abs_error_sd": 0.1386
+      },
+      "slope_p90_deg": {
+       "r2": 0.8422,
+       "r2_sd": 0.0558,
+       "median_abs_error": 0.8383,
+       "median_abs_error_sd": 0.3421
+      },
+      "relief_m": {
+       "r2": 0.7513,
+       "r2_sd": 0.1057,
+       "median_abs_error": 92.1977,
+       "median_abs_error_sd": 43.1141
+      },
+      "roughness_m": {
+       "r2": 0.8181,
+       "r2_sd": 0.0636,
+       "median_abs_error": 8.8685,
+       "median_abs_error_sd": 4.6698
+      },
+      "tri_m": {
+       "r2": 0.8326,
+       "r2_sd": 0.0673,
+       "median_abs_error": 8.6894,
+       "median_abs_error_sd": 4.3599
+      }
+     }
+    },
+    "head_per_world": {
+     "earth": {
+      "slope_median_deg": {
+       "r2": 0.384,
+       "r2_sd": 0.1493,
+       "median_abs_error": 0.6829,
+       "median_abs_error_sd": 0.1165
+      },
+      "slope_p90_deg": {
+       "r2": 0.416,
+       "r2_sd": 0.1726,
+       "median_abs_error": 1.6921,
+       "median_abs_error_sd": 0.3098
+      },
+      "relief_m": {
+       "r2": 0.3257,
+       "r2_sd": 0.1959,
+       "median_abs_error": 144.01,
+       "median_abs_error_sd": 22.7319
+      },
+      "roughness_m": {
+       "r2": 0.3925,
+       "r2_sd": 0.1865,
+       "median_abs_error": 16.5098,
+       "median_abs_error_sd": 3.7219
+      },
+      "tri_m": {
+       "r2": 0.4568,
+       "r2_sd": 0.117,
+       "median_abs_error": 19.2543,
+       "median_abs_error_sd": 2.8429
+      }
+     },
+     "mars": {
+      "slope_median_deg": {
+       "r2": 0.6255,
+       "r2_sd": 0.1283,
+       "median_abs_error": 0.3922,
+       "median_abs_error_sd": 0.141
+      },
+      "slope_p90_deg": {
+       "r2": 0.7165,
+       "r2_sd": 0.0982,
+       "median_abs_error": 0.8461,
+       "median_abs_error_sd": 0.3029
+      },
+      "relief_m": {
+       "r2": 0.6299,
+       "r2_sd": 0.0854,
+       "median_abs_error": 96.9512,
+       "median_abs_error_sd": 38.7026
+      },
+      "roughness_m": {
+       "r2": 0.7058,
+       "r2_sd": 0.068,
+       "median_abs_error": 8.3489,
+       "median_abs_error_sd": 1.8004
+      },
+      "tri_m": {
+       "r2": 0.6862,
+       "r2_sd": 0.0925,
+       "median_abs_error": 9.6347,
+       "median_abs_error_sd": 3.7222
+      }
+     },
+     "moon": {
+      "slope_median_deg": {
+       "r2": 0.8549,
+       "r2_sd": 0.0537,
+       "median_abs_error": 0.3229,
+       "median_abs_error_sd": 0.1103
+      },
+      "slope_p90_deg": {
+       "r2": 0.8698,
+       "r2_sd": 0.0567,
+       "median_abs_error": 0.7887,
+       "median_abs_error_sd": 0.2893
+      },
+      "relief_m": {
+       "r2": 0.7874,
+       "r2_sd": 0.102,
+       "median_abs_error": 79.8544,
+       "median_abs_error_sd": 29.1558
+      },
+      "roughness_m": {
+       "r2": 0.84,
+       "r2_sd": 0.0643,
+       "median_abs_error": 9.2453,
+       "median_abs_error_sd": 4.5605
+      },
+      "tri_m": {
+       "r2": 0.8612,
+       "r2_sd": 0.0651,
+       "median_abs_error": 8.2957,
+       "median_abs_error_sd": 3.28
+      }
+     }
+    },
+    "dino_ridge_per_world": {
+     "earth": {
+      "slope_median_deg": {
+       "r2": 0.3634,
+       "r2_sd": 0.203,
+       "median_abs_error": 0.7814,
+       "median_abs_error_sd": 0.1417
+      },
+      "slope_p90_deg": {
+       "r2": 0.4158,
+       "r2_sd": 0.2189,
+       "median_abs_error": 1.7459,
+       "median_abs_error_sd": 0.3211
+      },
+      "relief_m": {
+       "r2": 0.3605,
+       "r2_sd": 0.2219,
+       "median_abs_error": 143.5673,
+       "median_abs_error_sd": 27.1603
+      },
+      "roughness_m": {
+       "r2": 0.3997,
+       "r2_sd": 0.2473,
+       "median_abs_error": 17.4536,
+       "median_abs_error_sd": 3.5921
+      },
+      "tri_m": {
+       "r2": 0.4916,
+       "r2_sd": 0.1309,
+       "median_abs_error": 19.7668,
+       "median_abs_error_sd": 3.6399
+      }
+     },
+     "mars": {
+      "slope_median_deg": {
+       "r2": 0.6147,
+       "r2_sd": 0.1238,
+       "median_abs_error": 0.4301,
+       "median_abs_error_sd": 0.1077
+      },
+      "slope_p90_deg": {
+       "r2": 0.7189,
+       "r2_sd": 0.0917,
+       "median_abs_error": 0.8594,
+       "median_abs_error_sd": 0.2672
+      },
+      "relief_m": {
+       "r2": 0.6284,
+       "r2_sd": 0.098,
+       "median_abs_error": 95.3255,
+       "median_abs_error_sd": 40.1332
+      },
+      "roughness_m": {
+       "r2": 0.7176,
+       "r2_sd": 0.0747,
+       "median_abs_error": 8.1063,
+       "median_abs_error_sd": 1.7987
+      },
+      "tri_m": {
+       "r2": 0.6914,
+       "r2_sd": 0.1,
+       "median_abs_error": 9.3714,
+       "median_abs_error_sd": 3.7143
+      }
+     },
+     "moon": {
+      "slope_median_deg": {
+       "r2": 0.8297,
+       "r2_sd": 0.0817,
+       "median_abs_error": 0.3495,
+       "median_abs_error_sd": 0.1269
+      },
+      "slope_p90_deg": {
+       "r2": 0.8616,
+       "r2_sd": 0.0647,
+       "median_abs_error": 0.7734,
+       "median_abs_error_sd": 0.2837
+      },
+      "relief_m": {
+       "r2": 0.7793,
+       "r2_sd": 0.1074,
+       "median_abs_error": 86.2344,
+       "median_abs_error_sd": 35.6032
+      },
+      "roughness_m": {
+       "r2": 0.8407,
+       "r2_sd": 0.0665,
+       "median_abs_error": 8.7731,
+       "median_abs_error_sd": 3.944
+      },
+      "tri_m": {
+       "r2": 0.8623,
+       "r2_sd": 0.0688,
+       "median_abs_error": 7.9534,
+       "median_abs_error_sd": 3.5901
+      }
+     }
+    },
+    "ensemble_per_world": {
+     "earth": {
+      "slope_median_deg": {
+       "r2": 0.4028,
+       "r2_sd": 0.1656,
+       "median_abs_error": 0.718,
+       "median_abs_error_sd": 0.1215
+      },
+      "slope_p90_deg": {
+       "r2": 0.4375,
+       "r2_sd": 0.1895,
+       "median_abs_error": 1.6872,
+       "median_abs_error_sd": 0.3244
+      },
+      "relief_m": {
+       "r2": 0.3641,
+       "r2_sd": 0.1964,
+       "median_abs_error": 140.6986,
+       "median_abs_error_sd": 22.5605
+      },
+      "roughness_m": {
+       "r2": 0.4146,
+       "r2_sd": 0.2088,
+       "median_abs_error": 16.6533,
+       "median_abs_error_sd": 3.5336
+      },
+      "tri_m": {
+       "r2": 0.4919,
+       "r2_sd": 0.1169,
+       "median_abs_error": 19.2932,
+       "median_abs_error_sd": 2.9648
+      }
+     },
+     "mars": {
+      "slope_median_deg": {
+       "r2": 0.6451,
+       "r2_sd": 0.1259,
+       "median_abs_error": 0.3999,
+       "median_abs_error_sd": 0.1326
+      },
+      "slope_p90_deg": {
+       "r2": 0.7342,
+       "r2_sd": 0.0923,
+       "median_abs_error": 0.8282,
+       "median_abs_error_sd": 0.286
+      },
+      "relief_m": {
+       "r2": 0.6485,
+       "r2_sd": 0.0894,
+       "median_abs_error": 93.128,
+       "median_abs_error_sd": 36.8333
+      },
+      "roughness_m": {
+       "r2": 0.7272,
+       "r2_sd": 0.0679,
+       "median_abs_error": 7.8327,
+       "median_abs_error_sd": 1.6657
+      },
+      "tri_m": {
+       "r2": 0.7059,
+       "r2_sd": 0.0951,
+       "median_abs_error": 9.2377,
+       "median_abs_error_sd": 3.5732
+      }
+     },
+     "moon": {
+      "slope_median_deg": {
+       "r2": 0.8527,
+       "r2_sd": 0.0651,
+       "median_abs_error": 0.3202,
+       "median_abs_error_sd": 0.1301
+      },
+      "slope_p90_deg": {
+       "r2": 0.8734,
+       "r2_sd": 0.0595,
+       "median_abs_error": 0.7755,
+       "median_abs_error_sd": 0.2943
+      },
+      "relief_m": {
+       "r2": 0.7944,
+       "r2_sd": 0.1015,
+       "median_abs_error": 81.4383,
+       "median_abs_error_sd": 32.7918
+      },
+      "roughness_m": {
+       "r2": 0.8493,
+       "r2_sd": 0.0637,
+       "median_abs_error": 8.7356,
+       "median_abs_error_sd": 4.1973
+      },
+      "tri_m": {
+       "r2": 0.8699,
+       "r2_sd": 0.0654,
+       "median_abs_error": 7.9263,
+       "median_abs_error_sd": 3.472
+      }
+     }
+    }
+   },
+   "primary_r2": {
+    "head": {
+     "earth": {
+      "mean": 0.315,
+      "sd": 0.1842
+     },
+     "mars": {
+      "mean": 0.6354,
+      "sd": 0.0984
+     },
+     "moon": {
+      "mean": 0.8187,
+      "sd": 0.0647
+     }
+    },
+    "dino_ridge": {
+     "earth": {
+      "mean": 0.2742,
+      "sd": 0.2575
+     },
+     "mars": {
+      "mean": 0.5997,
+      "sd": 0.1124
+     },
+     "moon": {
+      "mean": 0.7947,
+      "sd": 0.0792
+     }
+    },
+    "head_per_world": {
+     "earth": {
+      "mean": 0.3674,
+      "sd": 0.1656
+     },
+     "mars": {
+      "mean": 0.6537,
+      "sd": 0.0898
+     },
+     "moon": {
+      "mean": 0.8274,
+      "sd": 0.0725
+     }
+    },
+    "dino_ridge_per_world": {
+     "earth": {
+      "mean": 0.3745,
+      "sd": 0.2151
+     },
+     "mars": {
+      "mean": 0.6536,
+      "sd": 0.0963
+     },
+     "moon": {
+      "mean": 0.8166,
+      "sd": 0.0848
+     }
+    },
+    "ensemble_per_world": {
+     "earth": {
+      "mean": 0.3938,
+      "sd": 0.1804
+     },
+     "mars": {
+      "mean": 0.6736,
+      "sd": 0.0911
+     },
+     "moon": {
+      "mean": 0.8322,
+      "sd": 0.0763
+     }
+    }
+   },
+   "paired_gain_over_shared_head": {
+    "dino_ridge": {
+     "earth": {
+      "mean": -0.0408,
+      "sd": 0.1105,
+      "folds_better": 5,
+      "folds": 15
+     },
+     "mars": {
+      "mean": -0.0357,
+      "sd": 0.0481,
+      "folds_better": 2,
+      "folds": 15
+     },
+     "moon": {
+      "mean": -0.024,
+      "sd": 0.0249,
+      "folds_better": 2,
+      "folds": 15
+     }
+    },
+    "head_per_world": {
+     "earth": {
+      "mean": 0.0524,
+      "sd": 0.1154,
+      "folds_better": 9,
+      "folds": 15
+     },
+     "mars": {
+      "mean": 0.0184,
+      "sd": 0.0233,
+      "folds_better": 12,
+      "folds": 15
+     },
+     "moon": {
+      "mean": 0.0088,
+      "sd": 0.0163,
+      "folds_better": 11,
+      "folds": 15
+     }
+    },
+    "dino_ridge_per_world": {
+     "earth": {
+      "mean": 0.0596,
+      "sd": 0.1221,
+      "folds_better": 10,
+      "folds": 15
+     },
+     "mars": {
+      "mean": 0.0182,
+      "sd": 0.0385,
+      "folds_better": 9,
+      "folds": 15
+     },
+     "moon": {
+      "mean": -0.002,
+      "sd": 0.0316,
+      "folds_better": 8,
+      "folds": 15
+     }
+    },
+    "ensemble_per_world": {
+     "earth": {
+      "mean": 0.0788,
+      "sd": 0.1072,
+      "folds_better": 9,
+      "folds": 15
+     },
+     "mars": {
+      "mean": 0.0383,
+      "sd": 0.024,
+      "folds_better": 15,
+      "folds": 15
+     },
+     "moon": {
+      "mean": 0.0135,
+      "sd": 0.0222,
+      "folds_better": 11,
+      "folds": 15
+     }
+    }
+   },
+   "n_runs": 15,
+   "seconds": 532.8
+  }
+ }
+}

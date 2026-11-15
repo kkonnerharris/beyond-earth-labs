@@ -357,8 +357,10 @@ func (s *server) routes() http.Handler {
 
 	mux.HandleFunc("POST /api/missions/{id}/sim/{action}", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
-			Seconds float64 `json:"seconds"`
-			Kind    string  `json:"kind"`
+			Seconds    float64 `json:"seconds"`
+			Kind       string  `json:"kind"`
+			HeadingDeg float64 `json:"heading_deg"`
+			DistanceM  float64 `json:"distance_m"`
 		}
 		if err := decode(r, &req); err != nil {
 			fail(w, 400, err)
@@ -380,6 +382,8 @@ func (s *server) routes() http.Handler {
 				return nil
 			case "emergency":
 				return s.engine.Inject(m, req.Kind)
+			case "drive":
+				return s.engine.Drive(m, req.HeadingDeg, req.DistanceM)
 			}
 			return fmt.Errorf("unknown simulation action %q", action)
 		})

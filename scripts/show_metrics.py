@@ -35,3 +35,10 @@ if "E5" in ex:
     print(f"\nE5 body classifier accuracy (majority class {ex['E5']['majority_class_accuracy']}):")
     for k, v in ex["E5"]["representations"].items():
         print(f"  {k:18s} {v['body_classifier_accuracy']:.3f} (sd {v['sd']:.3f})")
+if "E6" in ex:
+    print("\nE6 shared model against one specialist per world, mean R2 over slope, relief, roughness (sd over folds)")
+    for meth, res in ex["E6"]["primary_r2"].items():
+        print(f"  {meth:22s} " + "  ".join(f"{b} {v['mean']:6.3f} ({v['sd']:.3f})" for b, v in res.items()))
+    print("  gain over the shared head, paired by fold (folds better / folds):")
+    for meth, res in ex["E6"]["paired_gain_over_shared_head"].items():
+        print(f"  {meth:22s} " + "  ".join(f"{b} {v['mean']:+.3f} ({v['folds_better']}/{v['folds']})" for b, v in res.items()))

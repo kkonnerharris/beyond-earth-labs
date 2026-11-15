@@ -14,6 +14,9 @@ E4  retrieval        Mars cell -> nearest Earth cells. Are the retrieved cells
                      sites preferred over control regions?
 E5  domain_gap       How well a linear classifier can tell which body a
                      feature vector came from (lower = smaller domain gap).
+E6  per_world        One shared model against one specialist per world, on
+                     the E1 folds. Asks whether Earth is better served by a
+                     model trained on Earth alone.
 
 Methods compared in E1-E3:
     mean         predict the training mean (no information from the image)
@@ -369,8 +372,66 @@ def e5_domain_gap(c: Cells, seeds: int, log) -> dict:
     return out
 
 
+def e6_per_world(c: Cells, seeds: int, log) -> dict:
+    """One shared model for all worlds against one specialist per world, on the E1 folds.
+
+    The shared head must fit a single mapping from appearance to terrain for Earth, Mars and the
+    Moon. A specialist is trained on one world's training regions only, so it can learn that
+    world's own mapping (on Earth, vegetation and land cover change what brightness means).
+    The comparison is paired: every method sees the same folds, and metrics are the same as E1.
+    """
+    from sklearn.linear_model import RidgeCV
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    names = ("head", "dino_ridge", "head_per_world", "dino_ridge_per_world", "ensemble_per_world")
+    res = {m: {b: [] for b in BODIES} for m in names}
+    primary = {m: {b: [] for b in BODIES} for m in names}
+    idx = [terrain.ATTRIBUTE_NAMES.index(n) for n in PRIMARY]
+    for seed in range(seeds):
+        for fold, test in enumerate(region_folds(c.region, 5, seed)):
+            train = ~test
+            x, _ = body_normalise(c.dino, c.body, fit=train)
+            tb = c.body[test]
+            preds = {"head": fit_predict("head", c, train, test, seed),
+                     "dino_ridge": fit_predict("dino_ridge", c, train, test, seed)}
+            hp, rp = preds["head"].copy(), preds["dino_ridge"].copy()   # a world too small to train alone keeps the shared model
+            for b in BODIES:
+                trb, teb = train & (c.body == b), test & (c.body == b)
+                if not teb.any() or trb.sum() < 200:
+                    continue
+                model, std, _ = train_head(x[trb], c.attrs[trb], HeadConfig(seed=seed))
+                hp[tb == b] = terrain.log_attributes(predict(model, std, x[teb])[1])
+                ridge = make_pipeline(StandardScaler(), RidgeCV(alphas=np.logspace(0, 5, 12)))
+                rp[tb == b] = ridge.fit(x[trb], c.y[trb]).predict(x[teb])
+            preds.update({"head_per_world": hp, "dino_ridge_per_world": rp, "ensemble_per_world": 0.5 * (hp + rp)})
+            for m in names:
+                for b in BODIES:
+                    mb = tb == b
+                    if mb.sum() >= 20:
+                        r = r2_and_mae(c.y[test][mb], preds[m][mb], c.y[train].mean(0))
+                        res[m][b].append(r)
+                        primary[m][b].append(float(np.mean([r[terrain.ATTRIBUTE_NAMES[i]]["r2"] for i in idx])))
+            log(f"E6 seed {seed} fold {fold} done")
+
+    def gain(m: str, b: str) -> dict:
+        d = np.array(primary[m][b]) - np.array(primary["head"][b])
+        return {"mean": round(float(d.mean()), 4), "sd": round(float(d.std()), 4),
+                "folds_better": int((d > 0).sum()), "folds": int(len(d))}
+
+    return {"design": "the E1 folds (5-fold over regions, stratified by body). 'per_world' methods train one model per "
+                      "body on that body's training regions only; 'ensemble_per_world' averages the per-world head and "
+                      "the per-world ridge. primary_r2 is the mean R2 over slope, relief and roughness.",
+            "results": {m: {b: _aggregate(v) for b, v in res[m].items() if v} for m in names},
+            "primary_r2": {m: {b: {"mean": round(float(np.mean(v)), 4), "sd": round(float(np.std(v)), 4)}
+                               for b, v in primary[m].items() if v} for m in names},
+            "paired_gain_over_shared_head": {m: {b: gain(m, b) for b in BODIES if primary[m][b]}
+                                             for m in names if m != "head"},
+            "n_runs": seeds * 5}
+
+
 EXPERIMENTS = {"E1": e1_in_domain, "E2": e2_leave_body_out, "E3": e3_few_shot, "E4": e4_retrieval,
-               "E5": e5_domain_gap}
+               "E5": e5_domain_gap, "E6": e6_per_world}
 
 
 def run(only: list[str] | None, seeds: int, tag: str) -> dict:

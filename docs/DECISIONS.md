@@ -123,3 +123,100 @@ Each entry records a choice, the measurement or fact behind it, and what it cost
   Safety is full only if the reserve was never needed.
 - Cost: on a grid, a detour around a small obstacle can cost no extra distance, so efficiency is often
   unchanged by one replan.
+
+## D18. 3D is a way of looking, not a second data path
+
+- The globe and the tilted view are the same map with a different projection. The 3D surface is raised
+  from the CTX elevation model the planner already uses, encoded as terrain tiles by the science service.
+- Heights are relative to the mission area's median, faded out over the outer 1.5 km of the elevation
+  model, and doubled on screen. All three are stated in the interface or the guide. Routes never read
+  these tiles.
+- The sky colours in the tilted view are illustrative.
+
+## D19. NASA's Perseverance model, enlarged
+
+- The rover in the 3D view is NASA's published 3D model (credit NASA/JPL-Caltech), downloaded by a script
+  and not stored in the repository. It stands at Perseverance's last published waypoint inside the map,
+  or drives the route when the scout rover is the mover.
+- A 3 m rover would be invisible at map scale, so the model is held at about 84 pixels until the view is
+  close enough for true size. The label says "enlarged".
+- The crew rover and the astronaut keep their flat icons: there is no NASA model that honestly
+  represents this project's assumed crew rover.
+
+## D20. Earth as a third body
+
+- The same analog ranking runs in any direction. From an Earth site it ranks Mars or Moon regions; the
+  literature label is still decided from the Earth site's documented analog status.
+- Earth imagery is NASA's Blue Marble from GIBS, read by the browser directly. It is a display layer;
+  the model's Earth inputs remain HLS and NASADEM.
+
+## D21. A failed tile download is never cached as "empty"
+
+- Found by looking at the globe: tiles that timed out once had been saved as empty and left a hole.
+  A download failure now raises an error and the browser is told not to keep the blank tile; only a
+  definite "no such tile" answer from NASA is cached as empty.
+
+## D22. Every mover is a NASA model in 3D (supersedes the last point of D19)
+
+- The crew rover is drawn as NASA's Space Exploration Vehicle and the astronaut as NASA's Z-2 suit, both
+  from NASA's public 3D Resources repository. The SEV is a pressurised concept vehicle, while this
+  project's crew rover profile is an assumed unpressurised one, so the label names the model for what it
+  is: a NASA concept model standing in for the crew rover.
+- Two of the files are Draco-compressed; the decoder files are copied from three.js into `web/public/draco/`.
+- The suit model is a static figure. It glides along the route; it does not walk.
+
+## D23. The space view
+
+- Earth, the Moon and Mars are spheres at their true relative radii, textured with one whole-body NASA
+  image each (Blue Marble from GIBS; LROC WAC and Viking mosaics stitched from Treks tiles).
+- Distances are not to scale and the stars are generated, and the view says both.
+
+## D24. The space view shows the whole solar system (replaces D23's three-sphere layout)
+
+- The Sun and eight planets, each placed in its direction from the Sun on the day it is viewed, from
+  mean longitude and mean motion (circular orbits). The constants follow JPL's "Approximate Positions of
+  the Planets" and were entered from memory; they need checking. Ignoring orbital eccentricity leaves an
+  error of up to about 10 degrees for Mars and more for Mercury, and the view says so.
+- Orbit spacing and sizes are for legibility. Only Earth, the Moon and Mars carry imagery and are clickable.
+
+## D25. Surface view and hand driving
+
+- A ground-level chase camera behind the mover, like the practice project's rover view, rebuilt here
+  with the map's own 3D terrain and NASA's models. No code was copied from the practice project.
+- Hand driving is a command to the mission service (`sim/drive`): the browser sends a heading and a
+  distance, and the service applies the same mobility model, slope limits and consumables as a planned
+  route, then reports the way home. The browser never moves the mover itself.
+- The camera is anchored to the terrain height under the mover. The 3D heights are relative and doubled,
+  so the ground can be hundreds of metres from the map's zero level.
+- The rust tint on the ground is a display choice and is labelled illustrative.
+
+## D26. Map tiles bypass the web proxy
+
+- Measured: bursts of new high-zoom tiles through the Next.js proxy produced "socket hang up" errors,
+  while the same tiles loaded directly from the science service. Tile and elevation-tile requests now go
+  straight to the science service (`NEXT_PUBLIC_SCIENCE_URL`, default `http://127.0.0.1:8310`).
+
+## D27. One thread through the workspace
+
+- Reviewed on the second day: each part worked, but the workspace read as seven screens and two extra
+  worlds. Nothing told the user that the analog search chose the habitat's field site, the health monitor
+  was only visible on a step the user was not on while the traverse ran, and the Moon and Earth views had
+  no way back to the mission.
+- Three additions, all in the interface and none computing a mission value:
+  1. A footer on every Mars step ("Carried forward") words what the step decided from the service's own
+     numbers and leads to the next step.
+  2. Any region opens on its own world's map (`openRegion` in `web/app/page.tsx`): analog matches, the
+     habitat's field site, and Mars or Moon matches found from Earth. The Moon and Earth views carry a
+     "Return to Mars" bar. Opening a Mars region other than Jezero lands on the Region step, which says
+     that the route, habitat and traverse stay at Jezero.
+  3. The Review step lists what each of the seven parts did in the mission just run.
+- The seven parts and the challenge theme behind each are defined once, in `web/lib/parts.ts`, and read by
+  the Review step and the guide. [CHALLENGES.md](CHALLENGES.md) is the written account.
+- Science at a target is now chosen from four activities. Their times on site (10 to 45 minutes) are
+  assumptions; the mission service already added dwell time to the traverse and to consumable use, so
+  the choice has a real effect on the consumables check without new service code.
+- The crew monitor's main readings are repeated in the Simulate step, because that is where the user is
+  when an injected health fault raises the alert.
+- The best score of a session is kept in the browser only. It is not mission state and is not saved.
+- Not done: the "3D world" has its own state and does not join this thread. It is earlier practice code
+  and is not part of this repository; the interface shows its button only when that service is running.

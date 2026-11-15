@@ -107,6 +107,41 @@ def jezero_views(x: float, y: float, limit: int = 3) -> dict:
         raise HTTPException(502, f"The Mars 2020 image feed did not answer: {exc!r}"[:300]) from exc
 
 
+@app.get("/globe/{body}.jpg")
+def globe_texture(body: str) -> Response:
+    """A whole-body NASA image for the outer-space view (equirectangular, 2048 x 1024)."""
+    from . import globes
+
+    try:
+        data = globes.texture(body)
+    except KeyError:
+        raise HTTPException(404, "unknown body") from None
+    except Exception as exc:  # noqa: BLE001 - reported; the space view shows which image is missing
+        raise HTTPException(502, f"NASA imagery for {body} did not load: {exc!r}"[:300]) from exc
+    return Response(content=data, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
+
+
+@app.get("/jezero/terrain3d")
+def jezero_terrain3d() -> dict:
+    """Where the 3D elevation tiles are and how to read them."""
+    from . import terrain3d
+
+    try:
+        return terrain3d.info()
+    except Exception as exc:  # noqa: BLE001 - the map still works flat; say why 3D is unavailable
+        raise HTTPException(503, f"3D terrain is unavailable: {exc!r}"[:300]) from exc
+
+
+@app.get("/jezero/dem/{z}/{x}/{y}.png")
+def jezero_dem_tile(z: int, x: int, y: int) -> Response:
+    from . import terrain3d
+
+    if not (0 <= z <= 14 and 0 <= x < 2 ** z and 0 <= y < 2 ** z):
+        raise HTTPException(400, "tile out of range")
+    return Response(content=terrain3d.render(z, x, y), media_type="image/png",
+                    headers={"Cache-Control": "public, max-age=86400"})
+
+
 # ------------------------------------------------------------- imagery tiles
 
 @app.get("/layers")
@@ -123,9 +158,13 @@ def tile(layer: str, z: int, x: int, y: int) -> Response:
         raise HTTPException(404, "unknown layer")
     if not (0 <= z <= 20 and 0 <= x < 2 ** z and 0 <= y < 2 ** z):
         raise HTTPException(400, "tile out of range")
-    data = tiles.render(layer, z, x, y)
+    try:
+        data = tiles.render(layer, z, x, y)
+    except tiles.TileFetchError:
+        # NASA's server did not answer: send a blank tile but tell the browser not to keep it.
+        return Response(content=EMPTY_PNG, media_type="image/png", headers={"Cache-Control": "no-store"})
     return Response(content=data or EMPTY_PNG, media_type="image/png",
-                    headers={"Cache-Control": "public, max-age=86400"})
+                    headers={"Cache-Control": "public, max-age=86400" if data else "public, max-age=300"})
 
 
 # ------------------------------------------------- terrain model and analogs
@@ -170,12 +209,15 @@ def regions(body: str | None = None) -> list[dict]:
 
 
 @app.get("/analogs")
-def analogs(region: str = "mars:jezero", top: int = 8) -> dict:
+def analogs(region: str = "mars:jezero", top: int = 8, target: str | None = None) -> dict:
+    """Rank regions of another body against one region. `target` is earth, mars or moon."""
     g = _gallery()
     try:
-        return rank_region(g, region, max(1, min(top, 29)))
+        return rank_region(g, region, max(1, min(top, 40)), target)
     except KeyError:
         raise HTTPException(404, f"unknown region {region!r}") from None
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from None
 
 
 @app.get("/clps")

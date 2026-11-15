@@ -1,0 +1,17 @@
+[12:29:43] {"dataset_version": "terra-cells-v1", "cells": 4534, "bodies": {"earth": {"cells": 1251, "regions": 29, "median": {"slope_median_deg": 1.357, "slope_p90_deg": 3.239, "relief_m": 255.92, "roughness_m": 30.579, "tri_m": 43.69}}, "mars": {"cells": 1911, "regions": 39, "median": {"slope_median_deg": 0.859, "slope_p90_deg": 2.064, "relief_m": 217.383, "roughness_m": 22.321, "tri_m": 25.316}}, "moon": {"cells": 1372, "regions": 28, "median": {"slope_median_deg": 0.746, "slope_p90_deg": 2.208, "relief_m": 217.514, "roughness_m": 23.039, "tri_m": 25.732}}}}
+[12:30:26] E6 seed 0 fold 0 done
+[12:30:59] E6 seed 0 fold 1 done
+[12:31:31] E6 seed 0 fold 2 done
+[12:32:04] E6 seed 0 fold 3 done
+[12:32:40] E6 seed 0 fold 4 done
+[12:33:13] E6 seed 1 fold 0 done
+[12:33:47] E6 seed 1 fold 1 done
+[12:34:19] E6 seed 1 fold 2 done
+[12:34:52] E6 seed 1 fold 3 done
+[12:35:27] E6 seed 1 fold 4 done
+[12:36:02] E6 seed 2 fold 0 done
+[12:36:37] E6 seed 2 fold 1 done
+[12:37:18] E6 seed 2 fold 2 done
+[12:37:57] E6 seed 2 fold 3 done
+[12:38:36] E6 seed 2 fold 4 done
+[12:38:36] wrote C:\Users\jharr\Projects\Hackathons\beyond-earth-labs\experiments\runs\20261115T182943Z-perworld\metrics.json

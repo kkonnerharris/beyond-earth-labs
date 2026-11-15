@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Beyond Earth Labs: pitch deck</title>
+<!-- Source of the pitch deck. Print to PDF with: node scripts/pitch_pdf.cjs
+     Five slides, each answering one question a judge has: what is it, which challenges does it answer,
+     how does it work, what does the model do, what is its state.
+     Headlines are plain statements. No slogans.
+     Every picture is a crop of the running product (scripts/ui_pitch.cjs, scripts/pitch_images.py).
+     Every figure is from docs/METHODS.md, docs/DATA.md or docs/TESTS.md; change them there first. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  /* One type family (IBM Plex), two grounds (warm paper, near-black), one accent (Mars orange).
+     Type scale: 76 / 64 / 30 / 26 / 24 / 22. Margins 128 px on a 1920 x 1080 page. */
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { margin: 0; background: #0A0E14; }
+  h1, h2, h3, p { margin: 0; }
+  section {
+    position: relative; width: 1920px; height: 1080px; overflow: hidden; break-after: page;
+    font-family: 'IBM Plex Sans', Arial, sans-serif; box-sizing: border-box;
+    padding: 128px 128px 160px; display: flex; flex-direction: column;
+  }
+  .paper { background: #F5F2EC; color: #0E131B; }
+  .night { background: #0A0E14; color: #E8EEF5; }
+
+  .eyebrow { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 22px; font-weight: 600; letter-spacing: 4px; }
+  .paper .eyebrow { color: #B8481A; }
+  .night .eyebrow { color: #F08A4B; }
+  .headline { font-size: 64px; font-weight: 600; line-height: 1.08; letter-spacing: -1.5px; margin-top: 18px; }
+  .night .headline { color: #F4F7FA; }
+  .paper .soft { color: #46525F; }
+  .night .soft { color: #A6B4C4; }
+  .left { width: 1040px; }
+
+  /* Footer band: wordmark left, page number right, the same on every slide. */
+  .foot { position: absolute; left: 128px; right: 128px; bottom: 60px; display: flex; justify-content: space-between; align-items: baseline;
+          font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 20px; letter-spacing: 3px; }
+  .paper .foot { color: #7A8591; border-top: 1px solid #DAD4C8; padding-top: 18px; }
+  .night .foot { color: #7C8DA1; border-top: 1px solid #1E2A38; padding-top: 18px; }
+  .foot-note { font-family: 'IBM Plex Sans', Arial, sans-serif; letter-spacing: 0; font-size: 20px; }
+
+  /* Picture on the right of a slide, with a caption inside its lower edge. */
+  .side-art { position: absolute; left: 1232px; top: 128px; width: 560px; height: 753px; object-fit: cover; border-radius: 14px; border: 1px solid #1E2A38; box-sizing: border-box; box-shadow: 0 28px 56px rgba(14,19,27,0.22); }
+  .night .side-art { border-color: #2C3C4F; box-shadow: none; }
+  .side-cap { position: absolute; left: 1232px; top: 897px; width: 560px; font-size: 20px; line-height: 1.35; }
+
+  /* 1. Cover */
+  .cover { padding: 0; flex-direction: row; background: #000; }
+  .cover-text { width: 880px; height: 1080px; box-sizing: border-box; padding: 128px 64px 96px 128px; display: flex; flex-direction: column; justify-content: space-between; }
+  .rule { width: 96px; height: 6px; background: #F08A4B; margin-bottom: 36px; }
+  .cover-head { font-size: 100px; font-weight: 600; line-height: 1.02; letter-spacing: -3px; margin-top: 22px; color: #F4F7FA; }
+  .cover-what { font-size: 36px; font-weight: 600; line-height: 1.25; letter-spacing: -0.5px; margin-top: 30px; color: #F4F7FA; }
+  .cover-sub { font-size: 26px; line-height: 1.45; margin-top: 26px; color: #C3CEDA; }
+  .wordmark { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 24px; font-weight: 600; letter-spacing: 6px; color: #F4F7FA; }
+  .cover-by { font-size: 28px; font-weight: 600; color: #F4F7FA; }
+  .cover-team { font-size: 22px; margin-top: 8px; color: #8C9BAD; }
+  .cover-art { position: relative; width: 1040px; height: 1080px; }
+  .cover-art img { display: block; width: 1040px; height: 1080px; object-fit: contain; }
+  .cover-art::before { content: ''; position: absolute; left: 0; top: 0; width: 110px; height: 1080px; background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0) 100%); }
+  .cover-art::after { content: ''; position: absolute; left: 0; bottom: 0; width: 1040px; height: 200px; background: linear-gradient(0deg, #000 30%, rgba(0,0,0,0) 100%); }
+  .cover-tag { position: absolute; right: 64px; bottom: 60px; z-index: 1; color: #8C9BAD; font-size: 20px; }
+
+  /* 2. The challenges. Both columns use one pattern: a small line for what the challenge asks,
+     a large line for what the project delivers. The main challenge is set larger. */
+  .chal { display: grid; grid-template-columns: 880px 1fr; column-gap: 64px; margin-top: 40px; }
+  .chal-more { border-left: 1px solid #D3CCBE; padding-left: 56px; }
+  .chal-label { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 20px; font-weight: 600; letter-spacing: 3px; color: #B8481A; }
+  .chal-title { font-size: 30px; font-weight: 600; line-height: 1.25; margin-top: 6px; }
+  .legend { margin-top: 20px; padding-bottom: 12px; border-bottom: 3px solid #0E131B; font-size: 20px; line-height: 1.4; }
+  .legend b { font-weight: 600; color: #0E131B; }
+  .pair { display: flex; flex-direction: column; justify-content: center; border-bottom: 1px solid #D3CCBE; }
+  .pair:last-child { border-bottom: 0; }
+  .chal-main .pair { height: 96px; }
+  .chal-more .pair { height: 80px; }
+  .pair-ask { font-size: 20px; line-height: 1.4; }
+  .pair-get { font-weight: 600; line-height: 1.25; }
+  .chal-main .pair-get { font-size: 28px; letter-spacing: -0.3px; }
+  .chal-more .pair-get { font-size: 24px; }
+  .fine { position: absolute; left: 128px; top: 928px; font-size: 22px; line-height: 1.4; }
+
+  /* 3. How it works */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 44px; }
+  .step-n { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 22px; font-weight: 600; letter-spacing: 4px; color: #B8481A; }
+  .screen { display: block; width: 528px; height: 380px; object-fit: cover; margin-top: 14px; border-radius: 12px; border: 1px solid #1E2A38; box-sizing: border-box; box-shadow: 0 22px 44px rgba(14,19,27,0.20); }
+  .step-t { font-size: 32px; font-weight: 600; line-height: 1.2; margin-top: 24px; }
+  .step-p { font-size: 24px; line-height: 1.4; margin-top: 8px; }
+
+  /* 4. The model */
+  .lead { font-size: 26px; line-height: 1.4; margin-top: 24px; }
+  .results { margin-top: 26px; }
+  .result { display: grid; grid-template-columns: 180px 1fr; column-gap: 20px; align-items: start; padding: 18px 0; border-top: 1px solid #D3CCBE; }
+  .result:first-child { border-top: 3px solid #0E131B; }
+  .result-n { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 48px; font-weight: 600; line-height: 1.1; letter-spacing: -1px; color: #B8481A; }
+  .result-n.fail { color: #0E131B; }
+  .result-p { font-size: 24px; line-height: 1.4; }
+  .result-p b { font-weight: 600; color: #0E131B; }
+  .note { font-size: 24px; line-height: 1.4; margin-top: 4px; padding-top: 16px; border-top: 1px solid #D3CCBE; font-weight: 600; }
+
+  /* 5. Status */
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 36px; }
+  .col-t { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 22px; font-weight: 600; letter-spacing: 4px; color: #F08A4B; padding-bottom: 14px; }
+  .col-i { font-size: 24px; line-height: 1.4; padding: 14px 0; border-top: 1px solid #243344; color: #C3CEDA; }
+  .ask { font-size: 30px; font-weight: 600; line-height: 1.3; margin-top: 22px; padding-top: 26px; border-top: 3px solid #F08A4B; color: #F4F7FA; }
+  .ask-sub { font-size: 24px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<!-- 1. What it is -->
+<section id="cover" class="night cover">
+<div class="cover-text">
+<div>
+<div class="rule"></div>
+<p class="eyebrow">NASA SPACE APPS 2026 · MARTIAN MAP</p>
+<h1 class="cover-head">Beyond<br>Earth Labs</h1>
+<p class="cover-what">One 3D map to plan and carry out a Marswalk at Jezero Crater.</p>
+<p class="cover-sub">A crew on Mars has to know where it can go, whether it can get back, and what to do when the plan breaks. This answers all three, on 3D terrain built from NASA data.</p>
+</div>
+<div>
+<p class="cover-by">Konner Harris</p>
+<p class="cover-team">NASA Space Apps Challenge 2026</p>
+</div>
+</div>
+<div class="cover-art">
+<img src="img/cover-space.jpg" alt="The product’s solar system view: the Sun and the eight planets on their orbits against a field of stars, with Earth, the Moon and Mars labelled as the three worlds that open their own maps">
+<p class="cover-tag">The product’s solar system view. Earth, the Moon and Mars open their own maps.</p>
+</div>
+</section>
+
+<!-- 2. The challenges: the one entered, and the six built into it -->
+<section id="challenge" class="paper">
+<p class="eyebrow">THE CHALLENGES</p>
+<h2 class="headline">One challenge entered, six more built into it.</h2>
+<div class="chal">
+<div class="chal-main">
+<p class="chal-label">MAIN CHALLENGE</p>
+<h3 class="chal-title">Interplanetary Survival Guide: Martian Map</h3>
+<p class="legend soft">What the challenge asks for &nbsp;/&nbsp; <b>What Beyond Earth Labs delivers</b></p>
+<div class="pair"><p class="pair-ask soft">A layered view from several NASA missions</p><p class="pair-get">Five missions and 20 NASA datasets on one 3D map</p></div>
+<div class="pair"><p class="pair-ask soft">Three or more kinds of data</p><p class="pair-get">Optical imagery, elevation and thermal infrared</p></div>
+<div class="pair"><p class="pair-ask soft">Crew safety, including radiation</p><p class="pair-get">Slope limits, a supply check and a radiation estimate</p></div>
+<div class="pair"><p class="pair-ask soft">A route that avoids obstacles</p><p class="pair-get">Routes on 20 m elevation, replanned around hazards</p></div>
+<div class="pair"><p class="pair-ask soft">Rover point-of-view images</p><p class="pair-get">Perseverance’s own camera frames from the ground</p></div>
+</div>
+<div class="chal-more">
+<p class="chal-label">SIX OTHER CHALLENGES</p>
+<h3 class="chal-title">Each one is a working part of the same map</h3>
+<p class="legend soft">The challenge &nbsp;/&nbsp; <b>The part it became</b></p>
+<div class="pair"><p class="pair-ask soft">Identify Earth Locations That Analog Moon and Mars</p><p class="pair-get">The Earth site to rehearse the Marswalk</p></div>
+<div class="pair"><p class="pair-ask soft">Create Health Monitoring Software for Astronauts</p><p class="pair-get">A simulated crew health monitor</p></div>
+<div class="pair"><p class="pair-ask soft">Field Shift: Adapting Farms with NASA Data</p><p class="pair-get">The habitat greenhouse and its climate record</p></div>
+<div class="pair"><p class="pair-ask soft">Space Mission Design Game</p><p class="pair-get">A score for every traverse</p></div>
+<div class="pair"><p class="pair-ask soft">Build a Junior Astronaut Mission Trainer</p><p class="pair-get">A training mode, one task per step</p></div>
+<div class="pair"><p class="pair-ask soft">CLPS Lunar Mission Browser</p><p class="pair-get">The same terrain comparison on the Moon</p></div>
+</div>
+</div>
+<p class="fine soft">Only the Martian Map is submitted. The six others are features of that one product, not separate entries.</p>
+<div class="foot"><span>BEYOND EARTH LABS</span><span>02 / 05</span></div>
+</section>
+
+<!-- 3. How it works -->
+<section id="how" class="paper">
+<p class="eyebrow">HOW IT WORKS</p>
+<h2 class="headline">A Marswalk in three steps: plan, check, run.</h2>
+<div class="steps">
+<div>
+<p class="step-n">01 · PLAN</p>
+<img class="screen" src="img/plan-3d.jpg" alt="The map in 3D at Jezero Crater: the crater floor and the raised delta front built from NASA elevation data, with a planned route in orange from the landing site to two numbered science targets and NASA’s crew rover model at the landing site">
+<h3 class="step-t">Where can the crew go?</h3>
+<p class="step-p soft">The route is computed on 20&nbsp;m NASA elevation data. Rovers stay under 20°; Perseverance never crossed more than 18.3° here.</p>
+</div>
+<div>
+<p class="step-n">02 · CHECK</p>
+<img class="screen" src="img/screen-check.png" alt="The crew step: a green note saying the traverse fits the battery with its 20 percent reserve, and the mission rules">
+<h3 class="step-t">Can it get back safely?</h3>
+<p class="step-p soft">The trip is checked against oxygen or battery, with a reserve. A plan that does not fit is refused, and the shortfall is shown.</p>
+</div>
+<div>
+<p class="step-n">03 · RUN</p>
+<img class="screen" src="img/screen-run.png" alt="The mission report: both targets visited, an obstacle reported, the route replanned, and a score of 100">
+<h3 class="step-t">What if the plan breaks?</h3>
+<p class="step-p soft">The traverse runs as a simulation. An obstacle, a dust storm, a suit leak or a health alert forces a new plan, and the log records why.</p>
+</div>
+</div>
+<div class="foot"><span>BEYOND EARTH LABS</span><span>03 / 05</span></div>
+</section>
+
+<!-- 4. The deep learning part, briefly -->
+<section id="model" class="paper">
+<div class="left">
+<p class="eyebrow">DEEP LEARNING</p>
+<h2 class="headline">Deep learning finds the Earth sites to rehearse the mission.</h2>
+<p class="lead soft">Mars hardware and procedures are tested on Earth first, at sites that resemble Mars. A vision transformer, with a head trained on 4,534 terrain cells from Mars, the Moon and Earth, finds those sites. Every answer is checked against measured elevation.</p>
+<div class="results">
+<div class="result">
+<p class="result-n">0.64</p>
+<p class="result-p soft"><b>Mars regions it never saw.</b> It explains 64% of the variation in slope, relief and roughness. Classical methods reach 52%, a simple linear model 60%.</p>
+</div>
+<div class="result">
+<p class="result-n">52%</p>
+<p class="result-p soft"><b>Matching Earth terrain to Mars.</b> It closes 52% of the gap between a random pick and the best possible pick. Untrained, 17%.</p>
+</div>
+<div class="result">
+<p class="result-n fail">0.39</p>
+<p class="result-p soft"><b>Weakest on Earth.</b> Vegetation hides the landform. An Earth-only specialist explains 39% on Earth regions it never saw; the shared network, 31%.</p>
+</div>
+</div>
+<p class="note">The network only ranks rehearsal sites. Routes never depend on it.</p>
+</div>
+<img class="side-art" src="img/screen-analogs.png" alt="The analog search panel: Jezero Crater’s measured slope, relief and roughness, and the top-ranked Earth site, the Mojave volcanic fields in California, with its network similarity, measured similarity and a table comparing five terrain measurements on Mars and Earth">
+<p class="side-cap soft">The top match for Jezero Crater, with the network’s score and the measured score side by side.</p>
+<div class="foot"><span>BEYOND EARTH LABS</span><span>04 / 05</span></div>
+</section>
+
+<!-- 5. State of the work -->
+<section id="status" class="night">
+<div class="left">
+<p class="eyebrow">STATUS</p>
+<h2 class="headline">What works today,<br>and what does not.</h2>
+<div class="cols">
+<div>
+<p class="col-t">WORKS TODAY</p>
+<p class="col-i">All seven steps run end to end, from choosing a region to the mission review.</p>
+<p class="col-i">The elevation map agrees with Perseverance’s own record to a median of 1.0&nbsp;m, at 464 waypoints.</p>
+<p class="col-i">73 automated tests and checks pass, and a 22-screen walkthrough runs with no errors.</p>
+</div>
+<div>
+<p class="col-t">KNOWN LIMITS</p>
+<p class="col-i">Routes use 20 m cells. They cannot see rocks or ripples.</p>
+<p class="col-i">The traverse and the crew health readings are simulated.</p>
+<p class="col-i">Some life-support, suit and radiation figures are assumptions, flagged for checking.</p>
+</div>
+</div>
+<p class="ask">One 3D map that tells a Mars crew where to go, whether it can get back, and what to do when the plan breaks. A live demo is ready.</p>
+<p class="ask-sub soft">Konner Harris · github.com/kkonnerharris/beyond-earth-labs</p>
+</div>
+<img class="side-art" style="object-position: 72% 50%" src="img/cover-rover.jpg" alt="Ground level in the product’s 3D world: a six-wheeled rover on the rippled floor of Jezero Crater, with its planned route leading to a destination marker near the horizon">
+<p class="side-cap soft">Ground level in the product’s 3D world: the rover on its planned route.</p>
+<div class="foot"><span>BEYOND EARTH LABS</span><span class="foot-note">Built at a hackathon. Not certified for spacecraft operations or crew safety. AI tool use: docs/AI_USE.md.</span><span>05 / 05</span></div>
+</section>
+
+</body>
+</html>

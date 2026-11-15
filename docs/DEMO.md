@@ -3,7 +3,8 @@
 About four minutes. Start the services first (`scripts/services.ps1 start`) and open
 <http://localhost:4770>. Load the page once beforehand so map tiles are cached.
 
-Each step says what to click and the one thing to say. Numbers quoted here are what the build showed on
+Each step says what to click and the one thing to say. The orange **Continue to ...** button at the bottom
+of the sidebar moves to the next step, and the line above it says what the current step decided. Numbers quoted here are what the build showed on
 14 November 2026; read them off the screen rather than from this page.
 
 | # | Do | Say |
@@ -20,8 +21,9 @@ Each step says what to click and the one thing to say. Numbers quoted here are w
 | 9 | Click **Dust storm**. Drag **Time compression** to the right until the rover is home. | "A dust storm. The rule is to come home above optical depth 2. Watch the route change, and the habitat's solar supply drop in the log. Back at base the mission is scored: no science this time, full marks for safety." |
 | 10 | **Crew** step. | "Throughout, one rule holds: the mover must always be able to get home with the reserve intact. The white mark is what the trip home needs from here. Below it, radiation: at the dose rate Curiosity measured, a 500-sol stay uses about half of a career limit before the journey is counted." |
 | 11 | **Habitat** step. Drag **White potato** to about 100 m². Scroll to "Field site on Earth". | "Growing food adds lighting load and water turnover; both feed straight into the power margin. Below are NASA's climate records for the Earth site our model picked: the sunlight plants get there is what a Mars greenhouse must supply with lamps." |
-| 12 | Top bar: **Moon comparison**. In the delivery list click **Terrain and Earth analogs for this site** on a flown mission. Switch back to **Mars**. | "The same pipeline and the same network on the Moon, from Lunar Reconnaissance Orbiter data. These are NASA's commercial lunar deliveries in NASA's words; for the sites we have measured, here is the terrain and where on Earth it could be rehearsed." |
-| 13 | **Review** step. Scroll through the evidence tables. | "Here is what we can and cannot claim. On Mars regions it never saw, the trained network beats the classical baselines. Trained only on Earth and the Moon, it does not transfer to Mars until a label-free normalisation step is added. And it cannot go the other way, to Earth. The model was deployed by a gate on held-out data, and nothing has been retrained, so we claim no improvement over time." |
+| 12 | Top bar: **Moon**. In the delivery list click **Terrain and Earth analogs for this site** on a flown mission. Click **Return to Mars**; the mission is as you left it. | "The same pipeline and the same network on the Moon, from Lunar Reconnaissance Orbiter data. These are NASA's commercial lunar deliveries in NASA's words; for the sites we have measured, here is the terrain and where on Earth it could be rehearsed." |
+| 12b | **Review** step. Stop at **How the parts worked together**. | "One mission, seven parts. The analog search chose the rehearsal site, the science we picked set the time on site, the crew monitor watched the traverse, and the score sums it up. Each part began as a Space Apps challenge theme and was built into this one map." |
+| 13 | Scroll on through the evidence tables. | "Here is what we can and cannot claim. On Mars regions it never saw, the trained network beats the classical baselines. Trained only on Earth and the Moon, it does not transfer to Mars until a label-free normalisation step is added. And it cannot go the other way, to Earth. The model was deployed by a gate on held-out data, and nothing has been retrained, so we claim no improvement over time." |
 
 ## If something goes wrong
 

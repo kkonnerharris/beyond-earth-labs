@@ -19,7 +19,9 @@
 
 - Route planning, hazard avoidance, landing-site certification or any safety decision.
 - Terrain smaller than a few kilometres.
-- Earth terrain with vegetation or snow: accuracy there is poor (R² about 0.3).
+- Earth terrain with vegetation or snow: accuracy there is poor (R² about 0.3). A specialist trained on
+  Earth alone reached 0.39 in experiment E6 ([METHODS.md](METHODS.md)); it is not deployed, because the
+  analog search needs the shared embedding.
 
 ## Accuracy on regions it never saw
 

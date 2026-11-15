@@ -6,7 +6,7 @@ the bracketed items.
 **Challenge:** Interplanetary Survival Guide: Martian Map
 **Project name:** Beyond Earth Labs
 **Team:** [team name and members]
-**Repository:** [public URL]
+**Repository:** https://github.com/kkonnerharris/beyond-earth-labs
 **Video:** [not recorded yet]
 
 ## High-level summary (about 100 words)
@@ -21,8 +21,8 @@ Each number on screen is labelled as NASA data, calculated, model output, simula
 ## Project details
 
 **What it does.** A single mission workspace: choose a region, find Earth analog sites, place science
-targets, get a route for a rover or a walker, check consumables, size a habitat and greenhouse, run the
-traverse, and review what happened and what the evidence supports.
+targets and choose the science to do at each, get a route for a rover or a walker, check consumables,
+size a habitat and greenhouse, run the traverse, and review what happened and what the evidence supports.
 
 **How it addresses the challenge.**
 - *Layered, integrated view from multiple NASA missions:* Mars Reconnaissance Orbiter (HiRISE and CTX
@@ -37,6 +37,13 @@ traverse, and review what happened and what the evidence supports.
 - *A route that avoids obstacles:* A* on measured terrain, with keep-out areas and replanning.
 - *Robotic help:* a scout rover and a crew rover share the map with the walker.
 
+**How the pieces fit.** One mission passes through seven connected parts. The analog search picks the
+rehearsal site whose NASA climate record appears beside the greenhouse; the science chosen at each target
+adds time that the consumables check must cover; a health alert slows the pace and changes the margin to
+get home; a finished traverse is scored and can be replayed. The Moon and Earth views are side trips that
+return to the same mission. [CHALLENGES.md](CHALLENGES.md) gives the full account, including the six
+other Space Apps challenge themes that shaped these parts. Only the Martian Map is submitted.
+
 **What is new.** A terrain network that learns from three bodies at once, with elevation data as an
 independent yardstick. It was tested the hard way: trained on Earth and the Moon and asked about Mars.
 
@@ -46,6 +53,9 @@ independent yardstick. It was tested the hard way: trained on Earth and the Moon
 - Trained on Earth and the Moon only, it does not transfer to Mars (5%) until a label-free normalisation
   step is added (42%).
 - It cannot transfer to Earth at all: vegetation breaks the link between brightness and landform.
+- Earth is the weakest world even when it is trained on. A specialist trained on Earth alone explains 39%
+  on Earth regions it never saw, against 31% for the shared network; the gain is not consistent across
+  test splits.
 - For finding Earth terrain that physically matches a Mars cell, the trained embedding closes 52% of the
   gap between a random pick and the ideal one; the untrained encoder closes 17%.
 - Our 20 m elevation grid agrees with Perseverance's recorded elevation at 464 waypoints to a median of 1.0 m.
@@ -76,6 +86,6 @@ produces any number shown in the product.
 
 | Award | Why |
 |---|---|
-| Best Use of Data | Fifteen NASA datasets from nine missions, each with a stated role (measurement or image), an access record and a reference; the map checked against real rover data |
+| Best Use of Data | Twenty NASA datasets and resources from ten missions (the count in [DATA.md](DATA.md) and the built-in guide), each with a stated role (measurement or image), an access record and a reference; the map checked against real rover data |
 | Best Use of Science | A stated question, held-out tests, baselines, a negative result reported (no transfer to Earth; no advantage once Mars labels are plentiful) |
 | Best Mission Concept | Consumables-first planning with reserves, a standing return rule, and replanning under four kinds of emergency |

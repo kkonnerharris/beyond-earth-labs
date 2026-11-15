@@ -16,3 +16,6 @@ mission/bin/
 data/missions/
 data/tilecache/
 *.tsbuildinfo
+web/public/models/*.glb
+# The optional 3D rover world: earlier practice code, kept out of this repository
+surface-world/

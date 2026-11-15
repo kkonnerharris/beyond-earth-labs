@@ -20,14 +20,30 @@ const PROCESS_LABEL: Record<string, string> = {
 
 /* ------------------------------------------------------------------ 1. Region */
 
-export function StepRegion({ terrain, regions, selected, onSelect, onJezero, lunar }: {
+export function StepRegion({ terrain, regions, selected, onSelect, onJezero, lunar: moonMode, earth, onAnalogs }: {
   terrain: Terrain | null; regions: RegionInfo[]; selected: string | null;
-  onSelect: (r: RegionInfo) => void; onJezero: () => void; lunar?: boolean;
+  onSelect: (r: RegionInfo) => void; onJezero: () => void; lunar?: boolean; earth?: boolean;
+  /** Mars only: go to the analog step for the region being looked at. */
+  onAnalogs?: () => void;
 }) {
+  const lunar = moonMode || earth;
   const v = terrain?.validation;
   const sorted = useMemo(() => [...regions].sort((a, b) => a.name.localeCompare(b.name)), [regions]);
+  // On Mars the mission lives at Jezero. Any other selected region is a look elsewhere, and says so.
+  const away = !lunar && selected !== "mars:jezero" ? regions.find((r) => r.region === selected) ?? null : null;
   return (
     <>
+      {away && (
+        <Section title="Another region" kind="calc" action={<button className="btn shrink-0 whitespace-nowrap" onClick={onJezero}>Back to Jezero</button>}>
+          <p className="text-[13px] leading-snug text-text">
+            {away.name}: median slope <span className="num">{away.measured.slope_median_deg?.toFixed(1)}°</span>, relief <span className="num">{away.measured.relief_m?.toFixed(0)} m</span>.
+          </p>
+          <p className="mt-1.5 text-[12px] leading-snug text-muted">
+            Regional terrain and Earth analogs work here. The route, the habitat and the traverse stay at Jezero, where this build has metre-scale elevation.
+          </p>
+          {onAnalogs && <button className="btn mt-2 w-full" onClick={onAnalogs}>Compare {away.name} with Earth</button>}
+        </Section>
+      )}
       {!lunar && <Section title="Mission area" kind="obs" action={<button className="btn" onClick={onJezero}>Go to map</button>}>
         {terrain ? (
           <>
@@ -61,10 +77,12 @@ export function StepRegion({ terrain, regions, selected, onSelect, onJezero, lun
         </Section>
       )}
 
-      <Section title={lunar ? "Lunar regions" : "Other regions"} kind="calc">
+      <Section title={earth ? "Earth sites" : lunar ? "Lunar regions" : "Other regions"} kind="calc">
         <p className="mb-2 text-[12px] leading-snug text-muted">
           {lunar
-            ? "Median slope and relief of each region, measured from LOLA elevation. Select one to compare it with Earth."
+            ? (earth
+              ? "Documented planetary analog sites, plus control regions (amber on the map) that nobody proposes as analogs. Median slope and relief are from NASADEM elevation."
+              : "Median slope and relief of each region, measured from LOLA elevation. Select one to compare it with Earth.")
             : "Median slope and relief from MOLA elevation. Regional analysis and Earth analogs work for any of these. Detailed routes need metre-scale elevation, which this build has for Jezero only."}
         </p>
         <ul className={`scroll-thin -mx-1 overflow-y-auto ${lunar ? "max-h-[38vh]" : "max-h-64"}`}>
@@ -136,20 +154,28 @@ function SimBar({ label, value, kind }: { label: string; value: number; kind: "m
   );
 }
 
-export function StepAnalogs({ result, loading, error, region, onRun, modelReady }: {
+const BODY_LABEL: Record<string, string> = { mars: "Mars", moon: "Moon", earth: "Earth" };
+const ELEVATION_SOURCE: Record<string, string> = { mars: "MOLA", moon: "LOLA", earth: "NASADEM" };
+
+export function StepAnalogs({ result, loading, error, region, onRun, modelReady, target = "earth", onOpen }: {
   result: AnalogResult | null; loading: boolean; error: string | null; region: RegionInfo | null;
-  onRun: () => void; modelReady: boolean;
+  onRun: () => void; modelReady: boolean; target?: string;
+  /** Opens a candidate on its own world's map, so a match can be looked at where it is. */
+  onOpen?: (region: string) => void;
 }) {
   const [open, setOpen] = useState<string | null>(null);
+  const fromEarth = region?.body === "earth";
+  const qBody = BODY_LABEL[result?.query.body ?? region?.body ?? "mars"];
+  const tBody = BODY_LABEL[result?.query.target_body ?? target];
   return (
     <>
-      <Section title="Earth analog search" kind="model">
+      <Section title={fromEarth ? `${BODY_LABEL[target]} match search` : "Earth analog search"} kind="model">
         <p className="mb-2.5 text-[12.5px] leading-snug text-muted">
           The terrain network compares {region?.name ?? "the selected region"} with {""}
-          every Earth region it knows, then elevation data on both planets checks the match independently.
+          every {BODY_LABEL[target]} region it knows, then elevation data on both bodies checks the match independently.
         </p>
-        <button className="btn btn-primary w-full" onClick={onRun} disabled={loading || !modelReady || !region}>
-          {loading ? "Comparing terrain…" : `Find Earth analogs for ${region?.name ?? "…"}`}
+        <button className="btn btn-primary h-auto min-h-[30px] w-full py-1.5 leading-tight" onClick={onRun} disabled={loading || !modelReady || !region}>
+          {loading ? "Comparing terrain…" : fromEarth ? `Find ${BODY_LABEL[target]} terrain like ${region?.name ?? "…"}` : `Find Earth analogs for ${region?.name ?? "…"}`}
         </button>
         {!modelReady && <div className="mt-2"><Note tone="warn">No trained terrain model is available yet, so analog search is switched off.</Note></div>}
         {error && <div className="mt-2"><Note tone="bad">{error}</Note></div>}
@@ -164,7 +190,7 @@ export function StepAnalogs({ result, loading, error, region, onRun, modelReady 
               <Stat label="Roughness" value={result.query.measured.roughness_m?.toFixed(0)} unit="m" />
             </Grid>
             <p className="mt-2 text-[11.5px] leading-snug text-muted">
-              Median of {result.query.cells} cells of 11.2 km, from {result.query.body === "moon" ? "LOLA" : "MOLA"} elevation at 467 m. Documented processes: {result.query.processes.map((q) => PROCESS_LABEL[q] ?? q).join(", ") || "none listed"}.
+              Median of {result.query.cells} cells of 11.2 km, from {ELEVATION_SOURCE[result.query.body] ?? "MOLA"} elevation at 467 m. Documented processes: {result.query.processes.map((q) => PROCESS_LABEL[q] ?? q).join(", ") || "none listed"}.
             </p>
           </Section>
 
@@ -194,7 +220,7 @@ export function StepAnalogs({ result, loading, error, region, onRun, modelReady 
                     {expanded && (
                       <div className="border-t border-line px-3 py-2.5">
                         <table className="w-full text-[11.5px]">
-                          <thead><tr className="text-left text-faint"><th className="pb-1 font-medium">Measured attribute</th><th className="pb-1 text-right font-medium">{result.query.body === "moon" ? "Moon" : "Mars"}</th><th className="pb-1 text-right font-medium">Earth</th><th className="pb-1 text-right font-medium">Ratio</th></tr></thead>
+                          <thead><tr className="text-left text-faint"><th className="pb-1 font-medium">Measured attribute</th><th className="pb-1 text-right font-medium">{qBody}</th><th className="pb-1 text-right font-medium">{tBody}</th><th className="pb-1 text-right font-medium">Ratio</th></tr></thead>
                           <tbody>
                             {c.attributes.map((a) => (
                               <tr key={a.attribute} className="border-t border-line/60">
@@ -209,12 +235,21 @@ export function StepAnalogs({ result, loading, error, region, onRun, modelReady 
                         <p className="mt-2 text-[11.5px] leading-snug text-muted">{c.note}</p>
                         <p className="mt-1 text-[11px] leading-snug text-faint">
                           {supported
-                            ? `Why it is useful: published work documents this site as a ${c.documented_analog_for.join(" and ")} analog, and it shares a formation process with the target. `
+                            ? (c.body === "earth"
+                              ? `Why it is useful: published work documents this site as a ${c.documented_analog_for.map((b) => BODY_LABEL[b] ?? b).join(" and ")} analog, and it shares a formation process with the target. `
+                              : `Published work documents the selected Earth site as a ${c.documented_analog_for.map((b) => BODY_LABEL[b] ?? b).join(" and ")} analog, and it shares a formation process with this region. `)
                             : control
-                              ? "This is a control region. A high rank here would mean the comparison is being fooled by appearance. "
+                              ? (c.body === "earth"
+                                ? "This is a control region. A high rank here would mean the comparison is being fooled by appearance. "
+                                : "The selected Earth site is a control region, not a proposed analog: this is a terrain-shape match only. ")
                               : "The terrain shape matches, but no shared formation process is documented, so treat it as a look-alike only. "}
                           {c.citation && `Source: ${c.citation}.`} {c.lat.toFixed(2)}°, {c.lon.toFixed(2)}°.
                         </p>
+                        {onOpen && (
+                          <button className="btn mt-2 h-7 w-full text-[11.5px]" onClick={() => onOpen(c.region)}>
+                            See {c.name} on the {BODY_LABEL[c.body] ?? "other"} map
+                          </button>
+                        )}
                       </div>
                     )}
                   </li>
@@ -260,9 +295,18 @@ function Profile({ legs, limit }: { legs: Route[]; limit: number }) {
   );
 }
 
-export function StepRoute({ mission, profiles, placing, setPlacing, onPlan, onClear, busy }: {
+/** What the crew does at a target. The time on site is an assumption; it counts against consumables. */
+export const GOALS: { label: string; objective: string; dwell_min: number }[] = [
+  { label: "Image and sample an outcrop", objective: "Image and sample the outcrop", dwell_min: 20 },
+  { label: "Drill a rock core", objective: "Drill and store a rock core", dwell_min: 45 },
+  { label: "Panorama and context images", objective: "Take a panorama and context images", dwell_min: 10 },
+  { label: "Set up a weather station", objective: "Set up a weather station", dwell_min: 30 },
+];
+
+export function StepRoute({ mission, profiles, placing, setPlacing, onPlan, onClear, busy, goal, setGoal }: {
   mission: Mission; profiles: Profile[]; placing: boolean; setPlacing: (v: boolean) => void;
   onPlan: (mover: string, objective: string, risk: number) => void; onClear: () => void; busy: boolean;
+  goal: number; setGoal: (i: number) => void;
 }) {
   const locked = mission.sim.phase !== "idle";
   const prof = profiles.find((q) => q.key === mission.mover);
@@ -284,6 +328,12 @@ export function StepRoute({ mission, profiles, placing, setPlacing, onPlan, onCl
       </Section>
 
       <Section title="Science targets" action={mission.targets.length > 0 && <button className="btn" onClick={onClear} disabled={locked || busy}>Clear</button>}>
+        <label className="mb-2 block">
+          <span className="text-[12px] text-muted">Science at the next target</span>
+          <select className="field mt-1" value={goal} onChange={(e) => setGoal(Number(e.target.value))} disabled={locked}>
+            {GOALS.map((g, i) => <option key={g.label} value={i}>{g.label} · {g.dwell_min} min</option>)}
+          </select>
+        </label>
         <button className={`btn w-full ${placing ? "btn-primary" : ""}`} onClick={() => setPlacing(!placing)} disabled={locked}>
           {placing ? "Click the map to place a target (Esc to stop)" : "Add targets on the map"}
         </button>
@@ -294,12 +344,16 @@ export function StepRoute({ mission, profiles, placing, setPlacing, onPlan, onCl
               {mission.targets.map((t, i) => (
                 <li key={t.id} className="flex items-baseline gap-2 text-[12px]">
                   <span className="num grid h-4 w-4 shrink-0 place-items-center rounded-full bg-mars text-[9.5px] font-semibold text-ink">{i + 1}</span>
-                  <span className="flex-1 truncate text-text">{t.name}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-text">{t.name}</span>
+                    {t.objective && <span className="block truncate text-[11px] text-muted">{t.objective}, {t.dwell_min.toFixed(0)} min on site</span>}
+                  </span>
                   <span className="num text-[11px] text-muted">{t.elevation_m.toFixed(0)} m · {t.slope_deg.toFixed(1)}°</span>
                 </li>
               ))}
             </ol>
           )}
+        <p className="mt-2 text-[11px] leading-snug text-faint">Time on site is an assumption. It is added to the traverse, so longer science uses more oxygen or battery.</p>
       </Section>
 
       <Section title="Planning preference" kind="assume">
@@ -396,9 +450,34 @@ export function StepCrew({ mission, reserves }: { mission: Mission; reserves: { 
         </p>
       </Section>
 
-      <Section title="Crew health monitoring" kind="sim">
-        <p className="text-[12px] leading-snug text-muted">
-          This build models crew condition only through workload: metabolic rate on the planned route sets oxygen use, and a simulated health anomaly slows the pace and recalculates the way home. It shows no physiological readings, because none are measured, and it is not a medical system.
+      <Section title="Crew health monitor" kind="sim">
+        {!s.health.monitored ? (
+          <p className="text-[12px] leading-snug text-muted">The robotic scout carries no crew, so there is nothing to monitor.</p>
+        ) : (
+          <>
+            {s.health.anomaly && <div className="mb-2.5"><Note tone="bad">Heart rate is {(s.health.heart_rate_bpm - s.health.expected_heart_rate_bpm).toFixed(0)} bpm above what the current workload explains. The pace has been reduced and the way home recalculated.</Note></div>}
+            <Grid>
+              <Stat label="Metabolic rate" value={s.health.metabolic_w.toFixed(0)} unit="W" />
+              <Stat label="Heart rate" value={s.health.heart_rate_bpm.toFixed(0)} unit="bpm" tone={s.health.anomaly ? "bad" : undefined} />
+              <Stat label="Expected at this workload" value={s.health.expected_heart_rate_bpm.toFixed(0)} unit="bpm" />
+            </Grid>
+            {s.health.heart_rate_history.length > 1 && (() => {
+              const h = s.health.heart_rate_history, lo = Math.min(...h) - 5, hi = Math.max(...h) + 5;
+              const pts = h.map((v, i) => `${(i / (h.length - 1)) * 352},${44 - ((v - lo) / (hi - lo)) * 40}`).join(" ");
+              return (
+                <svg viewBox="0 0 352 46" className="mt-2.5 w-full" role="img" aria-label={`Heart rate over the last ${h.length} minutes, from ${Math.min(...h).toFixed(0)} to ${Math.max(...h).toFixed(0)} beats per minute`}>
+                  <polyline points={pts} fill="none" stroke={s.health.anomaly ? "#ef6a5e" : "#5fd4e0"} strokeWidth="1.5" />
+                </svg>
+              );
+            })()}
+            <div className="mt-2.5">
+              <div className="mb-1 flex justify-between text-[11.5px] text-muted"><span>Fatigue</span><span className="num text-text">{(s.health.fatigue * 100).toFixed(0)}%</span></div>
+              <Meter value={s.health.fatigue} max={1} tone={s.health.fatigue > 0.8 ? "bad" : s.health.fatigue > 0.5 ? "warn" : "signal"} label="Fatigue" />
+            </div>
+          </>
+        )}
+        <p className="mt-2.5 text-[11.5px] leading-snug text-muted">
+          Every reading is simulated from workload: heart rate is assumed to rise 0.21 bpm per watt of metabolic rate, and fatigue to reach 100% after 8 hours at 300 W. The monitor raises an alert when heart rate stays 15 bpm above what the workload explains for 2 minutes, which is how it catches the injected health fault. No person is being measured, and this is not a medical device.
         </p>
       </Section>
     </>
@@ -409,7 +488,11 @@ export function StepCrew({ mission, reserves }: { mission: Mission; reserves: { 
 
 const CROPS: [string, string][] = [["potato", "White potato"], ["wheat", "Wheat"], ["soybean", "Soybean"], ["lettuce", "Lettuce"], ["tomato", "Tomato"]];
 
-function FieldSite({ climate, error }: { climate: Climate | null; error: string | null }) {
+export function FieldSite({ climate, error, lead, onOpen }: {
+  climate: Climate | null; error: string | null; lead?: string;
+  /** Opens the site on the Earth map (given in the Habitat step, where the site is one hop away). */
+  onOpen?: (region: string) => void;
+}) {
   if (error) return <Section title="Field site on Earth" kind="obs"><Note tone="warn">NASA POWER data did not load: {error}</Note></Section>;
   if (!climate) return <Section title="Field site on Earth" kind="obs"><p className="text-[12px] text-muted">Loading NASA POWER records…</p></Section>;
   const e = climate.periods.early, r = climate.periods.recent, c = climate.change;
@@ -418,7 +501,7 @@ function FieldSite({ climate, error }: { climate: Climate | null; error: string 
   return (
     <Section title="Field site on Earth" kind="obs">
       <p className="mb-2.5 text-[12px] leading-snug text-muted">
-        Before a greenhouse flies, its crops and systems are tested outdoors at an analog site. These are NASA&apos;s climate records for <span className="text-text">{climate.region.name}</span>, the best terrain match found for this mission area.
+        {lead ?? "Before a greenhouse flies, its crops and systems are tested outdoors at an analog site."} These are NASA&apos;s climate records for <span className="text-text">{climate.region.name}</span>{lead ? "." : ", the best terrain match found for this mission area."}
       </p>
       <div className="mb-2 flex h-12 items-end gap-[3px]" role="img" aria-label={`Monthly mean temperature ${r.years[0]} to ${r.years[1]}, from ${tmin.toFixed(0)} to ${tmax.toFixed(0)} degrees Celsius`}>
         {r.monthly_temperature_c.map((t, i) => (
@@ -435,12 +518,18 @@ function FieldSite({ climate, error }: { climate: Climate | null; error: string 
         On Mars that light has to come from lamps: the greenhouse above budgets 17 to 115 mol/m²/day depending on the crop.
       </p>
       <p className="mt-1.5 text-[11px] leading-snug text-faint">{climate.source.title}. {climate.source.note}</p>
+      {onOpen && (
+        <button className="btn mt-2 h-7 w-full text-[11.5px]" onClick={() => onOpen(climate.region.region)}>
+          See {climate.region.name} on the Earth map
+        </button>
+      )}
     </Section>
   );
 }
 
-export function StepHabitat({ mission, onChange, busy, climate, climateError }: {
+export function StepHabitat({ mission, onChange, busy, climate, climateError, onOpenSite }: {
   mission: Mission; busy: boolean; climate: Climate | null; climateError: string | null;
+  onOpenSite?: (region: string) => void;
   onChange: (crew: number, sols: number, crops: Record<string, number>, overrides: Record<string, number>) => void;
 }) {
   const h = mission.habitat;
@@ -510,7 +599,7 @@ export function StepHabitat({ mission, onChange, busy, climate, climateError }: 
         <ul className="mt-2.5 flex flex-col gap-1 text-[12px] leading-snug text-muted">{h.findings.map((q, i) => <li key={i}>{q}</li>)}</ul>
       </Section>
 
-      <FieldSite climate={climate} error={climateError} />
+      <FieldSite climate={climate} error={climateError} onOpen={onOpenSite} />
 
       <Section title="Assumptions behind these numbers">
         <ul className="flex flex-col gap-2">
@@ -535,7 +624,7 @@ const EMERGENCIES: [string, string, string][] = [
   ["crew_health", "Health or mobility fault", "Pace falls to 60%"],
 ];
 
-export function ScoreCard({ mission }: { mission: Mission }) {
+export function ScoreCard({ mission, best }: { mission: Mission; best?: number | null }) {
   const sc = mission.score;
   if (!sc) return null;
   return (
@@ -555,19 +644,25 @@ export function ScoreCard({ mission }: { mission: Mission }) {
           </li>
         ))}
       </ul>
+      {best !== null && best !== undefined && (
+        <p className="mt-2.5 text-[12px] text-muted">
+          Best in this session: <span className="num text-text">{best.toFixed(0)}</span>{sc.total >= best ? ". This run matches it." : ". Reset and try to beat it."}
+        </p>
+      )}
       <p className="mt-2 text-[11px] leading-snug text-faint">{sc.note} Reset and try a different mover, route or caution setting.</p>
     </Section>
   );
 }
 
-export function StepSim({ mission, running, speed, setSpeed, onStart, onPause, onReset, onEmergency, busy }: {
+export function StepSim({ mission, running, speed, setSpeed, onStart, onPause, onReset, onEmergency, busy, best, onCrew }: {
   mission: Mission; running: boolean; speed: number; setSpeed: (v: number) => void;
   onStart: () => void; onPause: () => void; onReset: () => void; onEmergency: (kind: string) => void; busy: boolean;
+  best?: number | null; onCrew?: () => void;
 }) {
   const s = mission.sim;
   const r = resourceLabel(s.resource);
   const live = s.phase === "moving" || s.phase === "at_target";
-  const phase = { idle: "Ready", moving: "Under way", at_target: "Working at a target", holding: "Holding position",
+  const phase = { idle: "Ready", manual: "Driving by hand", moving: "Under way", at_target: "Working at a target", holding: "Holding position",
                   complete: "Back at base", aborted: "Simulated failure" }[s.phase];
   const visited = mission.targets.filter((t) => t.visited).length;
   return (
@@ -593,7 +688,7 @@ export function StepSim({ mission, running, speed, setSpeed, onStart, onPause, o
         {mission.plan && !mission.plan.feasibility.ok && s.phase === "idle" && <div className="mt-2"><Note tone="bad">The service will refuse to start this plan. {mission.plan.feasibility.reason}</Note></div>}
       </Section>
 
-      <ScoreCard mission={mission} />
+      <ScoreCard mission={mission} best={best} />
 
       <Section title="Telemetry" kind="sim">
         <Grid>
@@ -604,6 +699,25 @@ export function StepSim({ mission, running, speed, setSpeed, onStart, onPause, o
           <Stat label="Targets visited" value={`${visited} / ${mission.targets.length}`} />
           <Stat label="Replans" value={s.replans} tone={s.replans > 0 ? "warn" : undefined} />
         </Grid>
+      </Section>
+
+      {/* The crew monitor from step 4, kept in sight while the traverse runs. */}
+      <Section title="Crew monitor" kind="sim" action={onCrew && <button className="btn h-7" onClick={onCrew}>Open crew</button>}>
+        {!s.health.monitored ? (
+          <p className="text-[12px] leading-snug text-muted">The robotic scout carries no crew. Its battery margin for the way home is in the Crew step.</p>
+        ) : s.phase === "idle" ? (
+          <p className="text-[12px] leading-snug text-muted">Heart rate, fatigue and the margin for the way home appear here once the traverse starts.</p>
+        ) : (
+          <>
+            {s.health.anomaly && <div className="mb-2.5"><Note tone="bad">Health alert: heart rate is {(s.health.heart_rate_bpm - s.health.expected_heart_rate_bpm).toFixed(0)} bpm above what the workload explains. The pace has been reduced.</Note></div>}
+            <Grid>
+              <Stat label="Heart rate" value={s.health.heart_rate_bpm.toFixed(0)} unit="bpm" tone={s.health.anomaly ? "bad" : undefined} />
+              <Stat label="Fatigue" value={`${(s.health.fatigue * 100).toFixed(0)}%`} tone={s.health.fatigue > 0.8 ? "bad" : s.health.fatigue > 0.5 ? "warn" : undefined} />
+              <Stat label="Margin to get home" value={s.return_margin.toFixed(r.digits)} unit={r.unit} tone={s.return_margin < 0 ? "bad" : undefined} />
+            </Grid>
+            <p className="mt-2 text-[11px] leading-snug text-faint">Simulated from workload; no person is being measured.</p>
+          </>
+        )}
       </Section>
 
       <Section title="Inject an emergency" kind="sim">

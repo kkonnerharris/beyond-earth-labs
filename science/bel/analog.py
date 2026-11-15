@@ -84,12 +84,18 @@ def _explain(a_query: np.ndarray, a_cand: np.ndarray) -> list[dict]:
 
 
 def rank(g: Gallery, zq: np.ndarray, a_query: np.ndarray, query_body: str, query_processes: list[str] | None = None,
-         top_n: int = 10) -> list[dict]:
-    """Rank every Earth region for a query given as cell embeddings and measured attributes."""
+         top_n: int = 10, target_body: str = "earth", query_meta: dict | None = None) -> list[dict]:
+    """Rank every region of `target_body` for a query given as cell embeddings and measured attributes.
+
+    The Earth side of a pair is the one the literature speaks about: a pair
+    is "geologically supported" when the Earth region is documented as an
+    analog for the other body and the two share a documented process.
+    """
     query_processes = list(query_processes or [])
+    query_meta = query_meta or {}
     out = []
     for rid, meta in g.regions.items():
-        if not rid.startswith("earth:"):
+        if not rid.startswith(target_body + ":"):
             continue
         idx = g.cells_of(rid)
         if len(idx) < 3:
@@ -97,9 +103,10 @@ def rank(g: Gallery, zq: np.ndarray, a_query: np.ndarray, query_body: str, query
         emb = _embedding_similarity(zq, g.z[idx])
         phys, dist = _physical_similarity(g, a_query, g.attrs[idx])
         shared = sorted(set(query_processes) & set(meta.get("processes", [])))
-        if meta.get("control"):
+        earth_meta, other_body = (meta, query_body) if target_body == "earth" else (query_meta, target_body)
+        if earth_meta.get("control"):
             label = CONTROL
-        elif query_body in meta.get("analog_for", []) and shared:
+        elif other_body in earth_meta.get("analog_for", []) and shared:
             label = SUPPORTED
         else:
             label = MORPHOMETRIC
@@ -111,7 +118,8 @@ def rank(g: Gallery, zq: np.ndarray, a_query: np.ndarray, query_body: str, query
             "physical_distance_sd": round(dist, 3),
             "support": label,
             "shared_processes": shared,
-            "documented_analog_for": meta.get("analog_for", []),
+            "documented_analog_for": earth_meta.get("analog_for", []),
+            "body": target_body,
             "citation": meta.get("citation", ""),
             "note": meta.get("note", ""),
             "cells": int(len(idx)),
@@ -123,18 +131,27 @@ def rank(g: Gallery, zq: np.ndarray, a_query: np.ndarray, query_body: str, query
     return out[:top_n]
 
 
-def rank_region(g: Gallery, region_id: str, top_n: int = 10) -> dict:
-    """Rank Earth analogs for one of the dataset's own Mars or Moon regions."""
+def rank_region(g: Gallery, region_id: str, top_n: int = 10, target_body: str | None = None) -> dict:
+    """Rank the regions of another body for one of the dataset's own regions.
+
+    Mars and Moon regions are compared with Earth by default; an Earth region
+    is compared with Mars by default (or the Moon when asked).
+    """
     if region_id not in g.regions:
         raise KeyError(region_id)
     meta = g.regions[region_id]
+    if target_body is None:
+        target_body = "mars" if meta["body"] == "earth" else "earth"
+    if target_body == meta["body"] or target_body not in ("earth", "mars", "moon"):
+        raise ValueError("choose a different body to compare with")
     idx = g.cells_of(region_id)
-    ranked = rank(g, g.z[idx], g.attrs[idx], meta["body"], meta.get("processes"), top_n)
+    ranked = rank(g, g.z[idx], g.attrs[idx], meta["body"], meta.get("processes"), top_n, target_body, meta)
     med = np.median(g.attrs[idx], axis=0)
     return {
         "query": {"region": region_id, "name": meta["name"], "body": meta["body"], "lat": meta["lat"],
                   "lon": meta["lon"], "processes": meta.get("processes", []), "citation": meta.get("citation", ""),
-                  "cells": int(len(idx)),
+                  "control": bool(meta.get("control")), "analog_for": meta.get("analog_for", []),
+                  "note": meta.get("note", ""), "target_body": target_body, "cells": int(len(idx)),
                   "measured": {n: round(float(v), 2) for n, v in zip(terrain.ATTRIBUTE_NAMES, med)}},
         "candidates": ranked,
         "method": ("score = mean of embedding similarity (rescaled to 0..1) and physical similarity. "

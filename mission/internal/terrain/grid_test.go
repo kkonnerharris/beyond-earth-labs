@@ -41,6 +41,25 @@ func TestCellAtAndCentreAgree(t *testing.T) {
 	}
 }
 
+func TestElevationAtInterpolatesBetweenCellCentres(t *testing.T) {
+	g := small(t)
+	for row := 0; row < g.N; row++ {
+		for col := 0; col < g.N; col++ {
+			g.Elevation[g.Index(row, col)] = float32(col * 10) // rises 10 m per 20 m cell to the east
+		}
+	}
+	x0, y0 := g.Centre(4, 4)
+	if z := g.ElevationAt(x0, y0); math.Abs(z-40) > 1e-6 {
+		t.Fatalf("at a cell centre the cell's own value is returned, got %.3f", z)
+	}
+	if z := g.ElevationAt(x0+10, y0); math.Abs(z-45) > 1e-6 {
+		t.Fatalf("halfway to the next centre should be halfway in height, got %.3f", z)
+	}
+	if z := g.ElevationAt(g.Half()+500, 0); math.Abs(z-90) > 1e-6 {
+		t.Fatalf("off the grid the edge value is used, got %.3f", z)
+	}
+}
+
 func TestProjectionRoundTrip(t *testing.T) {
 	g := small(t)
 	for _, p := range [][2]float64{{0, 0}, {4800, 4800}, {-4800, 3000}, {1234.5, -4321.0}} {

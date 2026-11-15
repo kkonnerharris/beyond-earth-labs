@@ -66,21 +66,28 @@ _known_max: dict[str, int] = {}
 _lock = threading.Lock()
 
 
+class TileFetchError(IOError):
+    """NASA's tile server could not be reached. Different from a tile that does not exist."""
+
+
 def _fetch(layer: Layer, z: int, row: int, col: int):
-    """One Trek tile as float32 (H, W, 4) RGBA, or None when the tile does not exist."""
+    """One Trek tile as float32 (H, W, 4) RGBA, or None when the tile does not exist (HTTP 400/404).
+
+    A network failure raises TileFetchError so that it is never cached as an empty tile.
+    """
     from PIL import Image
 
-    for attempt in range(3):
+    last: Exception | None = None
+    for _ in range(3):
         try:
             r = _http().get(layer.url(z, row, col), timeout=45)
             if r.status_code in (400, 404):
                 return None
             r.raise_for_status()
             return np.asarray(Image.open(io.BytesIO(r.content)).convert("RGBA"), dtype=np.float32)
-        except Exception:  # noqa: BLE001 - retried; a failed tile is reported as missing
-            if attempt == 2:
-                return None
-    return None
+        except Exception as exc:  # noqa: BLE001 - retried, then reported as a failure
+            last = exc
+    raise TileFetchError(f"{layer.name} {z}/{row}/{col}: {last!r}"[:200])
 
 
 def mercator_lonlat(z: int, x: int, y: int) -> tuple[np.ndarray, np.ndarray]:

@@ -3,6 +3,7 @@
 import type { Mission, RegionInfo } from "@/lib/api";
 import { fmtDistance, fmtDuration, resourceLabel } from "@/lib/geo";
 import { ScoreCard } from "./Steps";
+import { PartsPanel, type PartRow } from "./Thread";
 import { Grid, Note, Row, Section, Stat } from "./ui";
 
 /* The evidence tables are built from the experiment files the science service
@@ -137,7 +138,9 @@ export function ModelEvidence({ model }: { model: Evidence | null }) {
   );
 }
 
-export function StepReview({ mission, model, region }: { mission: Mission; model: Evidence | null; region: RegionInfo | null }) {
+export function StepReview({ mission, model, region, parts, best }: {
+  mission: Mission; model: Evidence | null; region: RegionInfo | null; parts: PartRow[]; best?: number | null;
+}) {
   const s = mission.sim, p = mission.plan;
   const r = resourceLabel(s.resource);
   const ran = s.phase !== "idle";
@@ -178,7 +181,9 @@ export function StepReview({ mission, model, region }: { mission: Mission; model
         )}
       </Section>
 
-      <ScoreCard mission={mission} />
+      <ScoreCard mission={mission} best={best} />
+
+      <PartsPanel rows={parts} />
 
       <ModelEvidence model={model} />
 

@@ -21,7 +21,8 @@ simulation with emergencies and replanning.
    Each candidate shows the network's similarity, an independent similarity from elevation data, and
    whether published literature supports it as an analog.
 3. **Routes.** A* over measured terrain for a robotic scout, a crew rover or an astronaut on foot, with
-   slope limits, a caution weight, time or energy objectives and an elevation profile.
+   slope limits, a caution weight, time or energy objectives and an elevation profile. Each target gets a
+   science activity from a list, and its time on site counts against consumables.
 4. **Crew safety.** A consumables check with reserves before departure, a standing rule during the
    traverse (the mover must always be able to get home with the reserve intact), and a radiation dose
    estimate from the rate Curiosity measured on the surface.
@@ -32,9 +33,39 @@ simulation with emergencies and replanning.
    100 for science done, reserve kept and efficiency.
 7. **Review.** A mission report, the model's held-out accuracy against baselines, and the limits of the build.
 
-A training mode sets a task for each step and checks it against the live mission. A Moon view runs the
-same terrain comparison on lunar regions and lists NASA's commercial lunar deliveries (CLPS) in NASA's own
-words, linking the ones whose sites this build has measured.
+A training mode sets a task for each step and checks it against the live mission.
+
+**3D and three worlds.** "Space view" shows the whole solar system with each planet in its direction
+from the Sun today; Earth, the Moon and Mars carry NASA imagery and open their maps. "Surface view" drops
+to ground level behind your rover or astronaut and lets you drive by hand with W, A, S, D, under the same
+slope limits as a planned route. Zoomed out, each is a globe. At Jezero, "3D terrain" tilts the view and
+raises the surface from the measured elevation model, and every mover is a NASA 3D model: Perseverance
+for the scout rover, the Space Exploration Vehicle for the crew rover, and the Z-2 suit for the astronaut. The Moon view runs the same terrain comparison
+on lunar regions and lists NASA's commercial lunar deliveries (CLPS) in NASA's own words. The Earth view
+turns the comparison around: pick a test site and see which Mars or Moon terrain it most resembles, with
+its NASA climate record. Missions, routes and the simulation are on Mars only.
+
+A guide to every feature is built into the site at `/guide`.
+
+## One map, seven challenge themes
+
+The entry is the Martian Map. Six other Space Apps 2026 challenge themes were built as parts of that one
+map, so a single mission passes through all of them and each part changes the others.
+
+| Challenge theme | What it became in the map |
+|---|---|
+| **Interplanetary Survival Guide: Martian Map** (the challenge entered) | The layered Jezero map, routes and the simulated Marswalk |
+| Identify Earth Locations That Analog Moon and Mars | Earth analog search by the terrain network; its top match is the habitat's field site |
+| Create Health Monitoring Software for Astronauts | Crew health monitor and radiation estimate, live during the traverse |
+| Field Shift: Adapting Farms with NASA Data | Greenhouse budget beside NASA climate records for the field site |
+| Space Mission Design Game | A scored traverse with a best score to beat |
+| Build a Junior Astronaut Mission Trainer | Training mode: one plain-worded task per step, checked on the live mission |
+| CLPS Lunar Mission Browser | NASA's lunar deliveries with terrain comparison for their landing regions |
+
+The bar at the bottom of every step carries each decision into the next step, matches open on their own
+world's map, and the Review step lists what every part did in the mission just run.
+[docs/CHALLENGES.md](docs/CHALLENGES.md) explains each theme: what it contributed, where it is, what NASA
+data it uses and what was left out.
 
 ## What the evidence shows
 
@@ -70,6 +101,7 @@ cd science
 ../.venv/Scripts/python -m bel.features extract       # about 15 minutes on a laptop CPU
 ../.venv/Scripts/python -m bel.experiments run --only E2 --tag transfer
 ../.venv/Scripts/python -m bel.experiments run --only E1 E3 E4 E5 --tag eval
+../.venv/Scripts/python -m bel.experiments run --only E6 --tag perworld
 ../.venv/Scripts/python -m bel.experiments train-final --version v1
 ../.venv/Scripts/python -m bel.registry gate --version v1 --run <the eval run folder>
 ../.venv/Scripts/python -m bel.jezero build           # the Jezero mission area
@@ -78,6 +110,7 @@ cd ..
 # 3. Mission service and web app
 cd mission && go build -o bin/missiond.exe ./cmd/missiond && cd ..
 cd web && npm install && npm run build && cd ..
+python scripts/fetch_nasa_models.py                   # optional: NASA's 3D models for the 3D view (50 MB)
 
 # 4. Start everything (Windows PowerShell)
 powershell -ExecutionPolicy Bypass -File scripts/services.ps1 start
@@ -107,10 +140,11 @@ See [docs/TESTS.md](docs/TESTS.md) for the latest results.
 | `web/` | Next.js + MapLibre interface |
 | `models/` | Trained head, its registry entry and the gate decision |
 | `experiments/runs/` | Every experiment run with its metrics and log |
-| `docs/` | Requirements, methods, data registry, model card, decisions, demo script, submission text |
+| `docs/` | The challenges behind the product, requirements, methods, data registry, model card, decisions, demo script, submission text |
 
 ## Documents
 
-[Requirements traceability](docs/REQUIREMENTS.md) · [Methods](docs/METHODS.md) · [Data registry](docs/DATA.md) ·
+[The challenges behind the product](docs/CHALLENGES.md) · [Requirements traceability](docs/REQUIREMENTS.md) · [Methods](docs/METHODS.md) · [Data registry](docs/DATA.md) ·
 [Model card](docs/MODEL_CARD.md) · [Decisions](docs/DECISIONS.md) · [Tests](docs/TESTS.md) ·
-[Demo script](docs/DEMO.md) · [Submission text](docs/SUBMISSION.md) · [AI use](docs/AI_USE.md)
+[Demo script](docs/DEMO.md) · [Submission text](docs/SUBMISSION.md) · [AI use](docs/AI_USE.md) ·
+[Pitch deck (PDF)](docs/pitch/Beyond-Earth-Labs-pitch.pdf) with [speaker notes](docs/pitch/speaker-notes.md)

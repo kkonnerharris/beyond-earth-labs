@@ -58,6 +58,8 @@ type Sim struct {
 	TurnedBack  bool    `json:"turned_back"`
 	Replans     int     `json:"replans"`
 
+	Health Health `json:"health"` // simulated crew health monitor
+
 	ActiveLegs  []*planner.Route `json:"active_legs"` // the route being followed, after any replanning
 	Emergencies []Emergency      `json:"emergencies"`
 	Track       [][2]float64     `json:"track"` // [lon, lat] breadcrumbs of where the mover has been
@@ -74,7 +76,8 @@ func newSim(m *Mission) Sim {
 	res, avail, _ := m.capacity()
 	s := Sim{Phase: PhaseIdle, X: m.Base.X, Y: m.Base.Y, Lon: m.Base.Lon, Lat: m.Base.Lat,
 		ElevationM: m.Base.ElevationM, SlopeDeg: m.Base.SlopeDeg, Resource: res, Capacity: avail, Remaining: avail,
-		PaceFactor: 1, ActiveLegs: []*planner.Route{}, Emergencies: []Emergency{}, Track: [][2]float64{}}
+		PaceFactor: 1, ActiveLegs: []*planner.Route{}, Emergencies: []Emergency{}, Track: [][2]float64{},
+		Health: newHealth(m.Profile())}
 	return s
 }
 
@@ -200,6 +203,7 @@ func (e *Engine) Step(m *Mission, dt float64) {
 func (e *Engine) spend(m *Mission, joules, seconds float64) {
 	s := &m.Sim
 	s.Seconds += seconds
+	e.updateHealth(m, joules, seconds)
 	use := m.consumption(joules, 0)
 	if joules == 0 { // stationary: hotel load or light work
 		use = m.consumption(0, seconds)
@@ -439,6 +443,7 @@ func (e *Engine) Inject(m *Mission, kind string) error {
 		e.checkReturn(m)
 	case "crew_health":
 		s.PaceFactor *= 0.6
+		s.Health.offset = 28 // the simulated fault also raises heart rate beyond what the workload explains
 		if p.Kind == mobility.Astronaut {
 			p.PaceFactor *= 0.6
 			detail = "Simulated crew health anomaly: walking pace reduced to 60%."

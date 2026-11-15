@@ -35,3 +35,8 @@ The Space Apps rules allow AI tools and require a description of their use. This
   against Appelbaum and Flood (1990).
 - Dataset references and DOIs in `docs/DATA.md`: those for the Jezero products, NASADEM and HLS were
   taken from the products' own records; the journal references were written from memory.
+- The times on site for the four science activities (`GOALS` in `web/components/Steps.tsx`, 10 to 45
+  minutes) are round-number assumptions, not taken from a NASA source.
+- Five of the seven challenge titles in `docs/CHALLENGES.md` and `web/lib/parts.ts` are written as they
+  appear in the team's brief. Only the Martian Map and Space Mission Design Game titles were checked
+  against the official site.

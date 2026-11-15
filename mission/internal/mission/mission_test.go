@@ -225,6 +225,107 @@ func TestGreenhouseChangesHabitatBudgetThroughTheMission(t *testing.T) {
 	}
 }
 
+func TestHealthMonitorTracksWorkloadAndFlagsAnUnexplainedHeartRate(t *testing.T) {
+	e := world(t)
+	m, _ := e.New("h1", "Health", "astronaut", -600, 0)
+	_ = e.AddTarget(m, "Outcrop", "", 400, 0, 10)
+	if !m.Sim.Health.Monitored || m.Sim.Health.HeartRate != 62 {
+		t.Fatalf("a walker should be monitored and start at rest: %+v", m.Sim.Health)
+	}
+	_ = e.Start(m)
+	for i := 0; i < 20; i++ {
+		e.Step(m, 30)
+	}
+	h := m.Sim.Health
+	if h.MetabolicW < 200 || h.HeartRate < 100 {
+		t.Fatalf("walking should raise metabolic rate and heart rate: %.0f W, %.0f bpm", h.MetabolicW, h.HeartRate)
+	}
+	if math.Abs(h.HeartRate-h.ExpectedRate) > 3 || h.Anomaly {
+		t.Fatalf("nominal walking must match the workload model and raise no anomaly: %.1f vs %.1f", h.HeartRate, h.ExpectedRate)
+	}
+	if len(h.History) < 8 || h.Fatigue <= 0 {
+		t.Fatal("history and fatigue should accumulate")
+	}
+	_ = e.Inject(m, "crew_health")
+	for i := 0; i < 20; i++ {
+		e.Step(m, 30)
+	}
+	if !m.Sim.Health.Anomaly {
+		t.Fatalf("the detector should flag the simulated fault: %.1f vs expected %.1f", m.Sim.Health.HeartRate, m.Sim.Health.ExpectedRate)
+	}
+	flagged := false
+	for _, ev := range m.Events {
+		if strings.Contains(ev.Message, "Health monitor") {
+			flagged = true
+		}
+	}
+	if !flagged {
+		t.Fatal("the anomaly should be written to the mission log")
+	}
+
+	scout, _ := e.New("h2", "Scout", "scout", -600, 0)
+	if scout.Sim.Health.Monitored {
+		t.Fatal("a robotic rover carries no crew to monitor")
+	}
+}
+
+func TestHandDrivingObeysTheSameLimitsAsARoute(t *testing.T) {
+	e := world(t)
+	m, _ := e.New("d1", "Drive", "crew_rover", 0, 0)
+	if err := e.Drive(m, 0, 40); err != nil { // north
+		t.Fatal(err)
+	}
+	// The base sits at a cell centre, so positions are measured from it.
+	if m.Sim.Phase != PhaseManual || math.Abs(m.Sim.Y-(m.Base.Y+40)) > 1e-6 || math.Abs(m.Sim.X-m.Base.X) > 1e-6 {
+		t.Fatalf("40 m north of base expected: (%.2f, %.2f) from base (%.2f, %.2f), phase %s", m.Sim.X, m.Sim.Y, m.Base.X, m.Base.Y, m.Sim.Phase)
+	}
+	if err := e.Drive(m, 90, 30); err != nil { // east
+		t.Fatal(err)
+	}
+	if math.Abs(m.Sim.X-(m.Base.X+30)) > 1e-6 || m.Sim.HeadingDeg != 90 {
+		t.Fatalf("30 m east of base expected, heading 90: x %.2f heading %.0f", m.Sim.X, m.Sim.HeadingDeg)
+	}
+	if !(m.Sim.Remaining < m.Sim.Capacity) || math.Abs(m.Sim.DistanceM-70) > 1e-6 {
+		t.Fatal("driving must use battery and count distance")
+	}
+	if m.Sim.ReturnM <= 0 {
+		t.Fatal("the way home should be tracked while driving by hand")
+	}
+
+	// A steep cell ahead stops the mover at its edge with a reason.
+	row, col, _ := e.Grid.CellAt(m.Sim.X+60, m.Sim.Y)
+	e.Grid.Slope[e.Grid.Index(row, col)] = 35
+	before := m.Sim.X
+	err := e.Drive(m, 90, 120)
+	if err == nil || !strings.Contains(err.Error(), "blocked") {
+		t.Fatalf("want a blocked message, got %v", err)
+	}
+	if !(m.Sim.X > before) || m.Sim.X >= before+60 {
+		t.Fatalf("the mover should stop short of the steep cell: moved %.1f m", m.Sim.X-before)
+	}
+
+	if err := e.Drive(m, 0, 0); err == nil {
+		t.Fatal("a zero-length drive should be refused")
+	}
+	if err := e.Start(m); err == nil {
+		t.Fatal("a planned traverse cannot start while driving by hand")
+	}
+	e.Reset(m)
+	if m.Sim.Phase != PhaseIdle || m.Sim.X != m.Base.X {
+		t.Fatal("reset should return the mover to base")
+	}
+	// The edge of the map is a wall, not a crash.
+	if err := e.Drive(m, 270, 200); err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 20; i++ {
+		_ = e.Drive(m, 270, 200)
+	}
+	if _, _, ok := e.Grid.CellAt(m.Sim.X, m.Sim.Y); !ok {
+		t.Fatal("the mover left the mapped area")
+	}
+}
+
 func TestScoreRewardsScienceSafetyAndEfficiency(t *testing.T) {
 	e := world(t)
 	m := twoTargets(t, e, "crew_rover")

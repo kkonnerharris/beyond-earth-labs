@@ -1,12 +1,13 @@
 # Start, stop or check the three local services.
 #   powershell -File scripts\services.ps1 start|stop|status
-# Ports: mission 8300 (Go), science 8310 (Python), web 4770 (Next.js).
+# Ports: mission 8300 (Go), science 8310 (Python), world 8320 (Python, the optional 3D rover world, started
+# only if a surface-world folder is present; it is not part of this repository), web 4770 (Next.js).
 param([Parameter(Position = 0)][ValidateSet("start", "stop", "status")][string]$Action = "status")
 
 $root = Split-Path -Parent $PSScriptRoot
 $logs = Join-Path $root "data\logs"
 New-Item -ItemType Directory -Force $logs | Out-Null
-$ports = [ordered]@{ mission = 8300; science = 8310; web = 4770 }
+$ports = [ordered]@{ mission = 8300; science = 8310; world = 8320; web = 4770 }
 
 function Get-Listener([int]$port) {
     Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -31,6 +32,11 @@ if ($Action -eq "start") {
     Start-Process -FilePath (Join-Path $root ".venv\Scripts\python.exe") -WorkingDirectory (Join-Path $root "science") -WindowStyle Hidden `
         -ArgumentList "-m", "uvicorn", "bel.api:app", "--host", "127.0.0.1", "--port", "8310" `
         -RedirectStandardError (Join-Path $logs "science_api.log") -RedirectStandardOutput (Join-Path $logs "science_api.out.log")
+    if (Test-Path (Join-Path $root "surface-world\backend")) {
+        Start-Process -FilePath (Join-Path $root ".venv\Scripts\python.exe") -WorkingDirectory (Join-Path $root "surface-world") -WindowStyle Hidden `
+            -ArgumentList "-m", "uvicorn", "backend.api.main:app", "--host", "127.0.0.1", "--port", "8320" `
+            -RedirectStandardError (Join-Path $logs "world.log") -RedirectStandardOutput (Join-Path $logs "world.out.log")
+    }
     Start-Process -FilePath "node" -WorkingDirectory (Join-Path $root "web") -WindowStyle Hidden `
         -ArgumentList "node_modules\next\dist\bin\next", "start", "-p", "4770" `
         -RedirectStandardOutput (Join-Path $logs "web.log") -RedirectStandardError (Join-Path $logs "web.err.log")

@@ -20,6 +20,9 @@ it is only looked at (by people or by the network), never used as a number.
 | Viking colour mosaic (MDIM 2.1) | Viking Orbiters 1 and 2 | 232 m | image | Global context basemap | NASA Treks WMTS, `Mars_Viking_MDIM21_ClrMosaic_global_232m` | USGS Astrogeology |
 | Perseverance traverse and waypoints | Mars 2020 | localised positions | measurement | Path overlay; validation of the elevation grid and the slope limit | `mars.nasa.gov/mmgis-maps/M20/Layers/json/` | NASA/JPL-Caltech |
 | Perseverance raw images, left navigation camera | Mars 2020 / Navcam | browse images | image | Ground views near a selected point | `mars.nasa.gov/rss/api/?feed=raw_images`, searched by sol | NASA/JPL-Caltech |
+| Mars Perseverance Rover, 3D Model (GLB, 11.7 MB) | NASA/JPL-Caltech | 3D model | image | The rover in the 3D view, at Perseverance's last published stop or as the scout rover; enlarged | `science.nasa.gov/resource/mars-perseverance-rover-3d-model/`; fetched by `scripts/fetch_nasa_models.py`, not stored in the repository | NASA/JPL-Caltech |
+| Space Exploration Vehicle, 3D model (GLB, 22 MB) | NASA 3D Resources | 3D model | image | The crew rover in the 3D view; enlarged. NASA's concept for a crewed surface rover, standing in for this project's assumed crew rover | `github.com/nasa/NASA-3D-Resources`; fetched by `scripts/fetch_nasa_models.py` | NASA |
+| Z2 Spacesuit, 3D model (GLB, 17 MB) | NASA 3D Resources | 3D model | image | The astronaut in the 3D view; enlarged | `github.com/nasa/NASA-3D-Resources`; fetched by `scripts/fetch_nasa_models.py` | NASA |
 | Surface radiation dose rate, 0.64 mSv per day | Mars Science Laboratory / RAD | one published value | measurement (published, not re-derived) | Crew radiation estimate | Entered from the paper, not downloaded; flagged for checking | Hassler et al. (2014) Science 343, 1244797 |
 
 ## Moon
@@ -37,7 +40,8 @@ it is only looked at (by people or by the network), never used as a number.
 | HLS L30 v2.0, band B04 (red) | Landsat 8 and 9 / OLI | 30 m | image | Network input for Earth cells | Microsoft Planetary Computer STAC with an anonymous read token (the home archive, LP DAAC, needs a login) | doi:10.5067/HLS/HLSL30.002 |
 | NASADEM_HGT v001 | Shuttle Radar Topography Mission | 30 m | measurement | Terrain attributes of Earth cells below 60° N | OpenTopography public bucket | doi:10.5067/MEaSUREs/NASADEM/NASADEM_HGT.001 |
 | Copernicus DEM GLO-30 | TanDEM-X (ESA, not NASA) | 30 m | measurement | Terrain attributes for Iceland and Devon Island, where NASADEM has no coverage | AWS Open Data | doi:10.5270/ESA-c5d3d65 |
-| NASA POWER monthly and annual, agroclimatology | MERRA-2, CERES/SRB | about 0.5° | measurement | Climate record at the Earth field site (Habitat step) | `power.larc.nasa.gov/api/temporal/monthly/point` | NASA Langley POWER project |
+| NASA POWER monthly and annual, agroclimatology | MERRA-2, CERES/SRB | about 0.5° | measurement | Climate record at the Earth field site (Habitat step and Earth view) | `power.larc.nasa.gov/api/temporal/monthly/point` | NASA Langley POWER project |
+| Blue Marble shaded relief and bathymetry | MODIS (Terra), via NASA GIBS | about 600 m at the deepest tile level | image | The Earth globe | `gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry`, read by the browser directly | NASA Earth Observatory / GIBS |
 
 ## Listed in the brief but not used
 
