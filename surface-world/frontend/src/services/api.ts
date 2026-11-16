@@ -76,6 +76,8 @@ export interface MissionPlan {
 }
 /** Mission id handed over by the main map (?mission=...). Without one, the newest planned mission is used. */
 export const MISSION_ID = new URLSearchParams(location.search).get('mission')
+/** True when the world is shown inside the mission map's pane (?embed=1): its own help overlay starts closed. */
+export const EMBEDDED = new URLSearchParams(location.search).get('embed') === '1'
 
 /** Map region, from the URL (?region=procedural). Real NASA terrain (Jezero) is the default. */
 const asked = new URLSearchParams(location.search).get('region')
@@ -99,8 +101,8 @@ async function json<T>(res: Response): Promise<T> {
 
 export const api = {
   mission: (id: string | null) => fetch(`/api/mission${id ? `?id=${encodeURIComponent(id)}` : ''}`).then((r) => json<MissionPlan>(r)),
-  missionDrive: (id: string | null, start: [number, number]) =>
-    fetch('/api/mission/drive', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, start }) }).then((r) => json<Route>(r)),
+  missionDrive: (id: string | null, start: [number, number], agent: Agent) =>
+    fetch('/api/mission/drive', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, start, agent }) }).then((r) => json<Route>(r)),
   experiment: () => fetch('/api/experiment').then((r) => json<Experiment>(r)),
   terrain: (region: Region) => fetch(`/api/terrain?region=${region}`).then((r) => json<TerrainResponse>(r)),
   route: (start: [number, number], goal: [number, number], mode: RouteMode, agent: Agent = 'rover', region: Region = REGION) =>

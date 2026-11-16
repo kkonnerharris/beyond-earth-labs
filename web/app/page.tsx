@@ -356,7 +356,8 @@ export default function Workspace() {
         </div>
         <span className="flex-1" />
         {mission && <span className="truncate text-[12px] text-muted">{mission.name}</span>}
-        {worldUp && <button className="btn btn-primary h-7" onClick={() => setWorld(true)} title="See this mission's route in a full 3D world of Jezero, and drive its first leg">3D world</button>}
+        {worldUp && <button className={`btn h-7 ${world ? "border-mars text-mars-soft" : "btn-primary"}`} aria-pressed={world} onClick={() => setWorld((v) => !v)}
+                            title="The 3D simulation: your rover and your astronaut on the ground, running this mission">{world ? "3D world on" : "3D world"}</button>}
         <button className={`btn h-7 ${space ? "border-mars text-mars-soft" : ""}`} aria-pressed={space} onClick={() => setSpace((v) => !v)}
                 title="See Earth, the Moon and Mars together">Space view</button>
         <a href="/guide" target="_blank" rel="noreferrer" className="text-[12px] text-muted underline-offset-4 hover:text-text hover:underline">Guide</a>
@@ -473,9 +474,9 @@ export default function Workspace() {
                    selectedRegion={selected[body]} focus={focus} placing={placing && step === 2} onClick={onMapClick} onRegion={onRegionMarker} />
 
           {world && (
-            <div className="fixed inset-x-0 bottom-0 top-12 z-50 bg-black" role="dialog" aria-label="3D rover world">
-              <iframe key={`${mission?.id ?? "none"}-${mission?.plan?.revision ?? 0}-${mission?.fine_check?.revision ?? 0}`}
-                      src={`${WORLD_URL}/?intro=0${mission ? `&mission=${encodeURIComponent(mission.id)}` : ""}`}
+            <div className="absolute inset-0 z-40 bg-black" role="region" aria-label="3D world: the mission on the ground">
+              <iframe key={`${mission?.id ?? "none"}-${mission?.mover ?? ""}-${mission?.plan?.revision ?? 0}-${mission?.fine_check?.revision ?? 0}`}
+                      src={`${WORLD_URL}/?intro=0&embed=1${mission ? `&mission=${encodeURIComponent(mission.id)}` : ""}`}
                       title="3D world of Jezero Crater showing this mission" className="h-full w-full border-0" allow="fullscreen" />
               <button className="btn absolute bottom-4 left-1/2 -translate-x-1/2 bg-panel/95" onClick={() => setWorld(false)}>Back to the mission map</button>
             </div>
@@ -504,6 +505,12 @@ export default function Workspace() {
                         else { setAim(mission.sim.heading_deg); setThreeD(true); setSurface(true); }
                       }}>
                 {surface ? "Surface view on" : "Surface view"}
+              </button>
+            )}
+            {body === "mars" && worldUp && (
+              <button className="btn btn-primary" title="The 3D simulation: your rover and your astronaut on the ground, running this mission"
+                      onClick={() => setWorld(true)}>
+                3D world
               </button>
             )}
             <button className="btn bg-panel/95" title={`Zoom out to see all of ${BODY_NAME[body]}`}

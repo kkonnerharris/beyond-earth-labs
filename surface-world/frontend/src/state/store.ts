@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import type { MissionPlan, Route, RouteMode } from '@/services/api'
+import { EMBEDDED, type MissionPlan, type Route, type RouteMode } from '@/services/api'
 import type { Alert, Limits } from '@/simulation/health'
 import type { RHState } from '@/state/redHorizon'
 
@@ -110,7 +110,7 @@ export interface UIState {
 type Listener = () => void
 let state: UIState = {
   camera: 'rover', layer: 'natural', destination: null, route: null, agent: 'rover', evaRoute: null, eva: 'idle', timeOfDay: null, weather: 'clear', showAbout: false, presentation: false, renderPaused: false, routeMode: 'balanced', planning: false, routeError: null,
-  expedition: 'idle', selected: null, showHelp: true, showM20: true, showScience: false, experimentDrive: null, story: null, ready: false, messages: [],
+  expedition: 'idle', selected: null, showHelp: !EMBEDDED, showM20: true, showScience: false, experimentDrive: null, story: null, ready: false, messages: [],
   alertLimits: { heartRateHigh: 140, spo2Low: 94, o2MinLow: 20, fatigueHigh: 70, hydrationLow: 70, bodyTempHigh: 38 }, alerts: [], lesson: null, redHorizon: null,
   mission: null, missionError: null, showMission: true, flyover: false,
 }

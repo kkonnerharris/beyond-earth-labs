@@ -12,6 +12,10 @@ as its own service on port 8320.
   was planned on 20 m cells, so this world's own planner is asked to reach a point on it every 120 m and
   steers round rocks and steep 5 m cells in between. The panel reports how far the driven line strays
   from the mission line (a median of 2.6 m on the demonstration route).
+- **Walk it.** The astronaut walks the same leg on foot, and stops where going further would leave the
+  suit too little oxygen for the walk back and the reserve. A mission planned for an astronaut opens on
+  the astronaut; one planned for a rover opens on the rover. Both stand at the mission base.
+- **Earth too.** `?region=shawnee` runs the same rover and astronaut at Garden of the Gods, Illinois.
 - Around that: keyboard driving, an astronaut on foot, five cameras, slope and thermal layers, and
   Perseverance's and Ingenuity's real paths.
 
@@ -50,7 +54,7 @@ is shown.
 
 ## Test
 
-    ../.venv/Scripts/python -m pytest            # 35 tests: terrain, planner, energy, the mission link
+    ../.venv/Scripts/python -m pytest            # 36 tests: terrain, planner, energy, the mission link
     node ../scripts/ui_world.cjs <folder>        # plans a mission and checks the world shows the same plan
 
 ## Contents

@@ -91,15 +91,21 @@ def mission(id: str | None = Query(None, description="mission id from the main m
 
 class MissionDriveRequest(BaseModel):
     id: str | None = None
-    start: tuple[float, float] = Field(description="[x, z] metres: where the rover is now")
+    start: tuple[float, float] = Field(description="[x, z] metres: where the rover or the astronaut is now")
+    agent: Literal["rover", "astronaut"] | None = Field(None, description="who goes; by default the mission's own mover")
 
 
 @app.post("/api/mission/drive")
 def mission_drive(req: MissionDriveRequest) -> dict:
     """The mission's first leg as a route this world's rover can drive (see mission_link.drive_route)."""
     wm = mission(req.id)
+    agent = req.agent or ("astronaut" if wm.get("mover_kind") == "astronaut" else "rover")
     _, g = world("jezero")
     try:
+        if agent == "astronaut":
+            # Oxygen for the walk out: half of what is left after the reserve, so the way back is covered.
+            budget = ASTRONAUT.suit_o2_g * (1 - ASTRONAUT.reserve_fraction) / 2
+            return mission_link.drive_route(wm, astro_grid("jezero"), req.start, plan_route, NoRoute, agent="astronaut", o2_budget_g=budget)
         return mission_link.drive_route(wm, g, req.start, plan_route, NoRoute)
     except NoRoute as e:
         raise HTTPException(422, str(e))

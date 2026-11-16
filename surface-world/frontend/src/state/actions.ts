@@ -13,6 +13,7 @@ import { resetHealth } from '@/simulation/health'
 
 let world: World | null = null
 export function bindWorld(w: World) { world = w }
+let staged = false   // the mission's mover is put at the mission base once, when the mission first loads
 
 const CAMERAS: CameraMode[] = ['free', 'astronaut', 'rover', 'top']
 const LAYERS: Layer[] = ['natural', 'slope', 'hazard']
@@ -143,6 +144,20 @@ export const actions = {
     try {
       const mission = await api.mission(MISSION_ID)
       ui.set({ mission, missionError: null })
+      // Open on the mission's own mover, standing at the mission base: the crew rover, or the astronaut on foot.
+      const b = mission.base
+      if (world && !staged && b.inside) {
+        staged = true
+        const p0 = mission.legs[0]?.points.find(([x, z]) => Math.hypot(x - b.x, z - b.z) > 22) ?? [b.x + 22, b.z, 0]
+        const heading = Math.atan2(p0[1] - b.z, p0[0] - b.x)
+        Object.assign(sim.rover, { x: p0[0], z: p0[1], speed: 0, steer: 0, heading })
+        placeRover(world, sim.rover)
+        placeAstronautAtHabitat(world)   // a full suit
+        Object.assign(sim.astro, { x: p0[0] + 5 * Math.sin(heading), z: p0[1] - 5 * Math.cos(heading), heading })
+        sim.astro.y = world.heightAt(sim.astro.x, sim.astro.z)
+        const onFoot = mission.mover_kind === 'astronaut'
+        ui.set({ agent: onFoot ? 'astronaut' : 'rover', camera: onFoot ? 'astronaut' : 'rover' })
+      }
     } catch (e) {
       ui.set({ mission: null, missionError: e instanceof Error ? e.message : String(e) })
     }
@@ -156,6 +171,30 @@ export const actions = {
     if (s.flyover) { ui.set({ flyover: false }); return }
     if (!s.mission?.planned) { notify('There is no planned mission route to fly.', 'caution'); return }
     ui.set({ flyover: true, showMission: true })
+  },
+
+  /** Walk the first leg of the mission with the astronaut, as far as the suit's oxygen covers the way back and the reserve. */
+  async walkMission() {
+    const s = ui.get()
+    if (!world || !s.mission?.planned) { notify('There is no planned mission route to walk.', 'caution'); return }
+    const b = s.mission.base
+    if (b.inside && Math.hypot(sim.astro.x - b.x, sim.astro.z - b.z) > 80) {
+      const p0 = s.mission.legs[0]?.points.find(([x, z]) => Math.hypot(x - b.x, z - b.z) > 22) ?? [b.x + 22, b.z, 0]
+      placeAstronautAtHabitat(world)
+      Object.assign(sim.astro, { x: p0[0], z: p0[1] })
+      sim.astro.y = world.heightAt(sim.astro.x, sim.astro.z)
+    }
+    ui.set({ planning: true, routeError: null, agent: 'astronaut', flyover: false })
+    try {
+      const route = await api.missionDrive(s.mission.id, [sim.astro.x, sim.astro.z], 'astronaut')
+      const end = route.path[route.path.length - 1]
+      sim.astro.pathIndex = 0
+      ui.set({ evaRoute: route, destination: [end[0], end[2]], planning: false, eva: 'walking', showMission: true, camera: ui.get().camera === 'top' ? 'top' : 'astronaut' })
+      notify(`Walking the mission route: ${route.distance_m.toFixed(0)} m on 5 m terrain, ${(route.o2_g ?? 0).toFixed(0)} g of oxygen out.`)
+    } catch (e) {
+      ui.set({ planning: false, routeError: e instanceof Error ? e.message : String(e) })
+      notify(`The mission route cannot be walked here: ${e instanceof Error ? e.message : String(e)}`, 'warning')
+    }
   },
 
   /** Drive the first leg of the mission inside this map: the backend follows the mission line on the 5 m planner. */
@@ -172,7 +211,7 @@ export const actions = {
     }
     ui.set({ planning: true, routeError: null, agent: 'rover', flyover: false })
     try {
-      const route = await api.missionDrive(s.mission.id, [sim.rover.x, sim.rover.z])
+      const route = await api.missionDrive(s.mission.id, [sim.rover.x, sim.rover.z], 'rover')
       const end = route.path[route.path.length - 1]
       sim.routeIndex = 0
       sim.rover.mode = 'auto'

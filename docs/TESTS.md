@@ -6,7 +6,7 @@ Run on 15 November 2026 (local time) on the build machine: Windows 10, 7.4 GB RA
 |---|---|---|
 | Science unit tests | `cd science && python -m pytest` | **31 passed** |
 | Mission service unit tests | `cd mission && go test ./...` | **45 passed** in 5 packages |
-| 3D world unit tests | `cd surface-world && python -m pytest` | **35 passed** (9 of them on the link to the mission) |
+| 3D world unit tests | `cd surface-world && python -m pytest` | **36 passed** (10 of them on the link to the mission) |
 | Mission API end to end | `python scripts/smoke_mission.py` | **19 of 19 checks passed**, including the 1 m check on the live NASA file |
 | Mission to 3D world | `node scripts/ui_world.cjs <folder>` (headless Edge) | **8 of 8 checks passed**: the 3D world reports the same mission, plan revision, route length (7,632 m both), legs, targets and 1 m result as the mission service; the first leg is drivable on 5 m terrain; five screens saved; no page or HTTP errors |
 | Interface walkthrough | `node scripts/ui_check.cjs <folder>` (headless Edge) | 24 screens captured, including the 1 m check and the route moved off steep ground, 3D terrain, the three globes, the links between worlds, training mode and the guide page; **no console errors, failed requests or HTTP errors** |
@@ -71,6 +71,8 @@ Run on 15 November 2026 (local time) on the build machine: Windows 10, 7.4 GB RA
   stretches mark route points only when the 1 m check belongs to the current plan revision; a keep-out
   placed by its offset from the base agrees with its longitude and latitude to under 5 m; a mission with
   no plan has no legs; a missing mission service gives a clear 404.
+- An astronaut walks the mission line only as far as the oxygen budget allows, and a smaller budget gives
+  a shorter walk that says oxygen is why it stopped.
 - The drive of the first leg joins the 5 m planner's pieces with no gap, keeps hazard indices valid, stays
   inside the map, and refuses a mission without a plan.
 

@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Eye, EyeOff, Navigation, Plane, RefreshCw, Square } from 'lucide-react'
+import { ChevronDown, ChevronUp, Eye, EyeOff, Footprints, Navigation, Plane, RefreshCw, Square } from 'lucide-react'
 import { useState } from 'react'
 import { clsx } from 'clsx'
 import { actions } from '@/state/actions'
@@ -19,7 +19,8 @@ export function MissionLinkCard() {
   const flying = useUI((s) => s.flyover)
   const busy = useUI((s) => s.planning)
   const driving = useUI((s) => s.expedition === 'driving')
-  const hasRoute = useUI((s) => s.route !== null)
+  const hasRoute = useUI((s) => s.route !== null || s.evaRoute !== null)
+  const walking = useUI((s) => s.eva === 'walking')
   const [open, setOpen] = useState(true)
   const full = open && !driving && !hasRoute   // the planner below grows once a drive is planned, so this card steps back
   if (!m) {
@@ -80,11 +81,15 @@ export function MissionLinkCard() {
         ) : (
           <p className="mt-2 text-[11px] leading-snug text-ink-3">This plan has not been checked on the 1 m elevation model yet. Run the check in the main map's Route step to see steep stretches here.</p>
         )}
-        <div className="mt-3 grid grid-cols-3 gap-1.5">
+        <div className="mt-3 grid grid-cols-2 gap-1.5">
           {driving
             ? <button onClick={() => actions.stopExpedition('stopped by operator')} className="flex items-center justify-center gap-1.5 rounded-lg bg-warning py-2 text-xs font-semibold text-white"><Square className="size-3.5" />Stop</button>
-            : <button onClick={() => void actions.driveMission()} disabled={busy} title="Drive the first leg of the mission inside this map, on the 5 m terrain"
-                className="flex items-center justify-center gap-1.5 rounded-lg bg-[#e2733c] py-2 text-xs font-semibold text-black hover:bg-[#f08a55] disabled:opacity-50"><Navigation className="size-3.5" />{busy ? 'Planning…' : 'Drive it'}</button>}
+            : <button onClick={() => void actions.driveMission()} disabled={busy} title="Drive the first leg of the mission inside this map with the rover, on the 5 m terrain"
+                className={clsx('flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold disabled:opacity-50', m.mover_kind === 'astronaut' ? 'bg-white/10 hover:bg-white/15' : 'bg-[#e2733c] text-black hover:bg-[#f08a55]')}><Navigation className="size-3.5" />{busy ? 'Planning…' : 'Drive it'}</button>}
+          {walking
+            ? <button onClick={() => actions.stopEva()} className="flex items-center justify-center gap-1.5 rounded-lg bg-warning py-2 text-xs font-semibold text-white"><Square className="size-3.5" />Stop walk</button>
+            : <button onClick={() => void actions.walkMission()} disabled={busy} title="Walk the first leg with the astronaut, as far as the suit's oxygen covers the way back and the reserve"
+                className={clsx('flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold disabled:opacity-50', m.mover_kind === 'astronaut' ? 'bg-[#e2733c] text-black hover:bg-[#f08a55]' : 'bg-white/10 hover:bg-white/15')}><Footprints className="size-3.5" />Walk it</button>}
           <button onClick={() => actions.flyMission()} aria-pressed={flying} title="Fly the camera along the whole route, out to every target and back"
             className={clsx('flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium', flying ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15')}><Plane className="size-3.5" />{flying ? 'Stop flight' : 'Fly the route'}</button>
           <button onClick={() => actions.toggleMission()} aria-pressed={show}

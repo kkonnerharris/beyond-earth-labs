@@ -165,8 +165,12 @@ WAYPOINT_M = 120.0   # the 5 m planner is asked to reach a point on the mission 
 EDGE_MARGIN_M = 12.0
 
 
-def drive_route(world_mission: dict, grid, start: tuple[float, float], plan_route, no_route: type[Exception]) -> dict:
-    """A route the 3D world's rover can drive that follows the mission's first leg inside the 2 km map.
+def drive_route(world_mission: dict, grid, start: tuple[float, float], plan_route, no_route: type[Exception],
+                agent: str = "rover", o2_budget_g: float | None = None) -> dict:
+    """A route the 3D world's rover can drive, or its astronaut can walk, along the mission's first leg inside the 2 km map.
+
+    For an astronaut, `o2_budget_g` is the oxygen the walk out may use: the walk stops where going further
+    would leave too little for the way back and the reserve.
 
     The mission route was planned on 20 m cells and knows nothing of the rocks and 5 m slopes in this
     world. So the mission route is used as the way to go, and this world's own planner (5 m cells) is
@@ -200,16 +204,22 @@ def drive_route(world_mission: dict, grid, start: tuple[float, float], plan_rout
     path: list[tuple[float, float, float]] = []
     segments: list[dict] = []
     total = {"distance_m": 0.0, "energy_wh": 0.0, "travel_time_s": 0.0, "elevation_gain_m": 0.0, "expanded_nodes": 0}
-    max_slope, slope_weighted, stopped = 0.0, 0.0, None
+    max_slope, slope_weighted, stopped, o2 = 0.0, 0.0, None, 0.0
+    walker = agent == "astronaut"
     here = start
     for wp in waypoints:
         if math.hypot(wp[0] - here[0], wp[1] - here[1]) < 2.0:
             continue
         try:
-            r = plan_route(grid, here, wp, "balanced", agent="rover")
+            r = plan_route(grid, here, wp, "balanced", agent=agent)
         except no_route as e:
             stopped = f"the 5 m planner found no way on after {total['distance_m']:.0f} m: {e}"
             break
+        if walker and o2_budget_g is not None and o2 + (r.o2_g or 0.0) > o2_budget_g:
+            stopped = (f"after {total['distance_m']:.0f} m, where going further would leave the suit too little oxygen "
+                       "for the walk back and the reserve")
+            break
+        o2 += r.o2_g or 0.0
         offset = len(path) - (1 if path else 0)
         path.extend(r.path[1:] if path else r.path)
         for s in r.hazard_segments:
@@ -220,7 +230,7 @@ def drive_route(world_mission: dict, grid, start: tuple[float, float], plan_rout
         slope_weighted += r.mean_slope_deg * r.distance_m
         here = (r.path[-1][0], r.path[-1][2])
     if len(path) < 2:
-        raise no_route(stopped or "the rover is already at the end of the mission route inside this map")
+        raise no_route(stopped or "the mover is already at the end of the mission route inside this map")
 
     # How far the driven line is from the mission line (nearest mission point, 5 m spacing).
     dev = sorted(min(math.hypot(x - lx, z - lz) for lx, lz in line) for x, _, z in path[::3])
@@ -228,11 +238,12 @@ def drive_route(world_mission: dict, grid, start: tuple[float, float], plan_rout
 
     ends = "at the edge of the 2 km map, where the mission route goes on to its targets" if left_map and not stopped \
         else (stopped if stopped else f"at {legs[0]['to']}")
+    done, noun = ("walked", "walk") if walker else ("driven", "drive")
     explanation = [
-        f"This is the first leg of the mission planned in the main map (to {legs[0]['to']}), driven on this world's 5 m terrain.",
+        f"This is the first leg of the mission planned in the main map (to {legs[0]['to']}), {done} on this world's 5 m terrain.",
         f"The mission route was planned on 20 m cells; this world's planner reaches a point on it every {WAYPOINT_M:.0f} m and steers round rocks and steep 5 m cells between them.",
-        f"The driven line stays within {median_dev:.0f} m of the mission line (median; {max_dev:.0f} m at most).",
-        f"The drive ends {ends}.",
+        f"The {done} line stays within {median_dev:.0f} m of the mission line (median; {max_dev:.0f} m at most).",
+        f"The {noun} ends {ends}.",
     ]
     return {
         "path": path, "distance_m": round(total["distance_m"], 1),
@@ -241,8 +252,9 @@ def drive_route(world_mission: dict, grid, start: tuple[float, float], plan_rout
         "mean_slope_deg": round(slope_weighted / max(total["distance_m"], 1e-6), 1),
         "hazard_segments": segments, "hazards_avoided": [], "hazards_crossed": sorted({s["label"] for s in segments}),
         "mode": "balanced", "goal_adjusted": False, "explanation": explanation,
-        "expanded_nodes": int(total["expanded_nodes"]), "agent": "rover",
-        "travel_time_s": round(total["travel_time_s"], 1), "elevation_gain_m": round(total["elevation_gain_m"], 1), "o2_g": None,
+        "expanded_nodes": int(total["expanded_nodes"]), "agent": agent,
+        "travel_time_s": round(total["travel_time_s"], 1), "elevation_gain_m": round(total["elevation_gain_m"], 1),
+        "o2_g": round(o2, 1) if walker else None,
         "mission": {"id": world_mission["id"], "leg_to": legs[0]["to"], "median_deviation_m": round(median_dev, 1),
                     "max_deviation_m": round(max_dev, 1), "left_map": left_map and not stopped, "stopped": stopped,
                     "mission_line_m": round(sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(line, line[1:])), 1)},

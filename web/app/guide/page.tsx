@@ -213,10 +213,11 @@ export default function Guide() {
 
           <H2 id="world">The 3D world</H2>
           <P>
-            Click <strong>3D world</strong> at the top, or <strong>Open this route in the 3D world</strong> in the Route step, to stand on the ground your mission crosses. It is the same plan, read from the same mission service: the orange line is your route, each target has a beacon, and the red stretches are the ground the 1 metre check found too steep.
+            Click <strong>3D world</strong> above the map, or <strong>Open this route in the 3D world</strong> in the Route step, to stand on the ground your mission crosses. It opens in the map&apos;s place, beside the mission steps, with your rover and your astronaut standing at the mission base. It is the same plan, read from the same mission service: the orange line is your route, each target has a beacon, and the red stretches are the ground the 1 metre check found too steep.
           </P>
           <Steps>
             <li><strong>Fly the route</strong> takes the camera along the whole traverse, out to every target and back.</li>
+            <li><strong>Walk it</strong> sends the astronaut down the first leg on foot, only as far as the suit&apos;s oxygen covers the walk back and a reserve.</li>
             <li><strong>Drive it</strong> sends the rover down the first leg. It follows your route but steers round rocks and steep patches the 20 metre plan could not see, and the panel says how closely it kept to your line.</li>
             <li>Press <strong>4</strong> for a view from above framed on the whole route, <strong>3</strong> to ride behind the rover, <strong>1</strong> to fly free.</li>
           </Steps>

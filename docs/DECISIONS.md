@@ -254,5 +254,9 @@ Each entry records a choice, the measurement or fact behind it, and what it cost
   both (`web/components/roverModel.ts` builds it from the same shapes and sizes as
   `surface-world/frontend/src/simulation/rover/Rover.tsx`). The scout is still NASA's Perseverance model
   and the astronaut NASA's Z-2 suit. This supersedes the crew rover line of D22.
+- The 3D world opens in the map's own pane, beside the mission steps, not as a separate full screen.
+  It opens on the mission's mover standing at the mission base. "Walk it" sends the astronaut down the
+  first leg with an oxygen budget: half of the suit's oxygen after the 25% reserve, so the way back is
+  always covered.
 - The 3D world now uses the map's type (IBM Plex) and palette: Mars orange for the primary action and the
   mission route, the same teal for the driven line, the same panel colours.

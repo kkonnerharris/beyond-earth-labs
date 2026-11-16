@@ -130,7 +130,7 @@ export function MissionCard({ world }: { world: World }) {
         <svg viewBox="0 0 32 32" className="size-8" aria-hidden><rect width="32" height="32" rx="8" fill="#121a24" stroke="#2c3c4f" /><circle cx="16" cy="16" r="9" fill="#e2733c" /><path d="M8 19c3-2 6-1 9 0s5 1 7-1" stroke="#ffb07a" strokeWidth="1.6" fill="none" /></svg>
         <div className="min-w-0 flex-1">
           <div className="whitespace-nowrap text-[15px] font-bold tracking-tight">3D WORLD</div>
-          <div className="whitespace-nowrap text-[11px] text-ink-3">Jezero Crater</div>
+          <div className="whitespace-nowrap text-[11px] text-ink-3">{world.real?.planet === 'earth' ? 'Earth · Illinois' : world.real ? 'Jezero Crater' : 'Test terrain'}</div>
         </div>
         <div className="flex gap-1">{world.m20 && <button onClick={() => void startStory()} className="rounded-lg bg-white/10 px-2 py-1 text-[11px] font-medium hover:bg-white/15">Story</button>}{world.m20 && <button onClick={() => ui.set({ showScience: true })} className="rounded-lg bg-nasa px-2 py-1 text-[11px] font-medium text-white hover:bg-nasa-hover">Science</button>}<button onClick={() => ui.set({ showAbout: true })} className="rounded-lg bg-white/10 px-2 py-1 text-[11px] font-medium hover:bg-white/15">About</button></div>
       </div>

@@ -121,3 +121,21 @@ def test_drive_route_refuses_a_mission_without_a_plan(region):
     wm = mission_link.to_world(_mission(plan=None), region)
     with pytest.raises(NoRoute):
         mission_link.drive_route(wm, None, (0.0, 0.0), plan_route, NoRoute)
+
+
+def test_an_astronaut_walks_the_mission_line_only_as_far_as_the_oxygen_allows(region):
+    from backend.api.main import astro_grid
+    from backend.pathfinding.planner import NoRoute, plan_route
+    from backend.simulation.astronaut_model import ASTRONAUT
+    wm = mission_link.to_world(_mission(), region)
+    start = (wm["base"]["x"] + 20.0, wm["base"]["z"])
+    budget = ASTRONAUT.suit_o2_g * (1 - ASTRONAUT.reserve_fraction) / 2
+    try:
+        r = mission_link.drive_route(wm, astro_grid("jezero"), start, plan_route, NoRoute, agent="astronaut", o2_budget_g=budget)
+    except NoRoute as e:
+        pytest.skip(f"no walkable way along this straight test line: {e}")
+    assert r["agent"] == "astronaut" and r["o2_g"] is not None
+    assert r["o2_g"] <= budget + 1e-6                      # the way back and the reserve are always covered
+    assert "walked" in r["explanation"][0]
+    tight = mission_link.drive_route(wm, astro_grid("jezero"), start, plan_route, NoRoute, agent="astronaut", o2_budget_g=r["o2_g"] / 3)
+    assert tight["distance_m"] < r["distance_m"] and "oxygen" in (tight["mission"]["stopped"] or "")

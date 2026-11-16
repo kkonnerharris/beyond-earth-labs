@@ -53,7 +53,8 @@ its NASA climate record. Missions, routes and the simulation are on Mars only.
 It reads the plan from the mission service and draws it on the ground: every leg, a beacon at each
 target, and the stretches the 1 m check found too steep, in red. "Fly the route" takes the camera along
 the whole traverse; "Drive it" sends the rover down the mission's first leg on the 5 m terrain, steering
-round rocks the 20 m plan cannot see. The crew rover is the same six-wheel rover in both places: the
+round rocks the 20 m plan cannot see; "Walk it" does the same for the astronaut on foot, as far as the
+suit's oxygen covers the way back and a reserve. It opens in the map's place, beside the mission steps. The crew rover is the same six-wheel rover in both places: the
 vehicle a route is planned for in the map is the vehicle that drives it in the 3D world.
 
 A guide to every feature is built into the site at `/guide`.

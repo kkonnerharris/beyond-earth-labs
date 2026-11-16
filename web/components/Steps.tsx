@@ -409,7 +409,7 @@ export function StepRoute({ mission, profiles, placing, setPlacing, onPlan, onCl
         <Section title="See it in 3D">
           <p className="text-[12px] leading-snug text-muted">
             The 3D world draws this same plan on the ground: every leg, each target, and the stretches the 1 m check found too steep.
-            Fly along the whole route, or drive its first leg on 5 m terrain.
+            Fly along the whole route, drive its first leg with the rover, or walk it with the astronaut.
           </p>
           <button className="btn mt-2.5 w-full" onClick={onWorld}>Open this route in the 3D world</button>
         </Section>
