@@ -3,7 +3,7 @@
  * calls these functions; nothing else mutates mission state. Each command validates its input, so an
  * AI can only do what a button could do.
  */
-import { api, MISSION_ID, REGION, type Route } from '@/services/api'
+import { api, MISSION_ID, REGION, STATIC, type Route } from '@/services/api'
 import { notify, sim, ui, type CameraMode, type Layer } from './store'
 import type { World } from '@/simulation/terrain/heightfield'
 import { placeRover } from '@/simulation/rover/physics'
@@ -140,7 +140,7 @@ export const actions = {
 
   /** Read the mission planned in the main map (the one named in the URL, else the newest planned one). */
   async loadMission() {
-    if (REGION !== 'jezero') return
+    if (REGION !== 'jezero' || STATIC) return
     try {
       const mission = await api.mission(MISSION_ID)
       ui.set({ mission, missionError: null })

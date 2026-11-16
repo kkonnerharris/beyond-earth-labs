@@ -55,3 +55,46 @@ def texture(body: str) -> bytes:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(data)
     return data
+
+
+# Whole-body elevation at 4 pixels per degree (1440 x 720, 16-bit), the coarsest grid of the same two
+# products the terrain measurements use: MOLA MEGDR for Mars and the LOLA gridded data record for the Moon.
+RELIEF = {
+    "mars": {"url": "https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v1/mgsl_300x/meg004/megt90n000cb.img",
+             "dtype": ">i2", "metres_per_count": 1.0,
+             "credit": "MOLA gridded topography (MEGDR, 4 px/deg), Mars Global Surveyor, NASA PDS Geosciences Node"},
+    "moon": {"url": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_4.img",
+             "dtype": "<i2", "metres_per_count": 0.5,
+             "credit": "LOLA gridded elevation (LDEM, 4 px/deg), Lunar Reconnaissance Orbiter, NASA PDS Geosciences Node"},
+}
+
+
+def elevation(body: str) -> np.ndarray:
+    """Whole-body elevation in metres, (720, 1440), row 0 at the north pole, column 0 at 180 W."""
+    spec = RELIEF[body]
+    path = CACHE / f"{body}_elevation_4ppd.img"
+    if not (path.exists() and path.stat().st_size == 720 * 1440 * 2):
+        r = _http().get(spec["url"], timeout=180)
+        r.raise_for_status()
+        if len(r.content) != 720 * 1440 * 2:
+            raise IOError(f"unexpected size for the {body} elevation file: {len(r.content)} bytes")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(r.content)
+    grid = np.frombuffer(path.read_bytes(), dtype=spec["dtype"]).reshape(720, 1440).astype(np.float32)
+    grid *= spec["metres_per_count"]
+    # The files run from 0 to 360 east; the imagery runs from 180 W to 180 E. Shift by half a turn to match.
+    return np.roll(grid, 720, axis=1)
+
+
+def relief(body: str) -> tuple[bytes, dict]:
+    """A height image for the 3D planet (JPEG, 8-bit, black = lowest, white = highest) and what it spans."""
+    from PIL import Image
+
+    if body not in RELIEF:
+        raise KeyError(body)
+    z = elevation(body)
+    lo, hi = float(z.min()), float(z.max())
+    img = np.clip((z - lo) / max(hi - lo, 1.0) * 255.0, 0, 255).astype(np.uint8)
+    buf = io.BytesIO()
+    Image.fromarray(img, "L").save(buf, format="JPEG", quality=92)
+    return buf.getvalue(), {"lowest_m": lo, "highest_m": hi, "credit": RELIEF[body]["credit"]}

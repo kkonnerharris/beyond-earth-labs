@@ -79,6 +79,10 @@ export const MISSION_ID = new URLSearchParams(location.search).get('mission')
 /** True when the world is shown inside the mission map's pane (?embed=1): its own help overlay starts closed. */
 export const EMBEDDED = new URLSearchParams(location.search).get('embed') === '1'
 
+/** True in the shared copy published as static files: there is no server to plan routes or read a mission. */
+export const STATIC = import.meta.env.VITE_STATIC === '1'
+const noServer = <T,>(what: string): Promise<T> => Promise.reject(new Error(`${what} needs the full app; this shared copy has no server behind it`))
+
 /** Map region, from the URL (?region=procedural). Real NASA terrain (Jezero) is the default. */
 const asked = new URLSearchParams(location.search).get('region')
 export const REGION: Region = asked === 'procedural' || asked === 'shawnee' ? asked : 'jezero'
@@ -100,13 +104,13 @@ async function json<T>(res: Response): Promise<T> {
 }
 
 export const api = {
-  mission: (id: string | null) => fetch(`/api/mission${id ? `?id=${encodeURIComponent(id)}` : ''}`).then((r) => json<MissionPlan>(r)),
+  mission: (id: string | null) => STATIC ? noServer<MissionPlan>('The mission link') : fetch(`/api/mission${id ? `?id=${encodeURIComponent(id)}` : ''}`).then((r) => json<MissionPlan>(r)),
   missionDrive: (id: string | null, start: [number, number], agent: Agent) =>
-    fetch('/api/mission/drive', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, start, agent }) }).then((r) => json<Route>(r)),
-  experiment: () => fetch('/api/experiment').then((r) => json<Experiment>(r)),
-  terrain: (region: Region) => fetch(`/api/terrain?region=${region}`).then((r) => json<TerrainResponse>(r)),
+    STATIC ? noServer<Route>('Driving a mission') : fetch('/api/mission/drive', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, start, agent }) }).then((r) => json<Route>(r)),
+  experiment: () => STATIC ? noServer<Experiment>('The route experiment') : fetch('/api/experiment').then((r) => json<Experiment>(r)),
+  terrain: (region: Region) => fetch(STATIC ? `./api/terrain-${region}.json` : `/api/terrain?region=${region}`).then((r) => json<TerrainResponse>(r)),
   route: (start: [number, number], goal: [number, number], mode: RouteMode, agent: Agent = 'rover', region: Region = REGION) =>
-    fetch('/api/route', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ start, goal, mode, agent, region }) }).then((r) => json<Route>(r)),
+    STATIC ? noServer<Route>('Route planning') : fetch('/api/route', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ start, goal, mode, agent, region }) }).then((r) => json<Route>(r)),
 }
 
 export function decodeF32(b64: string): Float32Array {

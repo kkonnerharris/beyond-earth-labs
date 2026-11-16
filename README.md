@@ -2,6 +2,9 @@
 
 **NASA Space Apps Challenge 2026 · Interplanetary Survival Guide: Martian Map**
 
+**Try it in a browser:** <https://kkonnerharris.github.io/beyond-earth-labs/> — a shared copy of the 3D simulation (Mars and Earth) with the final
+presentation. Mission planning, the 1 m route check and the analog search need the services below.
+
 A layered map of Jezero Crater for planning and carrying out a Marswalk. It combines data from five NASA
 missions, plans routes that respect slope and consumables, compares Martian terrain with test sites on
 Earth using a neural network trained on NASA data from three bodies, and runs the traverse as a
@@ -159,6 +162,7 @@ See [docs/TESTS.md](docs/TESTS.md) for the latest results.
 | `surface-world/` | The 3D world: FastAPI service and react-three-fiber scene of Jezero, linked to the mission |
 | `models/` | Trained head, its registry entry and the gate decision |
 | `experiments/runs/` | Every experiment run with its metrics and log |
+| `docs/index.html`, `docs/sim/` | The shared page and the static copy of the 3D simulation published with GitHub Pages (`python scripts/build_pages.py` rebuilds it) |
 | `docs/` | The challenges behind the product, requirements, methods, data registry, model card, decisions, demo script, submission text |
 
 ## Documents
@@ -166,5 +170,5 @@ See [docs/TESTS.md](docs/TESTS.md) for the latest results.
 [The challenges behind the product](docs/CHALLENGES.md) · [Requirements traceability](docs/REQUIREMENTS.md) · [Methods](docs/METHODS.md) · [Data registry](docs/DATA.md) ·
 [Model card](docs/MODEL_CARD.md) · [Decisions](docs/DECISIONS.md) · [Tests](docs/TESTS.md) ·
 [Demo script](docs/DEMO.md) · [Submission text](docs/SUBMISSION.md) · [AI use](docs/AI_USE.md) ·
-[Final presentation, 7 minutes (PDF)](docs/pitch/Beyond-Earth-Labs-final-presentation.pdf) with its [script](docs/pitch/final-script.md) ·
+[Final presentation, 7 slides (PDF)](docs/pitch/Beyond-Earth-Labs-final-presentation.pdf) with its [script](docs/pitch/final-script.md) ·
 [Pitch deck, 3 minutes (PDF)](docs/pitch/Beyond-Earth-Labs-pitch.pdf) with [speaker notes](docs/pitch/speaker-notes.md)

@@ -3,15 +3,16 @@
 <head>
 <meta charset="utf-8">
 <title>Beyond Earth Labs: final presentation</title>
-<!-- Source of the seven-minute final presentation. Print to PDF with: node scripts/final_pdf.cjs
-     Ten slides. Each headline is a plain statement; there are no slogans.
+<!-- Source of the final presentation: seven slides, about seven minutes.
+     Print to PDF with: node scripts/final_pdf.cjs
+     Each headline is a plain statement; there are no slogans.
      Every picture is a photograph of the running product (scripts/ui_final.cjs, scripts/final_images.py).
      Every figure is from docs/METHODS.md, docs/DATA.md or docs/TESTS.md; change them there first.
      The spoken script is docs/pitch/final-script.md. -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
   /* One type family (IBM Plex), two grounds (warm paper, near-black), one accent (Mars orange).
-     Margins 112 px on a 1920 x 1080 page. */
+     Margins 104 px on a 1920 x 1080 page. */
   @page { size: 1920px 1080px; margin: 0; }
   html, body { margin: 0; background: #0A0E14; }
   h1, h2, h3, p, ul, ol { margin: 0; padding: 0; }
@@ -19,109 +20,116 @@
   section {
     position: relative; width: 1920px; height: 1080px; overflow: hidden; break-after: page;
     font-family: 'IBM Plex Sans', Arial, sans-serif; box-sizing: border-box;
-    padding: 104px 112px 150px; display: flex; flex-direction: column;
+    padding: 84px 104px 130px; display: flex; flex-direction: column;
   }
   .paper { background: #F5F2EC; color: #0E131B; }
   .night { background: #0A0E14; color: #E8EEF5; }
-  .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
 
-  .eyebrow { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 21px; font-weight: 600; letter-spacing: 4px; }
+  .eyebrow { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 20px; font-weight: 600; letter-spacing: 4px; }
   .paper .eyebrow { color: #B8481A; }
   .night .eyebrow { color: #F08A4B; }
-  .headline { font-size: 58px; font-weight: 600; line-height: 1.1; letter-spacing: -1.4px; margin-top: 16px; }
+  .headline { font-size: 52px; font-weight: 600; line-height: 1.1; letter-spacing: -1.3px; margin-top: 12px; }
   .night .headline { color: #F4F7FA; }
   .paper .soft { color: #46525F; }
   .night .soft { color: #A6B4C4; }
   .paper b { font-weight: 600; color: #0E131B; }
   .night b { font-weight: 600; color: #F4F7FA; }
-  .left { width: 744px; }
-  .lead { font-size: 25px; line-height: 1.42; margin-top: 22px; }
+  .left { width: 760px; }
+  .lead { font-size: 23px; line-height: 1.4; margin-top: 16px; }
 
   /* Footer band: wordmark left, page number right, the same on every slide. */
-  .foot { position: absolute; left: 112px; right: 112px; bottom: 54px; display: flex; justify-content: space-between; align-items: baseline;
-          font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 19px; letter-spacing: 3px; }
-  .paper .foot { color: #7A8591; border-top: 1px solid #DAD4C8; padding-top: 16px; }
-  .night .foot { color: #7C8DA1; border-top: 1px solid #1E2A38; padding-top: 16px; }
-  .foot-note { font-family: 'IBM Plex Sans', Arial, sans-serif; letter-spacing: 0; font-size: 18px; }
+  .foot { position: absolute; left: 104px; right: 104px; bottom: 46px; display: flex; justify-content: space-between; align-items: baseline;
+          font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 18px; letter-spacing: 3px; }
+  .paper .foot { color: #7A8591; border-top: 1px solid #DAD4C8; padding-top: 14px; }
+  .night .foot { color: #7C8DA1; border-top: 1px solid #1E2A38; padding-top: 14px; }
+  .foot-note { font-family: 'IBM Plex Sans', Arial, sans-serif; letter-spacing: 0; font-size: 17px; }
 
-  /* A photograph of the product on the right of a slide, with its caption underneath. */
-  .photo { position: absolute; left: 904px; top: 112px; width: 904px; height: 565px; object-fit: cover; border-radius: 14px; border: 1px solid #1E2A38; box-sizing: border-box; box-shadow: 0 26px 52px rgba(14,19,27,0.22); }
+  /* A photograph of the product on the right of a slide, with its caption underneath, and room for two
+     smaller ones below it. */
+  .photo { position: absolute; left: 912px; top: 92px; width: 904px; height: 565px; object-fit: cover; border-radius: 14px; border: 1px solid #1E2A38; box-sizing: border-box; box-shadow: 0 26px 52px rgba(14,19,27,0.22); }
   .night .photo { border-color: #2C3C4F; box-shadow: none; }
-  .photo.tall { height: 700px; }
-  .photo-cap { position: absolute; left: 904px; top: 691px; width: 904px; font-size: 19px; line-height: 1.38; }
-  .photo.tall + .photo-cap { top: 828px; }
-  .photo2 { position: absolute; left: 904px; top: 756px; width: 440px; height: 172px; object-fit: cover; border-radius: 12px; border: 1px solid #2C3C4F; box-sizing: border-box; }
-  .photo2.b { left: 1368px; }
-  .photo2-cap { position: absolute; top: 936px; width: 440px; font-size: 17px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .photo-cap { position: absolute; left: 912px; top: 669px; width: 904px; font-size: 18px; line-height: 1.36; }
+  .photo2 { position: absolute; left: 912px; top: 748px; width: 440px; height: 178px; object-fit: cover; border-radius: 12px; border: 1px solid #2C3C4F; box-sizing: border-box; }
+  .photo2.b { left: 1376px; }
+  .photo2-cap { position: absolute; top: 934px; width: 440px; font-size: 16.5px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Rows: a short label and what it means. */
-  .rows { margin-top: 26px; }
-  .row { padding: 15px 0; border-top: 1px solid #D3CCBE; font-size: 23px; line-height: 1.4; }
+  .rows { margin-top: 18px; }
+  .row { padding: 12px 0; border-top: 1px solid #D3CCBE; font-size: 21.5px; line-height: 1.38; }
   .night .row { border-top-color: #243344; color: #C3CEDA; }
   .rows .row:first-child { border-top-width: 3px; border-top-color: #0E131B; }
   .night .rows .row:first-child { border-top-color: #F08A4B; }
-  .note { font-size: 22px; line-height: 1.4; margin-top: 6px; padding-top: 16px; border-top: 1px solid #D3CCBE; font-weight: 600; }
+  .note { font-size: 21px; line-height: 1.38; margin-top: 4px; padding-top: 13px; border-top: 1px solid #D3CCBE; font-weight: 600; }
   .night .note { border-top-color: #243344; color: #F4F7FA; }
+
+  /* Figures: a large number and what it means. */
+  .results { margin-top: 14px; }
+  .result { display: grid; grid-template-columns: 170px 1fr; column-gap: 16px; align-items: start; padding: 11px 0; border-top: 1px solid #D3CCBE; }
+  .result:first-child { border-top: 3px solid #0E131B; }
+  .result-n { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 40px; font-weight: 600; line-height: 1.1; letter-spacing: -1px; color: #B8481A; }
+  .result-n.plain { color: #0E131B; }
+  .result-p { font-size: 20.5px; line-height: 1.36; }
 
   /* 1. Cover */
   .cover { padding: 0; flex-direction: row; background: #000; }
-  .cover-text { width: 800px; height: 1080px; box-sizing: border-box; padding: 112px 56px 88px 112px; display: flex; flex-direction: column; justify-content: space-between; }
-  .rule { width: 96px; height: 6px; background: #F08A4B; margin-bottom: 34px; }
+  .cover-text { width: 800px; height: 1080px; box-sizing: border-box; padding: 104px 56px 80px 104px; display: flex; flex-direction: column; justify-content: space-between; }
+  .rule { width: 96px; height: 6px; background: #F08A4B; margin-bottom: 32px; }
   .cover-head { font-size: 96px; font-weight: 600; line-height: 1.02; letter-spacing: -3px; margin-top: 20px; color: #F4F7FA; }
-  .cover-what { font-size: 34px; font-weight: 600; line-height: 1.25; letter-spacing: -0.5px; margin-top: 28px; color: #F4F7FA; }
-  .cover-sub { font-size: 25px; line-height: 1.45; margin-top: 24px; color: #C3CEDA; }
+  .cover-what { font-size: 33px; font-weight: 600; line-height: 1.25; letter-spacing: -0.5px; margin-top: 26px; color: #F4F7FA; }
+  .cover-sub { font-size: 24px; line-height: 1.45; margin-top: 22px; color: #C3CEDA; }
   .cover-by { font-size: 28px; font-weight: 600; color: #F4F7FA; }
-  .cover-team { font-size: 21px; margin-top: 8px; color: #8C9BAD; }
+  .cover-team { font-size: 20px; margin-top: 8px; color: #8C9BAD; line-height: 1.45; }
+  .cover-link { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 20px; color: #F08A4B; margin-top: 10px; }
   .cover-art { position: relative; width: 1120px; height: 1080px; }
   .cover-art img { display: block; width: 1120px; height: 1080px; object-fit: cover; object-position: 38% 50%; }
   .cover-art::before { content: ''; position: absolute; left: 0; top: 0; width: 200px; height: 1080px; background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0) 100%); }
   .cover-art::after { content: ''; position: absolute; left: 0; bottom: 0; width: 1120px; height: 190px; background: linear-gradient(0deg, rgba(0,0,0,0.92) 25%, rgba(0,0,0,0) 100%); }
-  .cover-tag { position: absolute; left: 56px; right: 56px; bottom: 50px; z-index: 1; color: #C3CEDA; font-size: 19px; line-height: 1.35; }
+  .cover-tag { position: absolute; left: 56px; right: 56px; bottom: 46px; z-index: 1; color: #C3CEDA; font-size: 18px; line-height: 1.35; }
 
-  /* 2. The problem: three questions, then what the challenge asks beside what is delivered. */
-  .qs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 44px; }
-  .q { border-top: 3px solid #0E131B; padding-top: 18px; }
-  .q-n { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 20px; font-weight: 600; letter-spacing: 3px; color: #B8481A; }
-  .q-t { font-size: 40px; font-weight: 600; line-height: 1.18; letter-spacing: -0.5px; margin-top: 8px; }
-  .q-p { font-size: 25px; line-height: 1.42; margin-top: 12px; }
-  .asks { margin-top: 52px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 56px; }
-  .legend { grid-column: 1 / -1; padding-bottom: 12px; border-bottom: 3px solid #0E131B; font-size: 21px; }
-  .pair { display: flex; flex-direction: column; justify-content: center; height: 98px; border-bottom: 1px solid #D3CCBE; }
-  .pair-ask { font-size: 20px; line-height: 1.3; }
-  .pair-get { font-size: 28px; font-weight: 600; line-height: 1.25; letter-spacing: -0.3px; }
+  /* 2. Three questions, three steps, and what the challenge asks beside what is delivered. */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; margin-top: 24px; }
+  .step-n { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 19px; font-weight: 600; letter-spacing: 4px; color: #B8481A; }
+  .screen { display: block; width: 546px; height: 272px; object-fit: cover; object-position: 50% 30%; margin-top: 10px; border-radius: 12px; border: 1px solid #1E2A38; box-sizing: border-box; box-shadow: 0 18px 36px rgba(14,19,27,0.18); }
+  .step-t { font-size: 30px; font-weight: 600; line-height: 1.2; margin-top: 16px; }
+  .step-p { font-size: 20px; line-height: 1.38; margin-top: 6px; }
+  .asks { margin-top: 22px; display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 36px; }
+  .legend { grid-column: 1 / -1; padding-bottom: 8px; border-bottom: 3px solid #0E131B; font-size: 18px; }
+  .pair { display: flex; flex-direction: column; justify-content: center; height: 70px; border-bottom: 1px solid #D3CCBE; }
+  .pair-ask { font-size: 16.5px; line-height: 1.3; }
+  .pair-get { font-size: 21px; font-weight: 600; line-height: 1.25; letter-spacing: -0.2px; }
 
-  /* 4. How it works */
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 36px; }
-  .step-n { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 21px; font-weight: 600; letter-spacing: 4px; color: #B8481A; }
-  .screen { display: block; width: 538px; height: 372px; object-fit: cover; margin-top: 14px; border-radius: 12px; border: 1px solid #1E2A38; box-sizing: border-box; box-shadow: 0 22px 44px rgba(14,19,27,0.20); }
-  .step-t { font-size: 31px; font-weight: 600; line-height: 1.2; margin-top: 22px; }
-  .step-p { font-size: 22px; line-height: 1.4; margin-top: 8px; }
+  /* The seven parts of the product in a row, each with what it hands to the next. */
+  .flow { margin-top: 20px; display: grid; grid-template-columns: repeat(7, 1fr); column-gap: 14px; }
+  .flow-h { grid-column: 1 / -1; padding-bottom: 8px; border-bottom: 3px solid #0E131B; font-size: 18px; margin-bottom: 10px; }
+  .part { position: relative; background: #ECE7DD; border-radius: 10px; padding: 14px 13px 12px; height: 196px; box-sizing: border-box; }
+  .part-n { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 14px; font-weight: 600; letter-spacing: 2px; color: #B8481A; }
+  .part-t { font-size: 22px; font-weight: 600; line-height: 1.15; margin-top: 3px; }
+  .part-p { font-size: 15.5px; line-height: 1.32; margin-top: 5px; color: #46525F; }
+  .part-to { position: absolute; left: 13px; right: 13px; bottom: 12px; font-size: 14.5px; line-height: 1.25; font-weight: 600; color: #B8481A; }
 
-  /* Figures: a large number and what it means. */
-  .results { margin-top: 22px; }
-  .result { display: grid; grid-template-columns: 190px 1fr; column-gap: 18px; align-items: start; padding: 15px 0; border-top: 1px solid #D3CCBE; }
-  .night .result { border-top-color: #243344; }
-  .result:first-child { border-top: 3px solid #0E131B; }
-  .night .result:first-child { border-top-color: #F08A4B; }
-  .result-n { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 44px; font-weight: 600; line-height: 1.1; letter-spacing: -1px; color: #B8481A; }
-  .night .result-n { color: #F08A4B; }
-  .result-n.plain { color: #0E131B; }
-  .result-p { font-size: 22px; line-height: 1.4; }
+  /* A slide of photographs: one large, two beside it, each with its label inside the lower edge. */
+  .shot { position: absolute; overflow: hidden; border-radius: 14px; border: 1px solid #2C3C4F; box-sizing: border-box; }
+  .shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .shot p { position: absolute; left: 0; right: 0; bottom: 0; padding: 34px 18px 12px; font-size: 18px; line-height: 1.3; color: #F4F7FA;
+            background: linear-gradient(0deg, rgba(5,8,12,0.88) 30%, rgba(5,8,12,0) 100%); }
+  .does { position: absolute; left: 104px; right: 104px; top: 842px; display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 30px; }
+  .do { border-top: 3px solid #F08A4B; padding-top: 10px; font-size: 18.5px; line-height: 1.36; color: #C3CEDA; }
 
-  /* 9. Data sources, in small print */
-  .src { display: grid; grid-template-columns: 1.32fr 1fr; column-gap: 56px; margin-top: 26px; }
-  .src-h { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 18px; font-weight: 600; letter-spacing: 3px; color: #B8481A; padding-bottom: 8px; border-bottom: 3px solid #0E131B; margin-top: 18px; }
+  /* 6. Deep learning, and how AI was used. */
+  .ai { position: absolute; left: 1392px; top: 92px; width: 424px; }
+  .ai-t { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 19px; font-weight: 600; letter-spacing: 4px; color: #B8481A; padding-bottom: 10px; border-bottom: 3px solid #0E131B; }
+  .ai-i { font-size: 19.5px; line-height: 1.4; padding: 13px 0; border-bottom: 1px solid #D3CCBE; }
+
+  /* 7. Data sources in small print, with the state of the work beside them. */
+  .src { display: grid; grid-template-columns: 640px 536px 1fr; column-gap: 40px; margin-top: 18px; }
+  .src-h { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 16.5px; font-weight: 600; letter-spacing: 3px; color: #B8481A; padding-bottom: 6px; border-bottom: 3px solid #0E131B; margin-top: 14px; }
   .src-h:first-child { margin-top: 0; }
-  .src li { display: grid; grid-template-columns: 28px 1fr; font-size: 18.5px; line-height: 1.32; padding: 6px 0; border-bottom: 1px solid #DDD6C9; }
-  .src li span.n { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 14px; color: #7A8591; padding-top: 2px; }
+  .src li { display: grid; grid-template-columns: 26px 1fr; font-size: 15.5px; line-height: 1.3; padding: 4.5px 0; border-bottom: 1px solid #DDD6C9; }
+  .src li span.n { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 12.5px; color: #7A8591; padding-top: 2px; }
   .src li i { font-style: normal; color: #5A6673; }
-
-  /* 10. AI use and status */
-  .cols { display: grid; grid-template-columns: 1.08fr 1fr 1fr; gap: 44px; margin-top: 30px; }
-  .col-t { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 20px; font-weight: 600; letter-spacing: 4px; color: #F08A4B; padding-bottom: 12px; }
-  .col-i { font-size: 23px; line-height: 1.42; padding: 14px 0; border-top: 1px solid #243344; color: #C3CEDA; }
-  .close { font-size: 32px; font-weight: 600; line-height: 1.3; margin-top: 22px; padding-top: 26px; border-top: 3px solid #F08A4B; color: #F4F7FA; }
-  .close-sub { font-size: 24px; margin-top: 10px; }
+  .state li { display: block; font-size: 17px; line-height: 1.36; padding: 7px 0; }
+  .close { font-size: 22px; font-weight: 600; line-height: 1.3; margin-top: 16px; padding-top: 14px; border-top: 3px solid #B8481A; }
+  .close-link { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 15.5px; line-height: 1.5; margin-top: 8px; color: #B8481A; }
 </style>
 </head>
 <body>
@@ -139,6 +147,7 @@
 <div>
 <p class="cover-by">Konner Harris</p>
 <p class="cover-team">NASA Space Apps Challenge 2026 · Interplanetary Survival Guide: Martian Map</p>
+<p class="cover-link">kkonnerharris.github.io/beyond-earth-labs</p>
 </div>
 </div>
 <div class="cover-art">
@@ -147,112 +156,91 @@
 </div>
 </section>
 
-<!-- 2. The problem and the challenge -->
-<section id="problem" class="paper">
-<p class="eyebrow">THE PROBLEM</p>
-<h2 class="headline">A crew leaving the habitat has three questions.</h2>
-<div class="qs">
-<div class="q"><p class="q-n">01 · PLAN</p><h3 class="q-t">Where can the crew go?</h3><p class="q-p soft">A route on measured terrain that stays under the slope a rover or a suited walker can cross.</p></div>
-<div class="q"><p class="q-n">02 · CHECK</p><h3 class="q-t">Can it get back?</h3><p class="q-p soft">Oxygen or battery for the whole trip with a reserve, and a rule that the way home is always affordable.</p></div>
-<div class="q"><p class="q-n">03 · RUN</p><h3 class="q-t">What if the plan breaks?</h3><p class="q-p soft">An obstacle, a dust storm, a suit leak or a health alert forces a new plan, and the log says why.</p></div>
-</div>
-<div class="asks">
-<p class="legend soft">What the Martian Map challenge asks for &nbsp;/&nbsp; <b>What Beyond Earth Labs delivers</b></p>
-<div class="pair"><p class="pair-ask soft">A layered view from several NASA missions</p><p class="pair-get">Five missions and 20 NASA datasets on one 3D map</p></div>
-<div class="pair"><p class="pair-ask soft">A route that avoids obstacles</p><p class="pair-get">Routes planned at 20 m, then checked at 1 m</p></div>
-<div class="pair"><p class="pair-ask soft">Three or more kinds of data</p><p class="pair-get">Optical imagery, elevation and thermal infrared</p></div>
-<div class="pair"><p class="pair-ask soft">Rover point-of-view images</p><p class="pair-get">Perseverance’s own camera frames from the ground</p></div>
-<div class="pair"><p class="pair-ask soft">Crew safety, including radiation</p><p class="pair-get">Slope limits, a supply check and a radiation estimate</p></div>
-<div class="pair"><p class="pair-ask soft">Help an explorer carry out the Marswalk</p><p class="pair-get">A 3D simulation with a rover and an astronaut</p></div>
-</div>
-<div class="foot"><span>BEYOND EARTH LABS</span><span>02 / 10</span></div>
-</section>
-
-<!-- 3. The map -->
-<section id="map" class="paper">
-<div class="left">
-<p class="eyebrow">THE MAP</p>
-<h2 class="headline">Five NASA missions on one map of Jezero Crater.</h2>
-<div class="rows">
-<p class="row soft"><b>Imagery.</b> Orbital photographs at 6 m and 25 cm, a global colour mosaic, and thermal infrared.</p>
-<p class="row soft"><b>Elevation.</b> A 20 m model for planning and a 1 m model for checking. Slope and roughness are calculated from them.</p>
-<p class="row soft"><b>The real rover.</b> The white line is where Perseverance drove. Click near it for the rover’s own camera frames.</p>
-<p class="row soft"><b>Checked against that rover.</b> The map’s elevation agrees with Perseverance’s record at 464 waypoints to a median of 1.0 m. It never crossed ground steeper than 18.3°, which is where the 20° rover limit comes from.</p>
-<p class="row soft"><b>Labelled.</b> Every layer and number is tagged NASA data, calculated, model, simulated or assumption.</p>
-</div>
-</div>
-<img class="photo" src="img/final/map-route.jpg" alt="The mission map of Jezero Crater: seven steps on the left, an orange route from the landing site to a science target on the delta front, Perseverance's path in white and the map layers panel on the right">
-<p class="photo-cap soft">The mission map. Seven steps on the left carry one mission from the map to a review. The orange line is a planned traverse to a science target on the delta front; the white line is Perseverance’s real path.</p>
-<div class="foot"><span>BEYOND EARTH LABS</span><span>03 / 10</span></div>
-</section>
-
-<!-- 4. How it works -->
+<!-- 2. The problem, and how the product answers it -->
 <section id="how" class="paper">
-<p class="eyebrow">HOW IT WORKS</p>
-<h2 class="headline">A Marswalk in three steps: plan, check, run.</h2>
+<p class="eyebrow">THE PROBLEM AND THE PRODUCT</p>
+<h2 class="headline">A crew leaving the habitat has three questions. The map answers each.</h2>
 <div class="steps">
 <div>
 <p class="step-n">01 · PLAN</p>
-<img class="screen" src="img/final/step-plan.jpg" alt="Jezero Crater in a tilted 3D view raised from NASA elevation data, with the six-wheel crew rover at the landing site and Perseverance's path in white">
+<img class="screen" style="object-position: 62% 32%" src="img/final/map-route.jpg" alt="The mission map of Jezero Crater with an orange route from the landing site to a science target on the delta front and Perseverance's path in white">
 <h3 class="step-t">Where can the crew go?</h3>
-<p class="step-p soft">The route is computed on NASA elevation data for a crew rover, a scout rover or an astronaut on foot. Each science stop adds time that counts against supplies.</p>
+<p class="step-p soft">A route on NASA elevation for a crew rover, a scout rover or an astronaut on foot, kept under the slope each can cross.</p>
 </div>
 <div>
 <p class="step-n">02 · CHECK</p>
-<img class="screen" src="img/screen-check.png" alt="The crew step: a green note saying the traverse fits the battery with its 20 percent reserve, and the mission rules">
+<img class="screen" style="object-position: 50% 0" src="img/screen-check.png" alt="The crew step: a green note saying the traverse fits the battery with its 20 percent reserve, and the mission rules">
 <h3 class="step-t">Can it get back safely?</h3>
-<p class="step-p soft">The trip is checked against oxygen or battery, with a reserve. A plan that does not fit is refused, and the shortfall is shown.</p>
+<p class="step-p soft">Oxygen or battery for the whole trip with a reserve. A plan that does not fit is refused, and the shortfall is shown.</p>
 </div>
 <div>
 <p class="step-n">03 · RUN</p>
-<img class="screen" src="img/screen-run.png" alt="The mission report: both targets visited, an obstacle reported, the route replanned, and a score of 100">
+<img class="screen" style="object-position: 50% 0" src="img/screen-run.png" alt="The mission report: both targets visited, an obstacle reported, the route replanned, and a score of 100">
 <h3 class="step-t">What if the plan breaks?</h3>
-<p class="step-p soft">The traverse runs as a simulation. Emergencies force a new plan, a habitat budget follows the mission, and a finished traverse is scored.</p>
+<p class="step-p soft">The traverse runs as a simulation. An obstacle, a dust storm, a suit leak or a health alert forces a new plan, and the log says why.</p>
 </div>
 </div>
-<div class="foot"><span>BEYOND EARTH LABS</span><span>04 / 10</span></div>
+<div class="flow">
+<p class="flow-h soft">One mission runs through seven connected parts. <b>Each one hands something to the next.</b></p>
+<div class="part"><p class="part-n">01</p><h3 class="part-t">Map</h3><p class="part-p">Five NASA missions, checked against the real rover.</p><p class="part-to">→ sets the 20° slope limit</p></div>
+<div class="part"><p class="part-n">02</p><h3 class="part-t">Earth analogs</h3><p class="part-p">A terrain network ranks Earth sites like this ground.</p><p class="part-to">→ picks the rehearsal site</p></div>
+<div class="part"><p class="part-n">03</p><h3 class="part-t">Route</h3><p class="part-p">Planned at 20 m, checked at 1 m, with science stops.</p><p class="part-to">→ distance and time on site</p></div>
+<div class="part"><p class="part-n">04</p><h3 class="part-t">Crew safety</h3><p class="part-p">Supplies with a reserve, radiation, a health monitor.</p><p class="part-to">→ go, or refused with why</p></div>
+<div class="part"><p class="part-n">05</p><h3 class="part-t">Habitat</h3><p class="part-p">Power, water, oxygen and a greenhouse for the stay.</p><p class="part-to">→ the base the crew returns to</p></div>
+<div class="part"><p class="part-n">06</p><h3 class="part-t">Simulation</h3><p class="part-p">The rover or the astronaut runs it in 3D; emergencies replan.</p><p class="part-to">→ a log and a score</p></div>
+<div class="part"><p class="part-n">07</p><h3 class="part-t">Review</h3><p class="part-p">The mission report, the evidence, and the limits.</p><p class="part-to">→ what to change next time</p></div>
+</div>
+<div class="foot"><span>BEYOND EARTH LABS</span><span>02 / 07</span></div>
 </section>
 
-<!-- 5. Checked at 1 m -->
-<section id="fine" class="paper">
+<!-- 3. The map, and the 1 m check -->
+<section id="map" class="paper">
 <div class="left">
-<p class="eyebrow">CHECKED AT 1 METRE</p>
-<h2 class="headline">The 20 m plan cannot see a steep bank. NASA’s 1 m model can.</h2>
-<p class="lead soft">A route planned on 20 m squares is measured again on the 1 m HiRISE elevation model, reading only the elevation under the route. On the traverse to the delta front shown here:</p>
+<p class="eyebrow">THE MAP, CHECKED AT 1 METRE</p>
+<h2 class="headline">Five NASA missions on one map. Planned at 20 m, checked at 1 m.</h2>
+<div class="rows">
+<p class="row soft"><b>Layers.</b> Orbital photographs at 6 m and 25 cm, elevation at 20 m and 1 m, thermal infrared, and Perseverance’s real path in white. Every number is tagged NASA data, calculated, model, simulated or assumption.</p>
+<p class="row soft"><b>Checked against the real rover.</b> The map’s elevation agrees with Perseverance’s record at 464 waypoints to a median of 1.0 m. The rover never crossed more than 18.3°, so rovers here are held to 20°.</p>
+</div>
+<p class="lead soft" style="margin-top: 12px">A 20 m plan cannot see a bank a few metres wide. NASA’s 1 m model can. On the traverse shown:</p>
 <div class="results">
-<div class="result"><p class="result-n plain">9.5°</p><p class="result-p soft"><b>What the 20 m plan reports</b> as the steepest ground on the route. The crew rover’s limit is 20°.</p></div>
-<div class="result"><p class="result-n">152 m</p><p class="result-p soft"><b>What the 1 m model finds:</b> nine stretches steeper than the limit, up to 41.8°.</p></div>
-<div class="result"><p class="result-n">0 m</p><p class="result-p soft"><b>After the route is moved</b> in two replans. Its steepest point is now 18.0°, and it is 656 m longer.</p></div>
+<div class="result"><p class="result-n plain">9.5°</p><p class="result-p soft"><b>Steepest ground the 20 m plan reports.</b></p></div>
+<div class="result"><p class="result-n">152 m</p><p class="result-p soft"><b>What the 1 m model finds</b> over the limit: nine stretches, up to 41.8°.</p></div>
+<div class="result"><p class="result-n">0 m</p><p class="result-p soft"><b>After the route is moved</b> in two replans. Steepest point 18.0°, and 656 m longer.</p></div>
 </div>
 <p class="note">Not every route can be cleared. To the top of the delta, 46 m of steep ground remains out of 258 m, and the check says so.</p>
 </div>
-<img class="photo" src="img/final/check-1m.jpg" alt="The Route step after the 1 m check: a green summary saying nine steep stretches were found and the route was moved until clear, the slope along the route against the 20 degree limit, and the map with the moved route and the steep ground it now keeps out of marked in red on the delta front">
-<p class="photo-cap soft">The Route step after the check. Red marks the ground the 1 m model shows as too steep, which the moved route now keeps out of. Below the summary: the slope along the route against the 20° limit.</p>
-<div class="foot"><span>BEYOND EARTH LABS</span><span>05 / 10</span></div>
+<img class="photo" style="height: 640px" src="img/final/check-1m.jpg" alt="The Route step after the 1 m check: a green summary saying nine steep stretches were found and the route was moved until clear, the slope along the route against the 20 degree limit, and the map with the moved route and the steep ground it now keeps out of marked in red on the delta front">
+<p class="photo-cap soft" style="top: 746px">The mission map after the 1 m check. Seven steps on the left carry one mission from the map to a review. Orange is the moved route, red is the ground the 1 m model shows as too steep, white is Perseverance’s real path.</p>
+<div class="foot"><span>BEYOND EARTH LABS</span><span>03 / 07</span></div>
 </section>
 
-<!-- 6. The 3D simulation on Mars -->
+<!-- 4. The rover and the astronaut in 3D -->
 <section id="mars" class="night">
-<div class="left">
 <p class="eyebrow">THE 3D SIMULATION · MARS</p>
-<h2 class="headline">The same plan, on the ground at Jezero.</h2>
-<div class="rows">
-<p class="row"><b>One mission, two views.</b> The simulation reads the plan from the mission service: the route in orange, a beacon on each target, and in red the ground the 1 m check found too steep.</p>
-<p class="row"><b>Fly the route.</b> The camera follows the whole traverse, out to every target and back.</p>
-<p class="row"><b>Drive it.</b> The six-wheel rover drives the first leg on 5 m terrain, steering round rocks the plan cannot see. It stays a median 2.6 m from the planned line.</p>
-<p class="row"><b>Walk it.</b> The astronaut walks the same leg and stops where the suit’s oxygen would no longer cover the way back and a reserve.</p>
+<h2 class="headline">The rover and the astronaut carry out the plan, on the ground at Jezero.</h2>
+<div class="shot" style="left: 104px; top: 232px; width: 1080px; height: 590px">
+<img src="img/final/rover-astronaut.jpg" alt="A suited astronaut and the six-wheel crew rover standing side by side on the floor of Jezero Crater in the 3D simulation, with the planned route running between them">
+<p>The astronaut and the crew rover at the mission base, Octavia E. Butler Landing. The orange line is the planned route.</p>
 </div>
+<div class="shot" style="left: 1208px; top: 232px; width: 608px; height: 286px">
+<img src="img/final/mars-sim.jpg" style="object-position: 30% 40%" alt="The route flyover in the 3D simulation: the orange route crossing the crater floor toward target beacons on the delta">
+<p>The same plan as the map: route, target beacons, steep ground in red.</p>
 </div>
-<img class="photo" src="img/final/mars-sim.jpg" alt="The 3D simulation at Jezero Crater during a route flyover: the orange route crossing rippled ground toward the delta, target beacons on the horizon, and the mission panel listing the route, its legs and the 1 m check">
-<p class="photo-cap soft">The route flyover. Terrain within 2 km of the landing site is the HiRISE elevation model at 5 m; beyond it, the delta and the crater rim come from the CTX model.</p>
-<img class="photo2" src="img/final/mars-thermal.jpg" alt="The simulation seen from above with the thermal infrared layer on">
-<img class="photo2 b" src="img/final/mars-mission.jpg" alt="The rover and the astronaut at the mission base in the simulation">
-<p class="photo2-cap soft" style="left: 904px">Thermal infrared (Mars Odyssey THEMIS), same ground.</p>
-<p class="photo2-cap soft" style="left: 1368px">The rover and the astronaut at the mission base.</p>
-<div class="foot"><span>BEYOND EARTH LABS</span><span>06 / 10</span></div>
+<div class="shot" style="left: 1208px; top: 536px; width: 608px; height: 286px">
+<img src="img/final/mars-thermal.jpg" alt="The simulation from above with the thermal infrared layer on">
+<p>Thermal infrared (Mars Odyssey THEMIS) on the same ground.</p>
+</div>
+<div class="does">
+<p class="do"><b>One mission, two views.</b> The simulation reads the plan from the mission service. Nothing is planned twice.</p>
+<p class="do"><b>Drive it.</b> The rover drives the first leg on 5 m terrain, a median 2.6 m from the planned line, steering round rocks.</p>
+<p class="do"><b>Walk it.</b> The astronaut walks the same leg and stops where oxygen would no longer cover the way back.</p>
+<p class="do"><b>Try it.</b> A shared copy runs in the browser: kkonnerharris.github.io/beyond-earth-labs</p>
+</div>
+<div class="foot"><span>BEYOND EARTH LABS</span><span>04 / 07</span></div>
 </section>
 
-<!-- 7. How a test on Earth could help -->
+<!-- 5. How a test on Earth could help -->
 <section id="earth" class="paper">
 <div class="left">
 <p class="eyebrow">THE 3D SIMULATION · EARTH</p>
@@ -267,17 +255,17 @@
 </div>
 <img class="photo" src="img/final/earth-sim.jpg" alt="The 3D simulation on Earth: the six-wheel rover in a forest clearing at Garden of the Gods, on mossy ground with tree shadows">
 <p class="photo-cap soft">The rover at Garden of the Gods. The ground is the USDA aerial photograph of 18 August 2023; trees stand where it shows forest and are painted with it. Tree shapes, close-up ground detail and the sky are illustrative.</p>
-<img class="photo2" style="top: 778px" src="img/final/earth-aerial.jpg" alt="The aerial photograph of Garden of the Gods: forest canopy with pale sandstone outcrops and a trail">
-<img class="photo2 b" style="top: 778px" src="img/final/earth-panels.jpg" alt="The Earth simulation with its panels: rover telemetry on the left and the route planner on the right">
-<p class="photo2-cap soft" style="left: 904px; top: 956px">The real aerial photograph of the site (USDA NAIP).</p>
-<p class="photo2-cap soft" style="left: 1368px; top: 956px">The same planner and rover telemetry as on Mars.</p>
-<div class="foot"><span>BEYOND EARTH LABS</span><span>07 / 10</span></div>
+<img class="photo2" style="top: 762px" src="img/final/earth-aerial.jpg" alt="The aerial photograph of Garden of the Gods: forest canopy with pale sandstone outcrops and a trail">
+<img class="photo2 b" style="top: 762px" src="img/final/earth-panels.jpg" alt="The Earth simulation with its panels: rover telemetry on the left and the route planner on the right">
+<p class="photo2-cap soft" style="left: 912px; top: 946px">The real aerial photograph of the site (USDA NAIP).</p>
+<p class="photo2-cap soft" style="left: 1376px; top: 946px">The same planner and rover telemetry as on Mars.</p>
+<div class="foot"><span>BEYOND EARTH LABS</span><span>05 / 07</span></div>
 </section>
 
-<!-- 8. Deep learning -->
+<!-- 6. Deep learning, and how AI was used -->
 <section id="model" class="paper">
 <div class="left">
-<p class="eyebrow">DEEP LEARNING</p>
+<p class="eyebrow">DEEP LEARNING AND AI USE</p>
 <h2 class="headline">A terrain network finds Earth sites that resemble Mars.</h2>
 <p class="lead soft">A vision transformer with a head trained on 4,534 terrain cells from three worlds ranks 29 Earth regions against any Mars or Moon region. Every answer is checked against measured elevation.</p>
 <div class="results">
@@ -287,15 +275,22 @@
 </div>
 <p class="note">The network only ranks rehearsal sites. Routes never depend on it.</p>
 </div>
-<img class="photo tall" style="left: 1064px; width: 580px; height: 700px; object-position: 0 0" src="img/screen-analogs.png" alt="The analog search panel: Jezero Crater's measured slope, relief and roughness, and the top-ranked Earth site, the Mojave volcanic fields in California, with its network similarity, measured similarity and a table comparing terrain measurements on Mars and Earth">
-<p class="photo-cap soft" style="left: 1064px; width: 580px; top: 828px">The top match for Jezero Crater is the Mojave volcanic fields, with the network’s score and the measured score side by side.</p>
-<div class="foot"><span>BEYOND EARTH LABS</span><span>08 / 10</span></div>
+<img class="photo" style="left: 912px; width: 440px; height: 600px; object-position: 0 0" src="img/screen-analogs.png" alt="The analog search panel: Jezero Crater's measured slope, relief and roughness, and the top-ranked Earth site, the Mojave volcanic fields in California, with its network similarity and measured similarity">
+<p class="photo-cap soft" style="left: 912px; width: 440px; top: 706px">The top match for Jezero Crater is the Mojave volcanic fields: the network’s score and the measured score, side by side.</p>
+<div class="ai">
+<p class="ai-t">HOW AI WAS USED</p>
+<p class="ai-i soft"><b>To build it.</b> Claude (Anthropic), through Claude Code, for project scaffolding, for choosing and testing which NASA data to use, and as a coding assistant on the code, tests and documents.</p>
+<p class="ai-i soft"><b>Inside the product.</b> DINOv2 as a frozen image encoder, and the small terrain network trained by this project on NASA data.</p>
+<p class="ai-i soft"><b>Not used for numbers.</b> No language model produces any figure shown. Routes, risks and budgets come from documented calculations.</p>
+<p class="ai-i soft" style="border-bottom: 0">Full record: docs/AI_USE.md in the repository.</p>
+</div>
+<div class="foot"><span>BEYOND EARTH LABS</span><span>06 / 07</span></div>
 </section>
 
-<!-- 9. Data sources -->
+<!-- 7. Data sources, status, close -->
 <section id="data" class="paper">
-<p class="eyebrow">DATA SOURCES</p>
-<h2 class="headline" style="font-size: 50px">Twenty NASA datasets and resources from ten missions.</h2>
+<p class="eyebrow">DATA SOURCES AND STATUS</p>
+<h2 class="headline" style="font-size: 46px">Twenty NASA datasets and resources from ten missions.</h2>
 <div class="src">
 <div>
 <p class="src-h">MARS</p>
@@ -331,43 +326,28 @@
 </ul>
 <p class="src-h">OTHER DATA AND TOOLS, NOT NASA</p>
 <ul>
-<li><span class="n">·</span><span>USGS 3DEP elevation and USDA NAIP aerial photograph <i>· the Earth simulation site</i></span></li>
+<li><span class="n">·</span><span>USGS 3DEP elevation, USDA NAIP aerial photograph <i>· the Earth simulation site</i></span></li>
 <li><span class="n">·</span><span>Copernicus DEM GLO-30 (ESA) <i>· two Earth regions above 60° N</i></span></li>
 <li><span class="n">·</span><span>DINOv2 (Meta AI) <i>· frozen image encoder</i></span></li>
 <li><span class="n">·</span><span>ambientCG and Poly Haven, CC0 <i>· ground, bark and sky photographs in the Earth simulation</i></span></li>
 </ul>
 </div>
-</div>
-<div class="foot"><span>BEYOND EARTH LABS</span><span class="foot-note">Mars and Moon imagery is served by NASA Solar System Treks. Full registry with access routes and references: docs/DATA.md.</span><span>09 / 10</span></div>
-</section>
-
-<!-- 10. AI use, status, close -->
-<section id="status" class="night">
-<p class="eyebrow">AI USE AND STATUS</p>
-<h2 class="headline">How AI was used, what works today, and what does not.</h2>
-<div class="cols">
-<div>
-<p class="col-t">HOW AI WAS USED</p>
-<p class="col-i"><b>To build it.</b> Claude (Anthropic), through Claude Code, for project scaffolding, for choosing and testing which NASA data to use, and as a coding assistant on the code, tests and documents.</p>
-<p class="col-i"><b>Inside the product.</b> DINOv2 as a frozen image encoder, and a small terrain network trained by this project on NASA data.</p>
-<p class="col-i"><b>Not used for numbers.</b> No language model produces any figure shown. Routes, risks and budgets come from documented calculations.</p>
-</div>
-<div>
-<p class="col-t">WORKS TODAY</p>
-<p class="col-i">All seven steps run end to end, and the 3D simulation runs the mission on Mars and a rover and astronaut on Earth.</p>
-<p class="col-i">The elevation map agrees with Perseverance’s own record to a median of 1.0&nbsp;m, at 464 waypoints.</p>
-<p class="col-i">112 unit tests and 27 end-to-end checks pass, and a 24-screen walkthrough of the site runs with no errors.</p>
-</div>
-<div>
-<p class="col-t">KNOWN LIMITS</p>
-<p class="col-i">Routes are planned at 20 m and checked at 1 m. Single rocks and ripples are still invisible.</p>
-<p class="col-i">The traverse and the crew health readings are simulated. Only 2 km around the landing site is detailed in 3D.</p>
-<p class="col-i">Some life-support, suit and radiation figures are assumptions, flagged for checking. No field test on Earth has been run.</p>
+<div class="state">
+<p class="src-h">WORKS TODAY</p>
+<ul>
+<li class="soft">All seven steps run end to end; the 3D simulation runs the mission on Mars, and a rover and astronaut on Earth.</li>
+<li class="soft">112 unit tests and 27 end-to-end checks pass; a 24-screen walkthrough runs with no errors.</li>
+</ul>
+<p class="src-h">KNOWN LIMITS</p>
+<ul>
+<li class="soft">Single rocks and ripples are invisible, even at 1 m. Only 2 km around the landing site is detailed in 3D.</li>
+<li class="soft">The traverse and crew health are simulated. Some life-support, suit and radiation figures are assumptions, flagged. No field test on Earth has been run.</li>
+</ul>
+<p class="close">One 3D map that tells a Mars crew where to go, whether it can get back, and what to do when the plan breaks.</p>
+<p class="close-link">kkonnerharris.github.io/beyond-earth-labs<br>github.com/kkonnerharris/beyond-earth-labs</p>
 </div>
 </div>
-<p class="close">One 3D map that tells a Mars crew where to go, whether it can get back, and what to do when the plan breaks, and lets it be rehearsed on Earth first.</p>
-<p class="close-sub soft">Konner Harris · github.com/kkonnerharris/beyond-earth-labs</p>
-<div class="foot"><span>BEYOND EARTH LABS</span><span class="foot-note">A planning aid. Not certified for spacecraft operations or crew safety. Full AI record: docs/AI_USE.md.</span><span>10 / 10</span></div>
+<div class="foot"><span>BEYOND EARTH LABS</span><span class="foot-note">A planning aid, not certified for spacecraft operations or crew safety. Mars and Moon imagery is served by NASA Solar System Treks. Registry: docs/DATA.md.</span><span>07 / 07</span></div>
 </section>
 
 </body>

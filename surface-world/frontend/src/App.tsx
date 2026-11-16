@@ -9,7 +9,7 @@ import { TrainerCard } from '@/dashboard/Trainer'
 import { RedHorizonCard } from '@/dashboard/Emergency'
 import { MissionLinkCard } from '@/dashboard/MissionLink'
 import { useKeyboardCapture } from '@/hooks/useKeyboard'
-import { api, REGION } from '@/services/api'
+import { api, REGION, STATIC } from '@/services/api'
 import { actions, bindWorld } from '@/state/actions'
 import { sim, ui, useUI } from '@/state/store'
 import { placeRover } from '@/simulation/rover/physics'
@@ -100,6 +100,11 @@ export default function App() {
           <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
             <RedHorizonCard />
             <TrainerCard world={world} />
+          </div>
+        )}
+        {STATIC && !presentation && story === null && (
+          <div className="glass pointer-events-auto absolute left-1/2 top-4 w-[420px] -translate-x-1/2 rounded-xl px-3 py-2 text-center text-[11.5px] leading-snug text-ink-2">
+            <span className="font-semibold text-ink">Shared copy of the 3D simulation.</span> Drive with W A S D, press 1 to 5 for cameras, L for layers, F to hide the panels. Route planning and the mission link need the full app.
           </div>
         )}
         <Toasts />

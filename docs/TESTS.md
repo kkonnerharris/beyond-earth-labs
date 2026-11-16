@@ -99,12 +99,15 @@ Run on 15 November 2026 (local time) on the build machine: Windows 10, 7.4 GB RA
   they were read off the walkthrough's screenshots.
 - The last web build after the walkthrough changed only the guide page (one added picture); that page and
   its picture were then fetched and returned HTTP 200, and the walkthrough was not rerun.
-- The final presentation (`docs/pitch/final.html`, ten slides) is printed by `scripts/final_pdf.cjs`, which makes the
+- The final presentation (`docs/pitch/final.html`, seven slides) is printed by `scripts/final_pdf.cjs`, which makes the
   same checks; its photographs are taken by `scripts/ui_final.cjs` (the map with the 1 m check, the Mars
   simulation with the thermal layer, the Earth simulation) and cropped by `scripts/final_images.py`.
 - The 3D simulation's Earth scene (the aerial photograph, the trees, the sky) and the simulation opened
   from the site's Mars and Earth buttons were checked by opening them in headless Edge and looking at
   the screenshots; they have no assertions of their own.
+- The shared copy for GitHub Pages (`docs/index.html`, `docs/sim/`, built by `scripts/build_pages.py`) was served
+  from a sub-path on a plain file server and opened in headless Edge: the landing page had no broken
+  pictures, and the Mars and Earth simulations loaded with no page errors or failed requests.
 - The pitch deck (`docs/pitch/`) is checked by `scripts/pitch_pdf.cjs`, which reports missing pictures,
   fonts that did not load and any slide taller than its page; it printed five pages with none of those.
 - The 3D world's drawing (the route line, beacons, flyover camera) has no assertions; it was judged from

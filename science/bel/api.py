@@ -177,6 +177,22 @@ def globe_texture(body: str) -> Response:
     return Response(content=data, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
 
 
+@app.get("/globe/{body}/relief.jpg")
+def globe_relief(body: str) -> Response:
+    """Whole-body elevation as a height image for the 3D planet (Mars from MOLA, the Moon from LOLA)."""
+    from . import globes
+
+    try:
+        data, span = globes.relief(body)
+    except KeyError:
+        raise HTTPException(404, "no elevation image for this body") from None
+    except Exception as exc:  # noqa: BLE001 - reported; the 3D planet is then drawn smooth
+        raise HTTPException(502, f"NASA elevation for {body} did not load: {exc!r}"[:300]) from exc
+    return Response(content=data, media_type="image/jpeg",
+                    headers={"Cache-Control": "public, max-age=86400", "X-Lowest-M": f"{span['lowest_m']:.0f}",
+                             "X-Highest-M": f"{span['highest_m']:.0f}"})
+
+
 @app.get("/jezero/terrain3d")
 def jezero_terrain3d() -> dict:
     """Where the 3D elevation tiles are and how to read them."""

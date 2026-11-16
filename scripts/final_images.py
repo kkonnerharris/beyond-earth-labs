@@ -46,3 +46,10 @@ save("earth-sim.jpg", shots / "f9-earth-rover-clean.png", (0, 0, 1, 0.885))
 save("earth-panels.jpg", shots / "f8-earth-rover.png", (0, 0.30, 1, 1))
 # The real aerial photograph of the Earth site (USDA NAIP): the bluffs and the trail, as fetched.
 save("earth-aerial.jpg", AERIAL, (0.24, 0.33, 0.70, 0.60), width=1320)
+# The astronaut and the rover side by side at the mission base, enlarged for the picture slide.
+im = Image.open(shots / "f4-mars-mission.png").convert("RGB")
+w, h = im.size
+im = im.crop((round(0.245 * w), round(0.36 * h), round(0.725 * w), round(0.90 * h)))
+im = im.resize((1560, round(im.height * 1560 / im.width)), Image.LANCZOS)
+im.save(out / "rover-astronaut.jpg", quality=92)
+print("saved rover-astronaut.jpg", im.size)

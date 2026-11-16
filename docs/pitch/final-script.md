@@ -1,8 +1,9 @@
-# Final presentation: seven-minute script
+# Final presentation: seven slides, about seven minutes
 
 Slides: `docs/pitch/Beyond-Earth-Labs-final-presentation.pdf` (source `final.html`, printed by
-`node scripts/final_pdf.cjs`). Ten slides, about 930 words, at an easy speaking pace. The times in the
-margin are where you should be when each slide ends.
+`node scripts/final_pdf.cjs`). Seven slides, about 900 words, at an easy speaking pace: roughly a minute a
+slide. The times in the margin are where you should be when each slide ends. A shared copy of the 3D
+simulation is at https://kkonnerharris.github.io/beyond-earth-labs/.
 
 Every figure below is on the slide it is spoken over and comes from `docs/METHODS.md`, `docs/DATA.md`
 or `docs/TESTS.md`. If a figure changes there, change it here and on the slide.
@@ -17,16 +18,28 @@ It is one 3D map for planning a Marswalk at Jezero Crater, checking it, and rehe
 Earth. What you see behind me is the product itself: a planned route across the crater floor, with
 beacons on two science targets on the delta.
 
-**2. The problem** (1:10)
+**2. The problem and the product** (1:40)
 
 A crew leaving the habitat has three questions. Where can we go? Can we get back? And what do we do when
 the plan breaks?
 
 The challenge asks for a layered map from several NASA missions, with at least three kinds of data, crew
 safety, a route that avoids obstacles, and rover images. Each line on this slide pairs what was asked
-with what I built. The rest of this talk walks through those three questions in order.
+with what I built.
 
-**3. The map** (1:55)
+And the product is one mission running through seven connected parts, along the bottom of this slide. The
+map sets the slope limit. The analog search picks where on Earth to rehearse. The route sets the distance
+and the time on site. Crew safety says go, or refuses and says why. The habitat is what the crew comes
+home to. The simulation runs it and scores it. The review says what to change.
+
+*(still slide 2: the three steps)*
+
+A Marswalk runs in three steps. Plan: the route is computed on NASA elevation for a crew rover, a scout
+rover or an astronaut on foot, and each science stop costs time. Check: the trip has to fit the oxygen
+or the battery with a reserve, or the plan is refused and you are told by how much. Run: the traverse
+plays out as a simulation. Report an obstacle, a dust storm or a suit leak, and it replans and logs why.
+
+**3. The map, checked at one metre** (3:10)
 
 It starts with the map. Five NASA missions are on it: orbital photographs down to 25 centimetres,
 elevation at 20 metres and at 1 metre, thermal infrared, and the path Perseverance actually drove, in
@@ -37,14 +50,7 @@ waypoints, to about a metre. And Perseverance never crossed ground steeper than 
 is where my 20 degree limit for rovers comes from. Every number on screen is labelled: NASA data,
 calculated, model, simulated, or assumption.
 
-**4. How it works** (2:40)
-
-A Marswalk runs in three steps. Plan: the route is computed on NASA elevation for a crew rover, a scout
-rover or an astronaut on foot, and each science stop costs time. Check: the trip has to fit the oxygen
-or the battery with a reserve, or the plan is refused and you are told by how much. Run: the traverse
-plays out as a simulation. Report an obstacle, a dust storm or a suit leak, and it replans and logs why.
-
-**5. Checked at one metre** (3:30)
+*(still slide 3: the three figures)*
 
 Here is the part I am proudest of. A route planned on 20 metre squares cannot see a steep bank a few
 metres wide. NASA's 1 metre model can.
@@ -57,17 +63,18 @@ the map is the ground it now stays out of.
 It does not always win. To the top of the delta, some steep ground cannot be avoided, and the check says
 so instead of calling the route safe.
 
-**6. The 3D simulation on Mars** (4:20)
+**4. The 3D simulation on Mars** (4:00)
 
-Then you can stand on it. The 3D simulation reads the same mission and draws it on the ground: the route
-in orange, the targets as beacons, the steep stretches in red.
+Then you can stand on it. This is the crew rover and the astronaut at the mission base, in 3D, on the real
+terrain of Jezero. The simulation reads the same mission and draws it on the ground: the route in orange,
+the targets as beacons, the steep stretches in red.
 
 You can fly the whole route. You can drive the first leg with the rover, on 5 metre terrain, where it
 steers round rocks the plan could not see and stays about two and a half metres from the planned line.
 Or you can walk it with the astronaut, who stops where the oxygen would no longer cover the walk home.
 The thermal infrared layer is here too.
 
-**7. How a test on Earth could help** (5:15)
+**5. How a test on Earth could help** (4:55)
 
 Nobody should try this for the first time on Mars. So the same rover, astronaut and planner also run on
 Earth, at Garden of the Gods in Shawnee National Forest, on USGS elevation and a real aerial photograph
@@ -80,7 +87,7 @@ under a metre? And do the rules work under pressure, when you rehearse turning b
 I want to be straight about this: I have not run that field test. This slide is how the product makes
 one possible.
 
-**8. Deep learning** (6:00)
+**6. Deep learning and AI use** (6:05)
 
 Which Earth sites are worth the trip? A terrain network answers that. It is a vision transformer with a
 head I trained on about 4,500 terrain cells from Mars, the Moon and Earth.
@@ -90,16 +97,14 @@ classical methods reach 52. For matching Earth terrain to Mars it closes 52 perc
 perfect pick. It is weakest on Earth, where vegetation hides the landform. And it only ranks rehearsal
 sites. Routes never depend on it.
 
-**9. Data sources** (6:25)
+And since this slide is about AI, here is how AI was used. I built this with Claude, through Claude Code,
+for scaffolding, for choosing and testing which NASA data to use, and as a coding assistant. Inside the
+product, the AI is this terrain network. No language model produces any number you saw.
+
+**7. Data sources and status** (7:00)
 
 Everything rests on NASA data: twenty datasets and resources from ten missions, listed here with what
-each one is used for. Four other sources are named at the bottom right, and marked as not NASA.
-
-**10. AI use and status** (7:00)
-
-Last, how AI was used. I built this with Claude, through Claude Code, for scaffolding, for choosing and
-testing which NASA data to use, and as a coding assistant. Inside the product, the AI is the terrain
-network. No language model produces any number you saw.
+each one is used for. Four other sources are named below them, and marked as not NASA.
 
 What works: all seven steps, end to end, with the tests passing. What does not: single rocks are still
 invisible, the traverse is simulated, and some life-support figures are assumptions.

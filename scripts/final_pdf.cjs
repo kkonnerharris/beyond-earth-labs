@@ -1,4 +1,4 @@
-// Prints docs/pitch/final.html (the seven-minute final presentation) to a PDF, one 1920 x 1080 slide per page (ten slides).
+// Prints docs/pitch/final.html (the final presentation, seven slides) to a PDF, one 1920 x 1080 slide per page (seven slides).
 //   node scripts/final_pdf.cjs [playwright module path]
 // Needs Chrome or Edge (BROWSER_CHANNEL=msedge). The fonts come from Google Fonts; offline, Arial is used.
 const path = require("path");

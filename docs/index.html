@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beyond Earth Labs · Martian Map</title>
+<meta name="description" content="One 3D map to plan a Marswalk at Jezero Crater, check it, and rehearse it on Mars and on Earth. NASA Space Apps Challenge 2026.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root { --ink: #070a0f; --panel: #0c1118; --line: #1e2a38; --line-strong: #2c3c4f; --text: #dbe4ee; --muted: #8496aa; --mars: #e2733c; --mars-soft: #f0a070; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: 'IBM Plex Sans', system-ui, sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  header { padding: 56px 0 28px; }
+  .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; letter-spacing: 3px; color: var(--mars-soft); }
+  h1 { font-size: clamp(40px, 7vw, 72px); line-height: 1.02; letter-spacing: -2px; margin: 14px 0 0; font-weight: 600; color: #f4f7fa; }
+  .what { font-size: clamp(19px, 2.4vw, 26px); font-weight: 600; line-height: 1.3; margin: 18px 0 0; max-width: 760px; color: #f4f7fa; }
+  .sub { font-size: 17px; color: var(--muted); max-width: 720px; margin: 12px 0 0; }
+  .by { margin: 18px 0 0; font-size: 15px; color: var(--muted); }
+  .buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .btn { display: inline-flex; align-items: center; height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--line-strong); background: #121a24; color: var(--text); font-size: 15px; font-weight: 500; text-decoration: none; }
+  .btn:hover { border-color: var(--muted); }
+  .btn.primary { background: var(--mars); border-color: var(--mars); color: #140a04; font-weight: 600; }
+  .btn.primary:hover { background: var(--mars-soft); border-color: var(--mars-soft); }
+  .note { margin-top: 14px; font-size: 14px; color: var(--muted); max-width: 760px; }
+  .hero { display: block; width: 100%; border-radius: 14px; border: 1px solid var(--line-strong); margin-top: 30px; }
+  h2 { font-size: 24px; font-weight: 600; margin: 52px 0 6px; color: #f4f7fa; letter-spacing: -0.4px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 16px; }
+  figure { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  figure img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  figcaption { padding: 12px 14px 14px; font-size: 14px; color: var(--muted); }
+  figcaption b { color: var(--text); font-weight: 600; }
+  ol.parts { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+  ol.parts li { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; color: var(--muted); }
+  ol.parts b { display: block; color: var(--text); font-size: 15.5px; }
+  ol.parts span { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--mars-soft); letter-spacing: 2px; }
+  ol.parts em { display: block; font-style: normal; color: var(--mars-soft); margin-top: 6px; font-size: 13px; }
+  footer { margin: 56px 0 40px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<p class="eyebrow">NASA SPACE APPS 2026 · INTERPLANETARY SURVIVAL GUIDE: MARTIAN MAP</p>
+<h1>Beyond Earth Labs</h1>
+<p class="what">One 3D map to plan a Marswalk at Jezero Crater, check it, and rehearse it on Mars and on Earth.</p>
+<p class="sub">A crew on Mars has to know where it can go, whether it can get back, and what to do when the plan breaks. This answers all three, on terrain built from NASA data.</p>
+<p class="by">Konner Harris</p>
+<div class="buttons">
+<a class="btn primary" href="sim/?intro=0">Open the 3D simulation · Mars</a>
+<a class="btn primary" href="sim/?region=shawnee&amp;intro=0">Open the 3D simulation · Earth</a>
+<a class="btn" href="pitch/Beyond-Earth-Labs-final-presentation.pdf">Final presentation (PDF)</a>
+<a class="btn" href="https://github.com/kkonnerharris/beyond-earth-labs">Code on GitHub</a>
+</div>
+<p class="note">The 3D simulation here is a shared copy that runs in your browser: drive the rover with W A S D, press 1 to 5 for cameras, L for layers, F to hide the panels. Mission planning, the 1 m route check, the Earth analog search and the traverse simulation need the services in the repository, which run on a laptop with the commands in its README.</p>
+<img class="hero" src="pitch/img/final/cover-mars.jpg" alt="The 3D simulation of Jezero Crater: rippled ground, an orange planned route running toward the delta, and two labelled target beacons on the horizon">
+</header>
+
+<h2>One mission, seven connected parts</h2>
+<ol class="parts">
+<li><span>01</span><b>Map</b>Five NASA missions on one map of Jezero, checked against where Perseverance really drove.<em>→ sets the 20° slope limit</em></li>
+<li><span>02</span><b>Earth analogs</b>A terrain network ranks Earth sites that resemble this ground.<em>→ picks the rehearsal site</em></li>
+<li><span>03</span><b>Route</b>Planned at 20 m, checked on NASA's 1 m model, with science stops.<em>→ distance and time on site</em></li>
+<li><span>04</span><b>Crew safety</b>Supplies with a reserve, a radiation estimate, a health monitor.<em>→ go, or refused with why</em></li>
+<li><span>05</span><b>Habitat</b>Power, water, oxygen and a greenhouse for the stay.<em>→ the base the crew returns to</em></li>
+<li><span>06</span><b>Simulation</b>The rover or the astronaut runs it in 3D; emergencies force a new plan.<em>→ a log and a score</em></li>
+<li><span>07</span><b>Review</b>The mission report, the evidence, and the limits.<em>→ what to change next time</em></li>
+</ol>
+
+<h2>The product</h2>
+<div class="grid">
+<figure><img src="pitch/img/final/check-1m.jpg" alt="The mission map after the 1 m check, with the moved route in orange and steep ground marked in red"><figcaption><b>The map, checked at 1 metre.</b> A route planned on 20 m squares is measured on NASA's 1 m HiRISE elevation model and moved off the steep ground it can avoid.</figcaption></figure>
+<figure><img src="pitch/img/final/rover-astronaut.jpg" alt="The crew rover and the astronaut at the mission base in the 3D simulation of Jezero"><figcaption><b>The rover and the astronaut, in 3D.</b> The simulation reads the same mission and draws it on the ground at Jezero.</figcaption></figure>
+<figure><img src="pitch/img/final/mars-thermal.jpg" alt="The simulation from above with the thermal infrared layer on"><figcaption><b>Thermal infrared.</b> Mars Odyssey THEMIS on the same ground, beside slope and traversability layers.</figcaption></figure>
+<figure><img src="pitch/img/final/earth-sim.jpg" alt="The rover in a forest clearing at Garden of the Gods, Illinois, in the Earth simulation"><figcaption><b>Rehearsed on Earth.</b> The same rover and planner at Garden of the Gods, Illinois, on USGS elevation and a real aerial photograph. Tree shapes, close-up ground detail and the sky are illustrative.</figcaption></figure>
+</div>
+
+<footer>
+A planning aid, not certified for spacecraft operations or crew safety. Twenty NASA datasets and resources from ten missions; the full registry, the methods, the test record and the record of AI use are in the <a href="https://github.com/kkonnerharris/beyond-earth-labs">repository</a>. Not affiliated with or endorsed by NASA.
+</footer>
+</div>
+</body>
+</html>
