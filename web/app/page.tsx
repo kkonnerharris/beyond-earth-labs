@@ -13,8 +13,9 @@ import { fmtDistance, fmtDuration } from "@/lib/geo";
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 const SpaceView = dynamic(() => import("@/components/SpaceView"), { ssr: false });
 
-// The 3D world (surface-world/) runs as its own service on port 8320. It is handed the mission's id, reads
-// the same plan from the mission service and draws it. Its button is shown only when that service answers.
+// The 3D simulation (surface-world/) runs as its own service on port 8320. For Mars it is handed the
+// mission's id, reads the same plan from the mission service and draws it at Jezero. For Earth it opens on
+// the field site at Garden of the Gods, Illinois. Its buttons are shown only when that service answers.
 const WORLD_URL = process.env.NEXT_PUBLIC_WORLD_URL ?? "http://127.0.0.1:8320";
 
 const STEPS = ["Region", "Analogs", "Route", "Crew", "Habitat", "Simulate", "Review"] as const;
@@ -68,7 +69,9 @@ export default function Workspace() {
   const [threeD, setThreeD] = useState(false);
   const [space, setSpace] = useState(false);
   const [surface, setSurface] = useState(false);
-  const [world, setWorld] = useState(false);          // the full 3D rover world (separate service)
+  const [world, setWorld] = useState(false);          // the 3D simulation is showing in the map's pane
+  const [worldSite, setWorldSite] = useState<"mars" | "earth">("mars");   // which world it is showing
+  const openWorld = (site: "mars" | "earth") => { setWorldSite(site); setWorld(true); };
   const [worldUp, setWorldUp] = useState(false);      // true once that optional service has answered
   const [fineBusy, setFineBusy] = useState(false);    // the 1 m elevation check is reading NASA's file
   const [aim, setAim] = useState(0);
@@ -246,7 +249,7 @@ export default function Workspace() {
   }, [climateSite, model, climate?.region.region]);
 
   const switchBody = (b: Body) => {
-    setBody(b); setPlacing(false); setProbe(null); setThreeD(false); setSurface(false);
+    setBody(b); setPlacing(false); setProbe(null); setThreeD(false); setSurface(false); setWorld(false);
     if (b === "moon") fly(3.6, 20, 2.2);
     else if (b === "earth") fly(-60, 25, 1.7);
     else if (terrain) fly(terrain.grid.lon0, terrain.grid.lat0, 11.4);
@@ -356,8 +359,22 @@ export default function Workspace() {
         </div>
         <span className="flex-1" />
         {mission && <span className="truncate text-[12px] text-muted">{mission.name}</span>}
-        {worldUp && <button className={`btn h-7 ${world ? "border-mars text-mars-soft" : "btn-primary"}`} aria-pressed={world} onClick={() => setWorld((v) => !v)}
-                            title="The 3D simulation: your rover and your astronaut on the ground, running this mission">{world ? "3D world on" : "3D world"}</button>}
+        {worldUp && (
+          <div className="flex items-center gap-1 rounded-md border border-mars/60 bg-mars/10 py-0.5 pl-2.5 pr-0.5" role="group" aria-label="3D simulation">
+            <span className="text-[12px] font-semibold text-mars-soft">3D simulation</span>
+            {(["mars", "earth"] as const).map((site) => {
+              const on = world && worldSite === site;
+              return (
+                <button key={site} className={`btn h-6 px-2.5 ${on ? "border-mars text-mars-soft" : "btn-primary"}`} aria-pressed={on}
+                        onClick={() => (on ? setWorld(false) : openWorld(site))}
+                        title={site === "mars" ? "Your rover and your astronaut on the ground at Jezero Crater, running this mission"
+                                               : "The same rover and astronaut on Earth, at Garden of the Gods in Shawnee National Forest, Illinois"}>
+                  {site === "mars" ? "Mars" : "Earth"}
+                </button>
+              );
+            })}
+          </div>
+        )}
         <button className={`btn h-7 ${space ? "border-mars text-mars-soft" : ""}`} aria-pressed={space} onClick={() => setSpace((v) => !v)}
                 title="See Earth, the Moon and Mars together">Space view</button>
         <a href="/guide" target="_blank" rel="noreferrer" className="text-[12px] text-muted underline-offset-4 hover:text-text hover:underline">Guide</a>
@@ -411,7 +428,7 @@ export default function Workspace() {
                 {step === 1 && <StepAnalogs result={region ? analogs[region.region] ?? null : null} loading={analogBusy} error={analogError}
                                             region={region} onRun={runAnalogs} modelReady={!!model} onOpen={openRegion} />}
                 {mission && step === 2 && <StepRoute mission={mission} profiles={profiles} placing={placing} setPlacing={setPlacing} busy={busy}
-                                                     goal={goal} setGoal={setGoal} fineBusy={fineBusy} onWorld={worldUp ? () => setWorld(true) : undefined}
+                                                     goal={goal} setGoal={setGoal} fineBusy={fineBusy} onWorld={worldUp ? () => openWorld("mars") : undefined}
                                                      onFine={(avoid) => { setFineBusy(true); command(() => missionApi.fineCheck(mission.id, avoid)).finally(() => setFineBusy(false)); }}
                                                      onPlan={(mv, obj, risk) => { if (mv === "astronaut") setTriedFoot(true); command(() => missionApi.plan(mission.id, mv, obj, risk)); }}
                                                      onClear={() => command(() => missionApi.clearTargets(mission.id))} />}
@@ -474,11 +491,16 @@ export default function Workspace() {
                    selectedRegion={selected[body]} focus={focus} placing={placing && step === 2} onClick={onMapClick} onRegion={onRegionMarker} />
 
           {world && (
-            <div className="absolute inset-0 z-40 bg-black" role="region" aria-label="3D world: the mission on the ground">
-              <iframe key={`${mission?.id ?? "none"}-${mission?.mover ?? ""}-${mission?.plan?.revision ?? 0}-${mission?.fine_check?.revision ?? 0}`}
-                      src={`${WORLD_URL}/?intro=0&embed=1${mission ? `&mission=${encodeURIComponent(mission.id)}` : ""}`}
-                      title="3D world of Jezero Crater showing this mission" className="h-full w-full border-0" allow="fullscreen" />
-              <button className="btn absolute bottom-4 left-1/2 -translate-x-1/2 bg-panel/95" onClick={() => setWorld(false)}>Back to the mission map</button>
+            <div className="absolute inset-0 z-40 bg-black" role="region" aria-label={worldSite === "earth" ? "3D simulation on Earth" : "3D simulation: the mission on the ground at Jezero"}>
+              {worldSite === "earth" ? (
+                <iframe key="earth" src={`${WORLD_URL}/?region=shawnee&intro=0&embed=1`}
+                        title="3D simulation of the Earth field site at Garden of the Gods, Illinois" className="h-full w-full border-0" allow="fullscreen" />
+              ) : (
+                <iframe key={`${mission?.id ?? "none"}-${mission?.mover ?? ""}-${mission?.plan?.revision ?? 0}-${mission?.fine_check?.revision ?? 0}`}
+                        src={`${WORLD_URL}/?intro=0&embed=1${mission ? `&mission=${encodeURIComponent(mission.id)}` : ""}`}
+                        title="3D world of Jezero Crater showing this mission" className="h-full w-full border-0" allow="fullscreen" />
+              )}
+              <button className="btn absolute bottom-4 left-1/2 -translate-x-1/2 bg-panel/95" onClick={() => setWorld(false)}>Back to the map</button>
             </div>
           )}
 
@@ -507,10 +529,12 @@ export default function Workspace() {
                 {surface ? "Surface view on" : "Surface view"}
               </button>
             )}
-            {body === "mars" && worldUp && (
-              <button className="btn btn-primary" title="The 3D simulation: your rover and your astronaut on the ground, running this mission"
-                      onClick={() => setWorld(true)}>
-                3D world
+            {body !== "moon" && worldUp && (
+              <button className="btn btn-primary"
+                      title={body === "earth" ? "The 3D simulation on Earth: the rover and the astronaut at Garden of the Gods, Illinois"
+                                              : "The 3D simulation: your rover and your astronaut on the ground at Jezero, running this mission"}
+                      onClick={() => openWorld(body === "earth" ? "earth" : "mars")}>
+                3D simulation
               </button>
             )}
             <button className="btn bg-panel/95" title={`Zoom out to see all of ${BODY_NAME[body]}`}
@@ -645,6 +669,15 @@ export default function Workspace() {
                     ))}
                   </div></fieldset>
                 <button className="btn btn-primary mt-5 h-9 w-full text-[13px]" disabled={busy || services.mission === false}>Create exploration mission</button>
+                {worldUp && (
+                  <div className="mt-3 rounded-md border border-line-strong p-2.5">
+                    <p className="text-[12px] text-muted">Or go straight to the ground in the 3D simulation, with a rover and an astronaut:</p>
+                    <div className="mt-2 grid grid-cols-2 gap-1.5">
+                      <button type="button" className="btn" onClick={() => openWorld("mars")}>Mars · Jezero Crater</button>
+                      <button type="button" className="btn" onClick={() => openWorld("earth")}>Earth · Garden of the Gods</button>
+                    </div>
+                  </div>
+                )}
                 {services.mission === false && <p className="mt-2 text-[12px] text-bad">The mission service is not reachable on port 8300.</p>}
                 <p className="mt-3 text-[11px] leading-snug text-faint">Planning aid built for a hackathon. Estimates only; not certified for spacecraft operations or crew safety.</p>
               </form>

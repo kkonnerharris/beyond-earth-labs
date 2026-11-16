@@ -17,7 +17,7 @@ of the sidebar moves to the next step, and the line above it says what the curre
 | 5 | Scroll to the bottom of the list. | "Farmland and alpine control regions land at the bottom. Salar de Uyuni is a real Mars analog, for salt flats, but it is nothing like Jezero's terrain, and the ranking says so." |
 | 6 | **Route** step. Click **Add targets on the map**, click two points west of the landing site, press Esc. | "Two science targets. The route is planned on measured terrain and stays under the slope limit. The profile shows the climb." |
 | 6b | Still in **Route**: click **Check this route at 1 m**. Then **Move the route around them**. | "The plan was made on 20 metre squares and says the steepest ground is 17 degrees. NASA's 1 metre model disagrees: ten stretches over the rover's limit, up to 42 degrees. Asked to move the route, it avoids what it can, 258 metres of steep ground down to 46, and tells us the rest cannot be avoided: the delta top is only reached across the scarp." |
-| 6c | Click **Open this route in the 3D world**. Press **Fly the route**, then **Drive it**. Close with **Back to the mission map**. | "The same plan, on the ground. Orange is our route, red is what the 1 metre model flagged, the beacons are our targets. The rover is now driving the first leg on 5 metre terrain, steering round rocks the plan could not see." |
+| 6c | Click **Open this route in the 3D simulation**. Press **Fly the route**, then **Drive it** (or **Walk it**). Close with **Back to the map**. For Earth, press **3D simulation: Earth** in the top bar. | "The same plan, on the ground. Orange is our route, red is what the 1 metre model flagged, the beacons are our targets. The rover is now driving the first leg on 5 metre terrain, steering round rocks the plan could not see." |
 | 7 | Click **Astronaut on foot**. Then back to **Crew rover**. | "Same targets on foot: the service recalculates time and oxygen. If the walk needs more oxygen than the suit carries with a 25% reserve, it refuses the plan and says by how much." |
 | 8 | **Simulate** step. **Start traverse**. After a few seconds click **Obstacle ahead**. | "The rover is under way. An obstacle is reported ahead. The mission service replans from the current position and logs why." |
 | 9 | Click **Dust storm**. Drag **Time compression** to the right until the rover is home. | "A dust storm. The rule is to come home above optical depth 2. Watch the route change, and the habitat's solar supply drop in the log. Back at base the mission is scored: no science this time, full marks for safety." |
@@ -34,7 +34,7 @@ of the sidebar moves to the next step, and the line above it says what the curre
   `data/tilecache/`; pan back to an area you loaded before.
 - **"Start traverse" is refused.** The plan fails the consumables check; the message gives the numbers.
   Pick the crew rover or move the targets closer.
-- **No "3D world" button.** The 3D world service on port 8320 is not running; `scripts/services.ps1 start`
+- **No "3D simulation" buttons.** The 3D world service on port 8320 is not running; `scripts/services.ps1 start`
   starts it. In the 3D world, the round arrow on the mission panel reads the mission again.
 - **The 1 m check is slow the first time.** It downloads the elevation posts under the route from NASA's
   file; later checks of nearby routes read them from `data/cache/hirise/`.

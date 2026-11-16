@@ -177,7 +177,7 @@ export function MissionCard({ world }: { world: World }) {
           <RegionSwitch world={world} />
           {world.real?.planet === 'earth' ? (<>
             <div><Tag k="NASA" /> <span className="font-medium text-ink">Earth analog:</span> Garden of the Gods, Shawnee National Forest, Illinois. Terrain from USGS 3DEP (10 m). NASA's NASADEM, measured from orbit by the Space Shuttle's radar, reads a median {world.real.region.nasadem_minus_3dep_median_m?.toFixed(1)} m higher: its C-band radar partly reflects off the forest canopy, a known effect over dense trees.</div>
-            <div><Tag k="NASA" /> <span className="font-medium text-ink">Imagery:</span> Copernicus Sentinel-2 true colour (ESA), 8 Oct 2025.</div>
+            <div><Tag k="NASA" /> <span className="font-medium text-ink">Imagery:</span> a real aerial photograph of the site: USDA National Agriculture Imagery Program (NAIP), natural colour, 0.6 m, served by the USGS National Map.</div>
             <div><Tag k="CALC" /> <span className="font-medium text-ink">Slope, traversability, routes:</span> the same planner as on Mars, on Earth terrain.</div>
             <AnalogCompare />
             <div><Tag k="SIM" /> <span className="font-medium text-ink">Field camp, helicopter LZ, suit and rover:</span> simulated, as in NASA analog field tests that simulate EVA consumables.</div>

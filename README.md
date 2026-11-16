@@ -48,7 +48,10 @@ on lunar regions and lists NASA's commercial lunar deliveries (CLPS) in NASA's o
 turns the comparison around: pick a test site and see which Mars or Moon terrain it most resembles, with
 its NASA climate record. Missions, routes and the simulation are on Mars only.
 
-**The 3D world.** The "3D world" button opens the same mission in a full 3D scene of Jezero
+**The 3D simulation.** The "3D simulation" buttons (top bar, above the map, and on the start screen) open
+a full 3D scene with a rover and an astronaut, on Mars or on Earth. The Earth one is Garden of the Gods
+in Shawnee National Forest, Illinois, on USGS elevation with a real aerial photograph (USDA NAIP) on the
+ground. The Mars one opens the same mission in a full 3D scene of Jezero
 (`surface-world/`): 2 km of HiRISE terrain at 5 m around the landing site, inside 80 km of CTX terrain.
 It reads the plan from the mission service and draws it on the ground: every leg, a beacon at each
 target, and the stretches the 1 m check found too steep, in red. "Fly the route" takes the camera along

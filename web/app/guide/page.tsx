@@ -61,7 +61,7 @@ const DATASETS: [string, string, string, string][] = [
 
 const CONTENTS: [string, string][] = [
   ["start", "Start in one minute"], ["thread", "One mission, seven parts"], ["space", "The solar system"], ["map", "The map"], ["three-d", "3D terrain and globes"], ["surface", "Surface view: drive it yourself"], ["analogs", "Earth analogs"],
-  ["route", "Routes"], ["world", "The 3D world"], ["crew", "Crew safety and health"], ["habitat", "Habitat and farming"], ["simulate", "Run the traverse"],
+  ["route", "Routes"], ["world", "The 3D simulation"], ["crew", "Crew safety and health"], ["habitat", "Habitat and farming"], ["simulate", "Run the traverse"],
   ["review", "Review the evidence"], ["worlds", "The Moon and Earth"], ["training", "Training mode"], ["tags", "What the tags mean"],
   ["limits", "Limits"], ["data", "NASA datasets used"],
 ];
@@ -211,9 +211,9 @@ export default function Guide() {
             The route is planned on 20 metre squares, and a square that size cannot see a bank a few metres wide. Press <strong>Check this route at 1 m</strong> to measure the same route on NASA&apos;s 1 metre elevation model from the HiRISE camera. It lists every stretch steeper than your mover&apos;s limit and marks them on the map. <strong>Move the route around them</strong> replans to keep off the steep ground it can avoid, and tells you plainly what it could not: a target on top of a scarp can only be reached across it. The first check reads the elevation under your route from NASA&apos;s file, so it can take a minute.
           </P>
 
-          <H2 id="world">The 3D world</H2>
+          <H2 id="world">The 3D simulation</H2>
           <P>
-            Click <strong>3D world</strong> above the map, or <strong>Open this route in the 3D world</strong> in the Route step, to stand on the ground your mission crosses. It opens in the map&apos;s place, beside the mission steps, with your rover and your astronaut standing at the mission base. It is the same plan, read from the same mission service: the orange line is your route, each target has a beacon, and the red stretches are the ground the 1 metre check found too steep.
+            Click <strong>3D simulation</strong> at the top (Mars or Earth) or above the map, or <strong>Open this route in the 3D simulation</strong> in the Route step, to stand on the ground your mission crosses. It opens in the map&apos;s place, beside the mission steps, with your rover and your astronaut standing at the mission base. It is the same plan, read from the same mission service: the orange line is your route, each target has a beacon, and the red stretches are the ground the 1 metre check found too steep.
           </P>
           <Steps>
             <li><strong>Fly the route</strong> takes the camera along the whole traverse, out to every target and back.</li>
@@ -224,7 +224,7 @@ export default function Guide() {
           <Shot file="world.jpg" alt="A 3D view across Jezero: an orange route line runs over rippled ground toward the delta, with two labelled target beacons on the horizon and a mission panel on the right"
                 caption="The mission in the 3D world: the planned route in orange, beacons on the two targets at the delta, and the 1 m check's result in the panel." />
           <P>
-            Only the 2 kilometres around the landing site are detailed, from the HiRISE elevation model at 5 metres. Beyond that the route is drawn on a coarser 80 kilometre backdrop that shows the delta and the crater rim but cannot be driven. The 3D world shows your mission; it does not change it.
+            Choose <strong>Earth</strong> to run the same rover and astronaut at Garden of the Gods in Shawnee National Forest, Illinois: the ground is the USGS elevation model and the picture on it is a real aerial photograph of the place. Only the 2 kilometres around the landing site are detailed, from the HiRISE elevation model at 5 metres. Beyond that the route is drawn on a coarser 80 kilometre backdrop that shows the delta and the crater rim but cannot be driven. The 3D world shows your mission; it does not change it.
           </P>
 
           <H2 id="crew">Crew safety and health</H2>
