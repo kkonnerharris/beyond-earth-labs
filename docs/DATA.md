@@ -53,6 +53,12 @@ it is only looked at (by people or by the network), never used as a number.
 
 ## The 3D world's own data
 
+For its Earth site (Garden of the Gods, Shawnee National Forest, Illinois) the 3D simulation uses USGS 3DEP
+elevation, NASADEM as a cross-check, and a real aerial photograph on the ground: USDA National
+Agriculture Imagery Program (NAIP), taken 18 August 2023, read from the public NAIP archive on the
+Microsoft Planetary Computer by `scripts/import_earth_photo.py`. NAIP and 3DEP are not NASA data. The
+trees standing on it are illustrative shapes placed where the photograph shows canopy.
+
 `surface-world/data/` holds a 2 km square of Jezero prepared from the same NASA
 products: the HiRISE 1 m elevation model averaged to 5 m, the HiRISE orthoimage, an 80 km ring of CTX
 elevation and imagery, a THEMIS infrared tile, and Perseverance and Ingenuity positions from the Mars

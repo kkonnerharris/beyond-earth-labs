@@ -65,28 +65,30 @@
         ]
       }
     },
-    "sentinel2": {
-      "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/16/S/CG/2025/10/S2A_16SCG_20251008_1_L2A/TCI.tif",
-      "title": "Sentinel-2A L2A true colour, 8 Oct 2025, tile 16SCG (cloud cover 0.003%)",
-      "mission": "Copernicus Sentinel-2 (ESA)",
-      "instrument": "MultiSpectral Instrument (MSI)",
-      "publisher": "ESA / Copernicus, via AWS Open Data (Element 84)",
-      "year": 2025,
-      "doi": "https://registry.opendata.aws/sentinel-2-l2a-cogs/",
-      "citation": "Contains modified Copernicus Sentinel data (2025).",
+    "naip": {
+      "url": "https://planetarycomputer.microsoft.com/dataset/naip",
+      "title": "National Agriculture Imagery Program (NAIP) aerial orthophotographs, natural colour, 0.6 m",
+      "mission": "USDA National Agriculture Imagery Program",
+      "instrument": "Aerial camera",
+      "publisher": "USDA Farm Service Agency; read from the public NAIP archive on the Microsoft Planetary Computer",
+      "year": 2023,
+      "doi": "https://naip-usdaonline.hub.arcgis.com/",
+      "citation": "USDA Farm Service Agency, National Agriculture Imagery Program. Public domain.",
       "read_meta": {
-        "crs": "EPSG:32616",
-        "res": [
-          10.0,
-          10.0
+        "photographs": [
+          {
+            "id": "il_m_3708830_nw_16_030_20230818_20240201",
+            "date": "2023-08-18",
+            "share_of_square": 0.3172
+          },
+          {
+            "id": "il_m_3708829_ne_16_030_20230818_20240201",
+            "date": "2023-08-18",
+            "share_of_square": 0.6828
+          }
         ],
-        "nodata": 0.0,
-        "window": [
-          7682,
-          3614,
-          215,
-          215
-        ]
+        "output_px": 4096,
+        "output_m_per_px": 0.48828125
       }
     }
   },
@@ -94,7 +96,7 @@
     "Region bounds transformed into each source CRS; only the window is read (HTTP range requests).",
     "USGS 3DEP 1/3 arc-second DEM resampled (cubic) onto a 401 x 401, 5 m local transverse-Mercator grid: the planner's terrain.",
     "NASADEM (Space Shuttle radar, reprocessed by NASA JPL) resampled the same way and compared with 3DEP.",
-    "Sentinel-2 L2A true-colour image (8 Oct 2025) resampled to 1024 x 1024 and contrast-stretched."
+    "NAIP aerial photograph (2023-08-18) resampled (bilinear) to 4096 x 4096 over the 2 km square, 0.49 m per pixel. Colours are as photographed."
   ],
   "retrieved": "2026-10-26",
   "script": "scripts/import_earth.py"

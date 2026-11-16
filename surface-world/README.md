@@ -15,7 +15,10 @@ as its own service on port 8320.
 - **Walk it.** The astronaut walks the same leg on foot, and stops where going further would leave the
   suit too little oxygen for the walk back and the reserve. A mission planned for an astronaut opens on
   the astronaut; one planned for a rover opens on the rover. Both stand at the mission base.
-- **Earth too.** `?region=shawnee` runs the same rover and astronaut at Garden of the Gods, Illinois.
+- **Earth too.** `?region=shawnee` runs the same rover and astronaut at Garden of the Gods, Illinois, on
+  USGS elevation with a real aerial photograph on the ground (USDA NAIP, 18 August 2023, fetched by
+  `scripts/import_earth_photo.py`). Trees are stood up where the photograph shows canopy and take their
+  colour from it; their shapes are illustrative.
 - Around that: keyboard driving, an astronaut on foot, five cameras, slope and thermal layers, and
   Perseverance's and Ingenuity's real paths.
 

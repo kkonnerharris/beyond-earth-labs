@@ -24,9 +24,10 @@ function useSample(ms = 100) {
 }
 
 /** Data category tag: every number on screen says where it comes from. */
-export type Kind = 'NASA' | 'CALC' | 'SIM' | 'ILLUS'
+export type Kind = 'NASA' | 'REAL' | 'CALC' | 'SIM' | 'ILLUS'
 const KIND: Record<Kind, [string, string, string]> = {
   NASA: ['NASA', 'bg-nasa text-white', 'NASA-derived: real scientific observation'],
+  REAL: ['REAL', 'bg-nominal/20 text-nominal', 'A real observation from a source other than NASA'],
   CALC: ['CALC', 'bg-accent/20 text-accent', 'Calculated from documented inputs'],
   SIM: ['SIM', 'bg-white/10 text-ink-3', 'Simulated: synthetic scenario or vehicle telemetry'],
   ILLUS: ['ILLUS', 'bg-purple-500/20 text-purple-300', 'Illustrative: AI-generated or artistic, not data'],
@@ -177,7 +178,8 @@ export function MissionCard({ world }: { world: World }) {
           <RegionSwitch world={world} />
           {world.real?.planet === 'earth' ? (<>
             <div><Tag k="NASA" /> <span className="font-medium text-ink">Earth analog:</span> Garden of the Gods, Shawnee National Forest, Illinois. Terrain from USGS 3DEP (10 m). NASA's NASADEM, measured from orbit by the Space Shuttle's radar, reads a median {world.real.region.nasadem_minus_3dep_median_m?.toFixed(1)} m higher: its C-band radar partly reflects off the forest canopy, a known effect over dense trees.</div>
-            <div><Tag k="NASA" /> <span className="font-medium text-ink">Imagery:</span> a real aerial photograph of the site: USDA National Agriculture Imagery Program (NAIP), natural colour, 0.6 m, served by the USGS National Map.</div>
+            <div><Tag k="REAL" /> <span className="font-medium text-ink">Imagery:</span> a real aerial photograph of the site, taken on 18 August 2023 for the USDA National Agriculture Imagery Program (NAIP), natural colour, shown at 0.5 m per pixel. Colours are as photographed.</div>
+            <div><Tag k="ILLUS" /> <span className="font-medium text-ink">Trees:</span> illustrative shapes, stood up wherever the photograph shows tree canopy and coloured from the photograph at that spot. Vehicles pass through them.</div>
             <div><Tag k="CALC" /> <span className="font-medium text-ink">Slope, traversability, routes:</span> the same planner as on Mars, on Earth terrain.</div>
             <AnalogCompare />
             <div><Tag k="SIM" /> <span className="font-medium text-ink">Field camp, helicopter LZ, suit and rover:</span> simulated, as in NASA analog field tests that simulate EVA consumables.</div>

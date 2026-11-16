@@ -8,6 +8,7 @@ import { sim, ui, useUI } from '@/state/store'
 import { Astronaut } from './astronaut/Astronaut'
 import { CameraRig } from './camera/CameraRig'
 import { Dust, Habitat, Hazards, LandingZone, Rocks, Sites } from './environment/Props'
+import { Trees } from './environment/Trees'
 import { DestinationMarker, RouteLine } from './navigation/RouteLine'
 import { M20Paths } from './navigation/M20Paths'
 import { MissionOverlay } from './navigation/MissionOverlay'
@@ -179,6 +180,7 @@ export function Scene({ world, resetSignal, quality }: { world: World; resetSign
         actions.setDestination(x, z)
       }} />
       <Rocks world={world} />
+      {earth && <Trees world={world} />}
       <Habitat world={world} />
       <LandingZone world={world} />
       <Hazards world={world} layer={layer} />
