@@ -166,4 +166,5 @@ See [docs/TESTS.md](docs/TESTS.md) for the latest results.
 [The challenges behind the product](docs/CHALLENGES.md) · [Requirements traceability](docs/REQUIREMENTS.md) · [Methods](docs/METHODS.md) · [Data registry](docs/DATA.md) ·
 [Model card](docs/MODEL_CARD.md) · [Decisions](docs/DECISIONS.md) · [Tests](docs/TESTS.md) ·
 [Demo script](docs/DEMO.md) · [Submission text](docs/SUBMISSION.md) · [AI use](docs/AI_USE.md) ·
-[Pitch deck (PDF)](docs/pitch/Beyond-Earth-Labs-pitch.pdf) with [speaker notes](docs/pitch/speaker-notes.md)
+[Final presentation, 7 minutes (PDF)](docs/pitch/Beyond-Earth-Labs-final-presentation.pdf) with its [script](docs/pitch/final-script.md) ·
+[Pitch deck, 3 minutes (PDF)](docs/pitch/Beyond-Earth-Labs-pitch.pdf) with [speaker notes](docs/pitch/speaker-notes.md)

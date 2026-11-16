@@ -9,7 +9,7 @@ Run on 15 November 2026 (local time) on the build machine: Windows 10, 7.4 GB RA
 | 3D world unit tests | `cd surface-world && python -m pytest` | **36 passed** (10 of them on the link to the mission) |
 | Mission API end to end | `python scripts/smoke_mission.py` | **19 of 19 checks passed**, including the 1 m check on the live NASA file |
 | Mission to 3D world | `node scripts/ui_world.cjs <folder>` (headless Edge) | **8 of 8 checks passed**: the 3D world reports the same mission, plan revision, route length (7,632 m both), legs, targets and 1 m result as the mission service; the first leg is drivable on 5 m terrain; five screens saved; no page or HTTP errors |
-| Interface walkthrough | `node scripts/ui_check.cjs <folder>` (headless Edge) | 24 screens captured, including the 1 m check and the route moved off steep ground, 3D terrain, the three globes, the links between worlds, training mode and the guide page; **no console errors, failed requests or HTTP errors** |
+| Interface walkthrough | `node scripts/ui_check.cjs <folder>` (headless Edge), rerun on the final build | 24 screens captured, including the 1 m check and the route moved off steep ground, 3D terrain, the three globes, the links between worlds, training mode and the guide page; **no console errors, failed requests or HTTP errors** |
 | Space view, 3D models, hand driving | `node scripts/ui_models.cjs <folder>` (headless Edge) | Solar system view, and each mover's NASA model in 3D and in the surface view after driving by keyboard; no console or HTTP errors |
 | Type check and production build | `tsc --noEmit`, `next build` | clean |
 | `go vet`, `gofmt` | | clean |
@@ -99,6 +99,12 @@ Run on 15 November 2026 (local time) on the build machine: Windows 10, 7.4 GB RA
   they were read off the walkthrough's screenshots.
 - The last web build after the walkthrough changed only the guide page (one added picture); that page and
   its picture were then fetched and returned HTTP 200, and the walkthrough was not rerun.
+- The final presentation (`docs/pitch/final.html`, ten slides) is printed by `scripts/final_pdf.cjs`, which makes the
+  same checks; its photographs are taken by `scripts/ui_final.cjs` (the map with the 1 m check, the Mars
+  simulation with the thermal layer, the Earth simulation) and cropped by `scripts/final_images.py`.
+- The 3D simulation's Earth scene (the aerial photograph, the trees, the sky) and the simulation opened
+  from the site's Mars and Earth buttons were checked by opening them in headless Edge and looking at
+  the screenshots; they have no assertions of their own.
 - The pitch deck (`docs/pitch/`) is checked by `scripts/pitch_pdf.cjs`, which reports missing pictures,
   fonts that did not load and any slide taller than its page; it printed five pages with none of those.
 - The 3D world's drawing (the route line, beacons, flyover camera) has no assertions; it was judged from
