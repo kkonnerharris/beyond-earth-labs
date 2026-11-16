@@ -10,6 +10,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Body } from "@/lib/api";
+import { BASE } from "@/lib/base";
 
 type Planet = {
   key: string; name: string; orbit: number; size: number; colour: number;
@@ -79,7 +80,7 @@ export default function SpaceView({ counts, onPick, onClose }: {
 
     const loader = new THREE.TextureLoader();
     const texture = (body: Body, name: string) => {
-      const tex = loader.load(`/svc/science/globe/${body}.jpg`, () => undefined, undefined, () => setFailed((f) => [...f, name]));
+      const tex = loader.load(`${BASE}/svc/science/globe/${body}.jpg`, () => undefined, undefined, () => setFailed((f) => [...f, name]));
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = 8;
       disposables.push(tex);

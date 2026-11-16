@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { BASE, STATIC } from "@/lib/base";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BODY_NAME, missionApi, scienceApi, type AnalogResult, type Body, type Climate, type Clps, type GroundViews, type M2020, type Terrain3D, type Mission, type Profile, type RegionInfo, type Terrain } from "@/lib/api";
 import type { Focus, LayerState } from "@/components/MapView";
@@ -17,6 +18,8 @@ const SpaceView = dynamic(() => import("@/components/SpaceView"), { ssr: false }
 // mission's id, reads the same plan from the mission service and draws it at Jezero. For Earth it opens on
 // the field site at Garden of the Gods, Illinois. Its buttons are shown only when that service answers.
 const WORLD_URL = process.env.NEXT_PUBLIC_WORLD_URL ?? "http://127.0.0.1:8320";
+// In the shared copy the simulation is a page beside this one; it shows the two sites without the mission link.
+const WORLD_INDEX = STATIC ? "/index.html" : "/";
 
 const STEPS = ["Region", "Analogs", "Route", "Crew", "Habitat", "Simulate", "Review"] as const;
 
@@ -377,7 +380,7 @@ export default function Workspace() {
         )}
         <button className={`btn h-7 ${space ? "border-mars text-mars-soft" : ""}`} aria-pressed={space} onClick={() => setSpace((v) => !v)}
                 title="See Earth, the Moon and Mars together">Space view</button>
-        <a href="/guide" target="_blank" rel="noreferrer" className="text-[12px] text-muted underline-offset-4 hover:text-text hover:underline">Guide</a>
+        <a href={`${BASE}/guide${STATIC ? "/" : ""}`} target="_blank" rel="noreferrer" className="text-[12px] text-muted underline-offset-4 hover:text-text hover:underline">Guide</a>
         <label className="flex cursor-pointer items-center gap-2 text-[12px] text-muted">
           <input type="checkbox" checked={training} onChange={(e) => setTraining(e.target.checked)} className="accent-[var(--color-mars)]" />
           Training mode
@@ -493,11 +496,11 @@ export default function Workspace() {
           {world && (
             <div className="absolute inset-0 z-40 bg-black" role="region" aria-label={worldSite === "earth" ? "3D simulation on Earth" : "3D simulation: the mission on the ground at Jezero"}>
               {worldSite === "earth" ? (
-                <iframe key="earth" src={`${WORLD_URL}/?region=shawnee&intro=0&embed=1`}
+                <iframe key="earth" src={`${WORLD_URL}${WORLD_INDEX}?region=shawnee&intro=0&embed=1`}
                         title="3D simulation of the Earth field site at Garden of the Gods, Illinois" className="h-full w-full border-0" allow="fullscreen" />
               ) : (
                 <iframe key={`${mission?.id ?? "none"}-${mission?.mover ?? ""}-${mission?.plan?.revision ?? 0}-${mission?.fine_check?.revision ?? 0}`}
-                        src={`${WORLD_URL}/?intro=0&embed=1${mission ? `&mission=${encodeURIComponent(mission.id)}` : ""}`}
+                        src={`${WORLD_URL}${WORLD_INDEX}?intro=0&embed=1${mission ? `&mission=${encodeURIComponent(mission.id)}` : ""}`}
                         title="3D world of Jezero Crater showing this mission" className="h-full w-full border-0" allow="fullscreen" />
               )}
               <button className="btn absolute bottom-4 left-1/2 -translate-x-1/2 bg-panel/95" onClick={() => setWorld(false)}>Back to the map</button>

@@ -1,6 +1,9 @@
 // Typed clients for the two services. The interface never computes mission
 // values itself: it sends commands and draws what the services return.
 
+import { BASE, STATIC } from "./base";
+import { staticRequest } from "./staticBackend";
+
 export type RoutePoint = {
   x: number; y: number; lon: number; lat: number;
   elevation_m: number; slope_deg: number; dist_m: number; seconds: number; joules: number;
@@ -178,6 +181,7 @@ export type Clps = {
 };
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
+  if (STATIC) return staticRequest<T>(url, init);   // the shared copy: no server behind it
   const res = await fetch(url, { ...init, headers: { "Content-Type": "application/json" }, cache: "no-store" });
   const text = await res.text();
   let body: unknown = null;
@@ -191,11 +195,13 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
-const M = "/svc/mission";
-const S = "/svc/science";
+const M = `${BASE}/svc/mission`;
+const S = `${BASE}/svc/science`;
 // Map tiles go straight to the science service: hundreds of tile requests through the web proxy
 // were seen to drop connections. Everything else uses the same-origin proxy paths above.
-const TILES = process.env.NEXT_PUBLIC_SCIENCE_URL ?? "http://127.0.0.1:8310";
+// In the shared copy the tiles are saved files beside the page; the map needs their full address.
+const tilesBase = () => (STATIC ? `${typeof window === "undefined" ? "" : window.location.origin}${BASE}/svc/science`
+                                 : process.env.NEXT_PUBLIC_SCIENCE_URL ?? "http://127.0.0.1:8310");
 const post = (body?: unknown): RequestInit => ({ method: "POST", body: body === undefined ? undefined : JSON.stringify(body) });
 
 export const missionApi = {
@@ -228,13 +234,13 @@ export const scienceApi = {
   analogs: (region: string, top = 8, target?: string) =>
     request<AnalogResult>(`${S}/analogs?region=${encodeURIComponent(region)}&top=${top}${target ? `&target=${target}` : ""}`),
   terrain3d: () => request<Terrain3D>(`${S}/jezero/terrain3d`),
-  demUrl: () => `${TILES}/jezero/dem/{z}/{x}/{y}.png`,
+  demUrl: () => `${tilesBase()}/jezero/dem/{z}/{x}/{y}.png`,
   model: () => request<Record<string, unknown>>(`${S}/model`),
   views: (x: number, y: number) => request<GroundViews>(`${S}/jezero/views?x=${x.toFixed(1)}&y=${y.toFixed(1)}`),
   clps: () => request<Clps>(`${S}/clps`),
   climate: (region: string) => request<Climate>(`${S}/earth/climate?region=${encodeURIComponent(region)}`),
   overlayUrl: (name: string) => `${S}/jezero/overlay/${name}.png`,
-  tileUrl: (key: string) => `${TILES}/tiles/${key}/{z}/{x}/{y}.png`,
+  tileUrl: (key: string) => `${tilesBase()}/tiles/${key}/{z}/{x}/{y}.png`,
 };
 
 export const MARS_RADIUS_M = 3396190;

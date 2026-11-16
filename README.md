@@ -2,8 +2,10 @@
 
 **NASA Space Apps Challenge 2026 · Interplanetary Survival Guide: Martian Map**
 
-**Try it in a browser:** <https://kkonnerharris.github.io/beyond-earth-labs/> — a shared copy of the 3D simulation (Mars and Earth) with the final
-presentation. Mission planning, the 1 m route check and the analog search need the services below.
+**Try it in a browser:** <https://kkonnerharris.github.io/beyond-earth-labs/> — the full application, running with no server behind it,
+with the 3D simulation and the final presentation. Its mission service is the same Go code compiled to
+WebAssembly; the science answers and map tiles are saved files. Only the 1 m route check and the rover
+camera frames need the services below, because they read NASA's servers live.
 
 A layered map of Jezero Crater for planning and carrying out a Marswalk. It combines data from five NASA
 missions, plans routes that respect slope and consumables, compares Martian terrain with test sites on
@@ -148,6 +150,7 @@ cd surface-world && ../.venv/Scripts/python -m pytest    # the 3D world: terrain
 python scripts/smoke_mission.py                           # end to end through the mission API
 node scripts/ui_check.cjs <screenshot folder>             # drives the interface in a headless browser
 node scripts/ui_world.cjs <screenshot folder>             # plans a mission and checks the 3D world shows the same plan
+node scripts/ui_pages.cjs <screenshot folder>             # drives the published copy with no services running
 ```
 
 See [docs/TESTS.md](docs/TESTS.md) for the latest results.
@@ -162,7 +165,7 @@ See [docs/TESTS.md](docs/TESTS.md) for the latest results.
 | `surface-world/` | The 3D world: FastAPI service and react-three-fiber scene of Jezero, linked to the mission |
 | `models/` | Trained head, its registry entry and the gate decision |
 | `experiments/runs/` | Every experiment run with its metrics and log |
-| `docs/index.html`, `docs/sim/` | The shared page and the static copy of the 3D simulation published with GitHub Pages (`python scripts/build_pages.py` rebuilds it) |
+| `docs/index.html`, `docs/app/`, `docs/sim/` | The copy published with GitHub Pages: the landing page, the full application (`python scripts/build_pages_app.py`) and the 3D simulation (`python scripts/build_pages.py`) |
 | `docs/` | The challenges behind the product, requirements, methods, data registry, model card, decisions, demo script, submission text |
 
 ## Documents

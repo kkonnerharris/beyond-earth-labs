@@ -19,3 +19,6 @@ data/tilecache/
 web/public/models/*.glb
 # The 3D world keeps its built interface (frontend/dist) in the repository so it runs without a build
 surface-world/frontend/node_modules
+# The static build of the web app before it is copied to docs/app, and its browser mission service
+web/out-static/
+web/public-static/

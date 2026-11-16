@@ -1,3 +1,4 @@
+import { BASE } from "@/lib/base";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PARTS } from "@/lib/parts";
@@ -11,7 +12,7 @@ function Shot({ file, alt, caption }: { file: string; alt: string; caption: stri
   return (
     <figure className="my-5 overflow-hidden rounded-lg border border-line-strong bg-panel">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`/guide/${file}`} alt={alt} loading="lazy" className="block w-full" />
+      <img src={`${BASE}/guide/${file}`} alt={alt} loading="lazy" className="block w-full" />
       <figcaption className="border-t border-line px-3.5 py-2 text-[12px] leading-snug text-muted">{caption}</figcaption>
     </figure>
   );

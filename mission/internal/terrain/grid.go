@@ -8,11 +8,11 @@
 package terrain
 
 import (
+	"bytes"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"math"
 	"os"
 	"path/filepath"
@@ -68,6 +68,16 @@ func Load(dir string) (*Grid, error) {
 	if err != nil {
 		return nil, fmt.Errorf("terrain metadata: %w", err)
 	}
+	bin, err := os.ReadFile(filepath.Join(dir, "terrain.bin"))
+	if err != nil {
+		return nil, fmt.Errorf("terrain layers: %w", err)
+	}
+	return FromBytes(raw, bin)
+}
+
+// FromBytes builds the grid from the contents of terrain.json and terrain.bin. The browser build of the
+// mission service is handed these two files by the page; the server build reads them from a folder.
+func FromBytes(raw, bin []byte) (*Grid, error) {
 	var m Meta
 	if err := json.Unmarshal(raw, &m); err != nil {
 		return nil, fmt.Errorf("terrain metadata: %w", err)
@@ -80,18 +90,14 @@ func Load(dir string) (*Grid, error) {
 	if !ok {
 		return nil, fmt.Errorf("terrain metadata: no reference radius for body %q", m.Body)
 	}
-	f, err := os.Open(filepath.Join(dir, "terrain.bin"))
-	if err != nil {
-		return nil, fmt.Errorf("terrain layers: %w", err)
-	}
-	defer f.Close()
 	g := &Grid{Meta: m, N: n, CellM: m.Grid.CellM, RadiusM: radius}
 	for _, l := range m.Layers {
 		buf := make([]float32, n*n)
-		if _, err := f.Seek(l.Offset, io.SeekStart); err != nil {
-			return nil, err
+		end := l.Offset + int64(4*n*n)
+		if l.Offset < 0 || end > int64(len(bin)) {
+			return nil, fmt.Errorf("terrain layer %s: the layer file is too short", l.Name)
 		}
-		if err := binary.Read(f, binary.LittleEndian, buf); err != nil {
+		if err := binary.Read(bytes.NewReader(bin[l.Offset:end]), binary.LittleEndian, buf); err != nil {
 			return nil, fmt.Errorf("terrain layer %s: %w", l.Name, err)
 		}
 		switch l.Name {

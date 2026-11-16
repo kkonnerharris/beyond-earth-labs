@@ -7,7 +7,7 @@ the bracketed items.
 **Project name:** Beyond Earth Labs
 **Team:** Konner Harris (solo developer)
 **Repository:** https://github.com/kkonnerharris/beyond-earth-labs
-**Shared demonstration:** https://kkonnerharris.github.io/beyond-earth-labs/ (the 3D simulation in a browser, and the final presentation)
+**Shared demonstration:** https://kkonnerharris.github.io/beyond-earth-labs/ (the full application and the 3D simulation running in a browser, and the final presentation)
 **Video:** [not recorded yet]
 
 ## High-level summary (about 100 words)

@@ -10,6 +10,7 @@
 
 import type { CustomLayerInterface, CustomRenderMethodInput, Map as MlMap } from "maplibre-gl";
 import * as THREE from "three";
+import { BASE } from "@/lib/base";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
@@ -59,11 +60,11 @@ function buildSixWheelRover(): THREE.Object3D {
 }
 export const MODELS: Record<ModelKey, Spec> = {
   // sizeM is the model's largest real dimension: length for vehicles, height for the suit.
-  perseverance: { url: "/models/perseverance.glb", sizeM: 3.0, screenPx: 112, headingOffset: Math.PI, upright: false, label: "NASA Perseverance model" },
-  sev: { url: "/models/sev.glb", sizeM: 4.5, screenPx: 124, headingOffset: Math.PI, upright: false, label: "NASA Space Exploration Vehicle concept model" },
+  perseverance: { url: `${BASE}/models/perseverance.glb`, sizeM: 3.0, screenPx: 112, headingOffset: Math.PI, upright: false, label: "NASA Perseverance model" },
+  sev: { url: `${BASE}/models/sev.glb`, sizeM: 4.5, screenPx: 124, headingOffset: Math.PI, upright: false, label: "NASA Space Exploration Vehicle concept model" },
   // The rover's own +x is forward, so it needs a quarter turn where the NASA files (forward along z) need a half turn.
   rover6: { url: "", sizeM: 3.4, screenPx: 124, headingOffset: Math.PI / 2, upright: false, label: "six-wheel rover model", build: buildSixWheelRover },
-  z2_suit: { url: "/models/z2_suit.glb", sizeM: 1.9, screenPx: 116, headingOffset: Math.PI, upright: true, label: "NASA Z-2 spacesuit model" },
+  z2_suit: { url: `${BASE}/models/z2_suit.glb`, sizeM: 1.9, screenPx: 116, headingOffset: Math.PI, upright: true, label: "NASA Z-2 spacesuit model" },
 };
 export const MODEL_FOR_MOVER: Record<string, ModelKey> = { scout: "perseverance", crew_rover: "rover6", astronaut: "z2_suit" };
 
@@ -79,7 +80,7 @@ export function createModelLayer(instances: { current: ModelInstance[] }, onLoad
 
   // Two of NASA's files are Draco-compressed; the decoder is served from /draco (copied from three.js).
   const draco = new DRACOLoader();
-  draco.setDecoderPath("/draco/");
+  draco.setDecoderPath(`${BASE}/draco/`);
   const gltfLoader = new GLTFLoader();
   gltfLoader.setDRACOLoader(draco);
 

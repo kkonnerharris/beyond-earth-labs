@@ -1,0 +1,4 @@
+:HL["/beyond-earth-labs/app/_next/static/chunks/1jimimzqu7tiq.css","style"]
+2:[["children",{"s":"__PAGE__","h":160}]]
+1:[["children",{"s":"/_not-found","h":96,"c":"$Q2"}]]
+0:{"b":"Pk1jfogDzzu1r_W3kyGeP","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

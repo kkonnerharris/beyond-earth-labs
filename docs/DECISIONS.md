@@ -247,6 +247,19 @@ Each entry records a choice, the measurement or fact behind it, and what it cost
 - One direction only. The 3D world never changes the mission; driving there does not advance the
   mission's simulation. Two-way state was left out as too much to test in the time.
 
+## D31. The whole product as plain files
+
+- GitHub Pages serves files and runs nothing. To share the product by link, the mission service is
+  compiled from the same Go code to WebAssembly (`mission/cmd/missiond/browser.go`) and run in the page,
+  answering through the same routes; the science service's answers, map tiles and globe images are saved
+  as files when the copy is built (`scripts/build_pages_app.py`, `web/lib/staticBackend.ts`).
+- Nothing is reimplemented for the copy: the planner, the supply checks and the simulation are the
+  server's own code, so the copy cannot drift from it.
+- Two things read NASA's servers live and cannot be saved ahead: the 1 m elevation check and the rover
+  camera frames. The copy refuses them with a plain message. Missions are not saved; they live in the page.
+- Colour map tiles are stored with a 256-colour palette and grey ones as 8-bit grey to keep the copy near
+  150 MB. Elevation tiles are numbers and are left untouched.
+
 ## D30. One rover, one look
 
 - The map's 3D and surface views drew the crew rover as NASA's Space Exploration Vehicle, while the 3D

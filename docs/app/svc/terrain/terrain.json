@@ -1,0 +1,274 @@
+{
+ "name": "Jezero Crater mission area",
+ "body": "mars",
+ "grid": {
+  "n": 480,
+  "cell_m": 20.0,
+  "size_m": 9600.0,
+  "lat0": 18.465,
+  "lon0": 77.385,
+  "projection": "+proj=laea +lat_0=18.465 +lon_0=77.385 +R=3396190.0 +units=m +no_defs",
+  "row0": "north",
+  "col0": "west",
+  "corners_lonlat_tl_tr_br_bl": [
+   [
+    77.299585,
+    18.54596
+   ],
+   [
+    77.470415,
+    18.54596
+   ],
+   [
+    77.470334,
+    18.384002
+   ],
+   [
+    77.299666,
+    18.384002
+   ]
+  ]
+ },
+ "layers": [
+  {
+   "name": "elevation_m",
+   "dtype": "float32-le",
+   "offset_bytes": 0
+  },
+  {
+   "name": "slope_deg",
+   "dtype": "float32-le",
+   "offset_bytes": 921600
+  },
+  {
+   "name": "roughness_m",
+   "dtype": "float32-le",
+   "offset_bytes": 1843200
+  }
+ ],
+ "units": {
+  "elevation_m": "metres above the MOLA areoid",
+  "slope_deg": "degrees over a 20 m baseline",
+  "roughness_m": "RMS height about the local plane in a 60 m window"
+ },
+ "elevation_source": {
+  "url": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
+  "title": "Mars 2020 Terrain Relative Navigation CTX DTM mosaic, 20 m",
+  "mission": "Mars Reconnaissance Orbiter",
+  "instrument": "Context Camera (CTX)",
+  "native_cell_m": 20.0,
+  "doi": "10.5066/P906QQT8",
+  "publisher": "USGS Astrogeology Science Center",
+  "local_copy": {
+   "file": "JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
+   "sha256": "16a1aa66c3f48c1bca252795827db7b417876217aff0f5e1aff18027fab2327b",
+   "note": "read from a local copy of the file at `url`"
+  },
+  "read": {
+   "source": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
+   "crs": "ESRI:103885",
+   "native_cell": 20.0,
+   "native_cell_m": 20.0,
+   "window": [
+    410,
+    517,
+    511,
+    484
+   ],
+   "read_shape": [
+    484,
+    511
+   ],
+   "decimation": 1.0,
+   "resampling": "bilinear",
+   "block_shapes": [
+    [
+     1,
+     1596
+    ]
+   ]
+  }
+ },
+ "statistics": {
+  "elevation_m": [
+   -2610.4,
+   -1787.3
+  ],
+  "slope_deg": {
+   "median": 3.54,
+   "p90": 11.71,
+   "max": 35.64
+  },
+  "roughness_m": {
+   "median": 0.063,
+   "p90": 0.366
+  }
+ },
+ "landing_site": {
+  "name": "Octavia E. Butler Landing",
+  "lat": 18.4447,
+  "lon": 77.4508,
+  "x": 3699.9,
+  "y": -1202.6,
+  "source": "NASA/JPL-Caltech"
+ },
+ "overlays": {
+  "hillshade": {
+   "file": "overlays/hillshade.png",
+   "kind": "illustrative shading of measured elevation"
+  },
+  "slope": {
+   "file": "overlays/slope.png",
+   "kind": "calculated",
+   "units": "degrees",
+   "ramp": [
+    {
+     "value": 0.0,
+     "rgb": [
+      26,
+      44,
+      66
+     ]
+    },
+    {
+     "value": 5.0,
+     "rgb": [
+      44,
+      123,
+      182
+     ]
+    },
+    {
+     "value": 10.0,
+     "rgb": [
+      171,
+      217,
+      233
+     ]
+    },
+    {
+     "value": 15.0,
+     "rgb": [
+      255,
+      255,
+      191
+     ]
+    },
+    {
+     "value": 20.0,
+     "rgb": [
+      253,
+      174,
+      97
+     ]
+    },
+    {
+     "value": 30.0,
+     "rgb": [
+      215,
+      25,
+      28
+     ]
+    }
+   ]
+  },
+  "thermal": {
+   "file": "overlays/thermal.png",
+   "kind": "NASA observation (relative brightness, not a temperature)",
+   "stretch_dn": [
+    38.3,
+    170.4
+   ],
+   "source": {
+    "url": "https://astrogeo-ard.s3.us-west-2.amazonaws.com/mars/mo/themis/controlled_mosaics/mc13_syrtis_major_dir/mc13_syrtis_major_dir.tif",
+    "title": "THEMIS daytime infrared controlled mosaic, MC-13 Syrtis Major, 100 m",
+    "mission": "2001 Mars Odyssey",
+    "instrument": "THEMIS",
+    "doi": "10.5066/P96FA04Z"
+   },
+   "ramp": [
+    {
+     "value": 0.0,
+     "rgb": [
+      12,
+      7,
+      40
+     ]
+    },
+    {
+     "value": 0.25,
+     "rgb": [
+      84,
+      15,
+      109
+     ]
+    },
+    {
+     "value": 0.5,
+     "rgb": [
+      187,
+      55,
+      84
+     ]
+    },
+    {
+     "value": 0.75,
+     "rgb": [
+      249,
+      142,
+      8
+     ]
+    },
+    {
+     "value": 1.0,
+     "rgb": [
+      252,
+      255,
+      164
+     ]
+    }
+   ]
+  }
+ },
+ "m2020": {
+  "traverse_segments": 366,
+  "waypoints": 464
+ },
+ "validation": {
+  "traverse_cells": 1444,
+  "slope_deg_on_traverse": {
+   "median": 3.02,
+   "p90": 8.56,
+   "p99": 14.6,
+   "max": 18.31
+  },
+  "slope_deg_whole_area": {
+   "median": 3.54,
+   "p90": 11.71,
+   "p99": 21.69,
+   "max": 35.64
+  },
+  "fraction_of_area_steeper_than": {
+   "10": 0.1373,
+   "15": 0.0538,
+   "20": 0.0168,
+   "25": 0.0021,
+   "30": 0.0001
+  },
+  "fraction_of_traverse_steeper_than": {
+   "10": 0.081,
+   "15": 0.0097,
+   "20": 0.0,
+   "25": 0.0,
+   "30": 0.0
+  },
+  "waypoint_elevation_minus_model_m": {
+   "n": 464,
+   "median": 1.0,
+   "median_abs_deviation": 1.84
+  },
+  "note": "Slope is measured at the grid's cell size; a rover-scale hazard (a rock, a ripple) smaller than one cell is invisible to it."
+ },
+ "built_utc": "2026-11-15T01:54:13+00:00",
+ "seconds": 5.2
+}

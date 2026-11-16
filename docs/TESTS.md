@@ -105,9 +105,12 @@ Run on 15 November 2026 (local time) on the build machine: Windows 10, 7.4 GB RA
 - The 3D simulation's Earth scene (the aerial photograph, the trees, the sky) and the simulation opened
   from the site's Mars and Earth buttons were checked by opening them in headless Edge and looking at
   the screenshots; they have no assertions of their own.
-- The shared copy for GitHub Pages (`docs/index.html`, `docs/sim/`, built by `scripts/build_pages.py`) was served
-  from a sub-path on a plain file server and opened in headless Edge: the landing page had no broken
-  pictures, and the Mars and Earth simulations loaded with no page errors or failed requests.
+- The copy published with GitHub Pages (`docs/`) is checked by `node scripts/ui_pages.cjs <folder>`, which serves it
+  from a sub-path on a plain file server with no services running and drives the full application:
+  **10 of 10 checks passed** (a mission created and a route planned by the mission service running in the
+  page, the supply check, an obstacle and its replan, the saved Earth analog ranking, the solar system
+  view, the 3D simulation inside the application, the guide's pictures), with no page errors. The 1 m
+  check and the rover camera frames are refused there with a message, and were not exercised.
 - The pitch deck (`docs/pitch/`) is checked by `scripts/pitch_pdf.cjs`, which reports missing pictures,
   fonts that did not load and any slide taller than its page; it printed five pages with none of those.
 - The 3D world's drawing (the route line, beacons, flyover camera) has no assertions; it was judged from
