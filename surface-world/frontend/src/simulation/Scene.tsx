@@ -1,3 +1,4 @@
+import { Environment } from '@react-three/drei'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Bloom, EffectComposer, N8AO, SMAA, ToneMapping, Vignette } from '@react-three/postprocessing'
 import { ToneMappingMode } from 'postprocessing'
@@ -158,19 +159,20 @@ export function Scene({ world, resetSignal, quality }: { world: World; resetSign
   const renderPaused = useUI((s) => s.renderPaused)
   const mission = useUI((s) => s.mission)
   const showMission = useUI((s) => s.showMission)
-  const [hx, hz] = world.habitat
   const showDest = dest && !(agent === 'rover' ? route : evaRoute)
   const earth = world.real?.planet === 'earth'
   PAL = earth ? EARTH : MARS
   const real = !!world.real?.surround   // real crater around the map replaces the illustrative horizon
+  // The camera starts behind the rover, above the ground wherever the ground is (Earth terrain sits far above zero).
   const k = Math.max(1, world.size / 600)   // scene scale: the sky, fog and horizon were tuned on a 600 m map
   return (
-    <Canvas frameloop={renderPaused ? 'never' : 'always'} shadows={{ type: THREE.PCFShadowMap }} flat={quality === 'high'} dpr={quality === 'high' ? [1, 1.5] : 1} camera={{ fov: 55, near: real ? 0.5 : 0.3, far: real ? 120_000 : 2500 * k, position: [hx - 10, 30, hz + 30] }}
+    <Canvas frameloop={renderPaused ? 'never' : 'always'} shadows={{ type: THREE.PCFShadowMap }} flat={quality === 'high'} dpr={quality === 'high' ? [1, 1.5] : 1} camera={{ fov: 55, near: real ? 0.5 : 0.3, far: real ? 120_000 : 2500 * k, position: [sim.rover.x - 12, sim.rover.y + 7.5, sim.rover.z + 1] }}
       gl={{ antialias: quality === 'high', powerPreference: 'high-performance' }}>
       <color attach="background" args={[PAL.horizon]} />
       <fog attach="fog" args={[PAL.horizon, 180 * k, 900 * k]} />
       <Atmosphere k={k} far={real ? 60_000 : 0} />
-      <Sky k={k} radius={real ? 100_000 : undefined} />
+      {/* Earth: the sky is a real photograph of a sky (Poly Haven, CC0; not taken at this site), and it also lights the scene. */}
+      {earth ? <Environment files="/textures/earth/sky.hdr" background environmentIntensity={0.6} /> : <Sky k={k} radius={real ? 100_000 : undefined} />}
       {real ? <Surroundings world={world} /> : !earth && <HorizonBackdrop k={k} />}
       <ambientLight intensity={0.12} />
       <Sun quality={quality} />

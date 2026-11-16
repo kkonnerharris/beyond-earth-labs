@@ -32,7 +32,7 @@ export function CameraRig({ world, resetSignal }: { world: World; resetSignal: n
   const dist = useRef({ rover: 12, astronaut: 8.5 })
   const orbit = useRef<any>(null)
   const target = useRef(new THREE.Vector3())
-  const look = useRef(new THREE.Vector3())
+  const look = useRef(new THREE.Vector3(sim.rover.x + 3, sim.rover.y + 1.5, sim.rover.z))   // start looking at the rover, not at the map's zero point
   const tmp = useRef(new THREE.Vector3())
 
   useEffect(() => {
@@ -124,9 +124,9 @@ export function CameraRig({ world, resetSignal }: { world: World; resetSignal: n
       const desired = tmp.current.set(e.x - Math.cos(e.heading) * back, e.y + up, e.z - Math.sin(e.heading) * back)
       const ground = world.heightAt(desired.x, desired.z) + 1.5
       if (desired.y < ground) desired.y = ground
-      camera.position.lerp(desired, 1 - Math.exp(-4 * dt))
+      camera.position.lerp(desired, 1 - Math.exp(-4 * Math.min(dtRaw, 0.3)))   // keeps up even at a low frame rate
       const lookH = mode === 'rover' ? 1.5 : 1.4
-      look.current.lerp(new THREE.Vector3(e.x + Math.cos(e.heading) * 3, e.y + lookH, e.z + Math.sin(e.heading) * 3), 1 - Math.exp(-8 * dt))
+      look.current.lerp(new THREE.Vector3(e.x + Math.cos(e.heading) * 3, e.y + lookH, e.z + Math.sin(e.heading) * 3), 1 - Math.exp(-8 * Math.min(dtRaw, 0.3)))
       camera.lookAt(look.current)
     } else if (mode === 'free') {
       const speed = (keys.has('ShiftLeft') || keys.has('ShiftRight') ? 70 : 22) * dt

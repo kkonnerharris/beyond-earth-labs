@@ -17,8 +17,9 @@ as its own service on port 8320.
   the astronaut; one planned for a rover opens on the rover. Both stand at the mission base.
 - **Earth too.** `?region=shawnee` runs the same rover and astronaut at Garden of the Gods, Illinois, on
   USGS elevation with a real aerial photograph on the ground (USDA NAIP, 18 August 2023, fetched by
-  `scripts/import_earth_photo.py`). Trees are stood up where the photograph shows canopy and take their
-  colour from it; their shapes are illustrative.
+  `scripts/import_earth_photo.py`). Trees are stood up where the photograph shows canopy and are painted
+  with the photograph itself; their shapes are illustrative. Close-up ground, leaf grain, bark and the sky
+  are CC0 photographs of real surfaces and a real sky (ambientCG, Poly Haven), not taken at the site.
 - Around that: keyboard driving, an astronaut on foot, five cameras, slope and thermal layers, and
   Perseverance's and Ingenuity's real paths.
 

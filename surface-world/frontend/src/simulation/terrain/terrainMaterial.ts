@@ -45,7 +45,7 @@ uniform sampler2D tReg; uniform sampler2D tRegN; uniform sampler2D tSand; unifor
 uniform sampler2D tOrtho; uniform float uSize;
 varying vec3 vSplat; varying vec3 vWPos; varying vec3 vWNrm;`)
       .replace('#include <map_fragment>', `
-vec2 uvTop = vWPos.xz / 9.0;
+vec2 uvTop = vWPos.xz / ${t.orthoRgb ? '3.2' : '9.0'};
 vec3 cReg = mix(texture2D(tReg, uvTop).rgb, texture2D(tReg, vWPos.xz / 41.0 + vec2(0.37, 0.71)).rgb, 0.35);
 vec3 cSand = texture2D(tSand, uvTop * 0.85).rgb;
 vec3 bw = pow(abs(normalize(vWNrm)), vec3(4.0)); bw /= (bw.x + bw.y + bw.z);
@@ -61,7 +61,13 @@ float fine = dot(texture2D(tReg, uvTop).rgb, vec3(0.333));
 float coarse = dot(texture2D(tReg, vWPos.xz / 41.0 + vec2(0.37, 0.71)).rgb, vec3(0.333));
 float grain = clamp(fine / max(coarse, 0.05), 0.6, 1.4);
 float cl = dot(cCliff, vec3(0.333)) / 0.45;
-diffuseColor.rgb *= ramp * mix(1.0, grain, 0.3) * mix(1.0, cl, w.z * 0.35) * 1.15;
+${t.orthoRgb ? `
+// Earth: near the camera the photo-scanned ground (moss, twigs, leaf litter) shows through in colour;
+// far away the aerial photograph stands alone.
+vec3 det = mix(texture2D(tReg, uvTop).rgb, texture2D(tReg, vWPos.xz / 19.0 + vec2(0.37, 0.71)).rgb, 0.35);
+float nearCam = 1.0 - smoothstep(22.0, 150.0, length(vViewPosition));
+diffuseColor.rgb *= ramp * mix(vec3(1.0), det / 0.30, 0.8 * nearCam) * mix(1.0, cl, w.z * 0.35) * 1.1;
+` : `diffuseColor.rgb *= ramp * mix(1.0, grain, 0.3) * mix(1.0, cl, w.z * 0.35) * 1.15;`}
 ` : `diffuseColor.rgb *= cReg * w.x + cSand * w.y + cCliff * w.z;`}
 `)
       .replace('#include <normal_fragment_maps>', `

@@ -57,7 +57,10 @@ For its Earth site (Garden of the Gods, Shawnee National Forest, Illinois) the 3
 elevation, NASADEM as a cross-check, and a real aerial photograph on the ground: USDA National
 Agriculture Imagery Program (NAIP), taken 18 August 2023, read from the public NAIP archive on the
 Microsoft Planetary Computer by `scripts/import_earth_photo.py`. NAIP and 3DEP are not NASA data. The
-trees standing on it are illustrative shapes placed where the photograph shows canopy.
+trees standing on it are illustrative shapes placed where the photograph shows canopy and painted with
+the photograph itself. Close-up ground, leaf grain and bark are photo-scanned CC0 textures from ambientCG
+(Ground037, Grass004, Bark012, Rock064), and the sky is a CC0 photograph of a real sky from Poly Haven
+(Kloofendal 48d partly cloudy, pure sky); none of these were taken at the site.
 
 `surface-world/data/` holds a 2 km square of Jezero prepared from the same NASA
 products: the HiRISE 1 m elevation model averaged to 5 m, the HiRISE orthoimage, an 80 km ring of CTX

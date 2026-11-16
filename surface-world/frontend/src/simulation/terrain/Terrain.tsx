@@ -66,30 +66,37 @@ export function useOptionalTexture(url: string, srgb = true): THREE.Texture | nu
   return tex
 }
 
-/** The real-terrain orthoimage: one texture over the whole map, clamped, mipmapped. */
-function useOrtho(url: string | null): THREE.Texture | null {
+const orthoCache = new Map<string, Promise<THREE.Texture | null>>()
+/** The real-terrain orthoimage: one texture over the whole map, clamped, mipmapped. Loaded once and shared (the trees use it too). */
+export function useOrtho(url: string | null): THREE.Texture | null {
   const [tex, setTex] = useState<THREE.Texture | null>(null)
   useEffect(() => {
     if (!url) { setTex(null); return }
     let alive = true
-    new THREE.TextureLoader().load(url, (t) => {
-      if (!alive) return
-      t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping
-      t.anisotropy = 8
-      t.colorSpace = THREE.SRGBColorSpace
-      setTex(t)
-    }, undefined, () => alive && setTex(null))
+    let p = orthoCache.get(url)
+    if (!p) {
+      p = new Promise((resolve) => new THREE.TextureLoader().load(url, (t) => {
+        t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping
+        t.anisotropy = 8
+        t.colorSpace = THREE.SRGBColorSpace
+        resolve(t)
+      }, undefined, () => resolve(null)))
+      orthoCache.set(url, p)
+    }
+    void p.then((t) => { if (alive) setTex(t) })
     return () => { alive = false }
   }, [url])
   return tex
 }
 
 export function Terrain({ world, layer, onPick }: { world: World; layer: Layer; onPick: (x: number, z: number, e: ThreeEvent<MouseEvent>) => void }) {
-  const regolith = useOptionalTexture('/textures/regolith.jpg')
-  const regolithN = useOptionalTexture('/textures/regolith_n.jpg', false)
-  const sand = useOptionalTexture('/textures/sand.jpg')
-  const sandN = useOptionalTexture('/textures/sand_n.jpg', false)
-  const cliff = useOptionalTexture('/textures/cliff.jpg')
+  // On Earth the close-up ground comes from photo-scanned textures of real forest floor, grass and rock.
+  const onEarth = world.real?.planet === 'earth'
+  const regolith = useOptionalTexture(onEarth ? '/textures/earth/ground.jpg' : '/textures/regolith.jpg')
+  const regolithN = useOptionalTexture(onEarth ? '/textures/earth/ground_n.jpg' : '/textures/regolith_n.jpg', false)
+  const sand = useOptionalTexture(onEarth ? '/textures/earth/grass.jpg' : '/textures/sand.jpg')
+  const sandN = useOptionalTexture(onEarth ? '/textures/earth/grass_n.jpg' : '/textures/sand_n.jpg', false)
+  const cliff = useOptionalTexture(onEarth ? '/textures/earth/rock.jpg' : '/textures/cliff.jpg')
   const ortho = useOrtho(world.real?.ortho ?? null)
   const orthoReady = !world.real || !!ortho
   const splatMat = useMemo(() => (regolith && regolithN && sand && sandN && cliff && orthoReady

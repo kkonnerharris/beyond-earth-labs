@@ -103,5 +103,37 @@
       "request_id": "9fdd6a05-c1b0-40d6-ab7c-07d839685cd1",
       "prompt": "Photoreal planetary surface photography in the style of a Mars rover camera, natural Martian lighting, butterscotch dusty atmosphere, iron-oxide red-orange and ochre regolith, basaltic dark grey rocks, sharp detail, neutral realistic colour. Photographic realism. NOT 3D render, NOT illustration. No text, no letters, no logos, no rovers, no people, no spacecraft, no sky in texture shots.\n\nSeamless ground texture: looking straight down at dark basaltic Martian dune sand with fine wind ripples running diagonally, a few lighter dust streaks, uniform across the frame, evenly lit, no horizon, no large features, no vignette."
     }
+  },
+  "photographs_not_of_the_site": {
+    "notice": "Photographs of real surfaces and a real sky used on the Earth site for close-up detail and lighting. CC0. Not taken at Garden of the Gods; never used for any calculation.",
+    "assets": [
+      {
+        "file": "frontend/public/textures/earth/ground.jpg",
+        "normal_map": "frontend/public/textures/earth/ground_n.jpg",
+        "source": "ambientCG Ground037 (1K)",
+        "licence": "CC0"
+      },
+      {
+        "file": "frontend/public/textures/earth/grass.jpg",
+        "normal_map": "frontend/public/textures/earth/grass_n.jpg",
+        "source": "ambientCG Grass004 (1K)",
+        "licence": "CC0"
+      },
+      {
+        "file": "frontend/public/textures/earth/bark.jpg",
+        "source": "ambientCG Bark012 (1K)",
+        "licence": "CC0"
+      },
+      {
+        "file": "frontend/public/textures/earth/rock.jpg",
+        "source": "ambientCG Rock064 (1K)",
+        "licence": "CC0"
+      },
+      {
+        "file": "frontend/public/textures/earth/sky.hdr",
+        "source": "Poly Haven, Kloofendal 48d Partly Cloudy (Pure Sky), 2K",
+        "licence": "CC0"
+      }
+    ]
   }
 }
