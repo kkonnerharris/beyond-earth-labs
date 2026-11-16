@@ -15,13 +15,13 @@ it is only looked at (by people or by the network), never used as a number.
 | THEMIS daytime infrared controlled mosaic | 2001 Mars Odyssey / THEMIS | 100 m | image | Network input for Mars cells; global thermal map layer | NASA Solar System Treks WMTS, layer `THEMIS_DayIR_ControlledMosaics_100m_v2_oct2018` | Edwards et al. (2011) JGR 116, E10008, doi:10.1029/2010JE003755 |
 | THEMIS daytime infrared, MC-13 Syrtis Major | 2001 Mars Odyssey / THEMIS | 100 m | image | Thermal layer of the mission area (relative brightness, not a temperature) | USGS Astrogeology cloud-optimised GeoTIFF | doi:10.5066/P96FA04Z |
 | Mars 2020 TRN CTX DTM mosaic, Jezero | Mars Reconnaissance Orbiter / CTX | 20 m | measurement | Elevation, slope and roughness of the mission area; all route planning | USGS Astrogeology; this build read a byte-identical local copy (SHA-256 in `terrain.json`) | doi:10.5066/P906QQT8 |
+| Mars 2020 TRN HiRISE DTM mosaic, Jezero | Mars Reconnaissance Orbiter / HiRISE | 1 m | measurement | Checking a planned route for steep ground the 20 m model cannot see, and moving the route off it; only the posts under a route are read | HTTP range reads of the uncompressed GeoTIFF at `asc-pds-services.s3.us-west-2.amazonaws.com`, cached in `data/cache/hirise/` | Fergason et al. (2020), doi:10.5066/P9REJ9JN |
 | CTX orthomosaic of Jezero | Mars Reconnaissance Orbiter / CTX | 6 m | image | Map imagery | NASA Treks WMTS, `JEZ_ctx_B_soc_008_orthoMosaic_6m_Eqc_latTs0_lon0` | USGS Astrogeology |
 | HiRISE orthomosaic of Jezero | Mars Reconnaissance Orbiter / HiRISE | 25 cm | image | Map imagery | NASA Treks WMTS, `JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd` | Fergason et al. (2020), doi:10.5066/P9QJDP48 |
 | Viking colour mosaic (MDIM 2.1) | Viking Orbiters 1 and 2 | 232 m | image | Global context basemap | NASA Treks WMTS, `Mars_Viking_MDIM21_ClrMosaic_global_232m` | USGS Astrogeology |
 | Perseverance traverse and waypoints | Mars 2020 | localised positions | measurement | Path overlay; validation of the elevation grid and the slope limit | `mars.nasa.gov/mmgis-maps/M20/Layers/json/` | NASA/JPL-Caltech |
 | Perseverance raw images, left navigation camera | Mars 2020 / Navcam | browse images | image | Ground views near a selected point | `mars.nasa.gov/rss/api/?feed=raw_images`, searched by sol | NASA/JPL-Caltech |
 | Mars Perseverance Rover, 3D Model (GLB, 11.7 MB) | NASA/JPL-Caltech | 3D model | image | The rover in the 3D view, at Perseverance's last published stop or as the scout rover; enlarged | `science.nasa.gov/resource/mars-perseverance-rover-3d-model/`; fetched by `scripts/fetch_nasa_models.py`, not stored in the repository | NASA/JPL-Caltech |
-| Space Exploration Vehicle, 3D model (GLB, 22 MB) | NASA 3D Resources | 3D model | image | The crew rover in the 3D view; enlarged. NASA's concept for a crewed surface rover, standing in for this project's assumed crew rover | `github.com/nasa/NASA-3D-Resources`; fetched by `scripts/fetch_nasa_models.py` | NASA |
 | Z2 Spacesuit, 3D model (GLB, 17 MB) | NASA 3D Resources | 3D model | image | The astronaut in the 3D view; enlarged | `github.com/nasa/NASA-3D-Resources`; fetched by `scripts/fetch_nasa_models.py` | NASA |
 | Surface radiation dose rate, 0.64 mSv per day | Mars Science Laboratory / RAD | one published value | measurement (published, not re-derived) | Crew radiation estimate | Entered from the paper, not downloaded; flagged for checking | Hassler et al. (2014) Science 343, 1244797 |
 
@@ -49,7 +49,14 @@ it is only looked at (by people or by the network), never used as a number.
 |---|---|
 | MOD13Q1 vegetation index, SMAP soil moisture | Earthdata login required; not needed for the result shown |
 | NASA Open Science Data Repository, Human Research Program data | No crew physiology is modelled from data. Human datasets carry access restrictions that were not approached |
-| HiRISE 1 m elevation model of Jezero | Available and tested as readable, but about 800 MB of transfer; the build machine was short of memory. Routes therefore use the 20 m CTX model |
+| HiRISE 1 m elevation model of Jezero, as the planning grid | The whole file is 1.8 GB; the build machine was short of memory. Routes are planned on the 20 m CTX model and then checked on the 1 m model, reading only the posts under the route (see the Mars table) |
+
+## The 3D world's own data
+
+`surface-world/data/` holds a 2 km square of Jezero prepared from the same NASA
+products: the HiRISE 1 m elevation model averaged to 5 m, the HiRISE orthoimage, an 80 km ring of CTX
+elevation and imagery, a THEMIS infrared tile, and Perseverance and Ingenuity positions from the Mars
+2020 localisation. Sources, DOIs and the read windows are in `surface-world/data/manifests/`.
 
 ## Things to know
 

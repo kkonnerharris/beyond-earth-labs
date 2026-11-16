@@ -22,7 +22,10 @@ simulation with emergencies and replanning.
    whether published literature supports it as an analog.
 3. **Routes.** A* over measured terrain for a robotic scout, a crew rover or an astronaut on foot, with
    slope limits, a caution weight, time or energy objectives and an elevation profile. Each target gets a
-   science activity from a list, and its time on site counts against consumables.
+   science activity from a list, and its time on site counts against consumables. A planned route can then
+   be **checked on NASA's 1 m HiRISE elevation model**: the 20 m plan cannot see a bank a few metres wide,
+   the 1 m model can. The check lists every stretch steeper than the mover's limit and, when asked, moves
+   the route off the steep ground it can avoid and says what it could not.
 4. **Crew safety.** A consumables check with reserves before departure, a standing rule during the
    traverse (the mover must always be able to get home with the reserve intact), and a radiation dose
    estimate from the rate Curiosity measured on the surface.
@@ -39,11 +42,19 @@ A training mode sets a task for each step and checks it against the live mission
 from the Sun today; Earth, the Moon and Mars carry NASA imagery and open their maps. "Surface view" drops
 to ground level behind your rover or astronaut and lets you drive by hand with W, A, S, D, under the same
 slope limits as a planned route. Zoomed out, each is a globe. At Jezero, "3D terrain" tilts the view and
-raises the surface from the measured elevation model, and every mover is a NASA 3D model: Perseverance
-for the scout rover, the Space Exploration Vehicle for the crew rover, and the Z-2 suit for the astronaut. The Moon view runs the same terrain comparison
+raises the surface from the measured elevation model, and every mover is a 3D model: the six-wheel
+crew rover, NASA's Perseverance model for the scout rover, and NASA's Z-2 suit for the astronaut. The Moon view runs the same terrain comparison
 on lunar regions and lists NASA's commercial lunar deliveries (CLPS) in NASA's own words. The Earth view
 turns the comparison around: pick a test site and see which Mars or Moon terrain it most resembles, with
 its NASA climate record. Missions, routes and the simulation are on Mars only.
+
+**The 3D world.** The "3D world" button opens the same mission in a full 3D scene of Jezero
+(`surface-world/`): 2 km of HiRISE terrain at 5 m around the landing site, inside 80 km of CTX terrain.
+It reads the plan from the mission service and draws it on the ground: every leg, a beacon at each
+target, and the stretches the 1 m check found too steep, in red. "Fly the route" takes the camera along
+the whole traverse; "Drive it" sends the rover down the mission's first leg on the 5 m terrain, steering
+round rocks the 20 m plan cannot see. The crew rover is the same six-wheel rover in both places: the
+vehicle a route is planned for in the map is the vehicle that drives it in the 3D world.
 
 A guide to every feature is built into the site at `/guide`.
 
@@ -117,16 +128,19 @@ powershell -ExecutionPolicy Bypass -File scripts/services.ps1 start
 # open http://localhost:4770
 ```
 
-On macOS or Linux start the three processes by hand: `mission/bin/missiond`, `uvicorn bel.api:app --port 8310`
-from `science/`, and `npm start` from `web/`.
+On macOS or Linux start the processes by hand: `mission/bin/missiond`, `uvicorn bel.api:app --port 8310`
+from `science/`, `uvicorn backend.api.main:app --port 8320` from `surface-world/` (the 3D world; its
+built interface is in the repository), and `npm start` from `web/`.
 
 ## Tests
 
 ```bash
 cd science && ../.venv/Scripts/python -m pytest          # terrain maths, grids, model machinery
 cd mission && go test ./...                               # projection, mobility, planner, life support, mission
+cd surface-world && ../.venv/Scripts/python -m pytest    # the 3D world: terrain, planner, the mission link
 python scripts/smoke_mission.py                           # end to end through the mission API
 node scripts/ui_check.cjs <screenshot folder>             # drives the interface in a headless browser
+node scripts/ui_world.cjs <screenshot folder>             # plans a mission and checks the 3D world shows the same plan
 ```
 
 See [docs/TESTS.md](docs/TESTS.md) for the latest results.
@@ -138,6 +152,7 @@ See [docs/TESTS.md](docs/TESTS.md) for the latest results.
 | `science/bel/` | Python: data readers, terrain measurements, dataset, features, model, experiments, registry, analog ranking, tiles, API |
 | `mission/` | Go: terrain grid, mobility models, A* planner, life support, mission state and simulation, HTTP API |
 | `web/` | Next.js + MapLibre interface |
+| `surface-world/` | The 3D world: FastAPI service and react-three-fiber scene of Jezero, linked to the mission |
 | `models/` | Trained head, its registry entry and the gate decision |
 | `experiments/runs/` | Every experiment run with its metrics and log |
 | `docs/` | The challenges behind the product, requirements, methods, data registry, model card, decisions, demo script, submission text |

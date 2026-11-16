@@ -34,7 +34,12 @@ size a habitat and greenhouse, run the traverse, and review what happened and wh
   a radiation dose estimate from the rate Curiosity measured on the surface.
 - *Point-of-view images:* click near Perseverance's path to see its navigation-camera frames from the
   nearest stop.
-- *A route that avoids obstacles:* A* on measured terrain, with keep-out areas and replanning.
+- *A route that avoids obstacles:* A* on measured terrain, with keep-out areas and replanning. The plan
+  is then checked on NASA's 1 m HiRISE elevation model, which finds steep banks the 20 m plan cannot see
+  and moves the route off the ones it can avoid.
+- *Seeing it before walking it:* the same plan opens in a 3D world of Jezero, where the route, the
+  targets and the steep stretches are drawn on the ground, the camera can fly the traverse, and a rover
+  drives its first leg on 5 m terrain.
 - *Robotic help:* a scout rover and a crew rover share the map with the walker.
 
 **How the pieces fit.** One mission passes through seven connected parts. The analog search picks the
@@ -59,8 +64,12 @@ independent yardstick. It was tested the hard way: trained on Earth and the Moon
 - For finding Earth terrain that physically matches a Mars cell, the trained embedding closes 52% of the
   gap between a random pick and the ideal one; the untrained encoder closes 17%.
 - Our 20 m elevation grid agrees with Perseverance's recorded elevation at 464 waypoints to a median of 1.0 m.
+- A route the 20 m plan rates at 17 degrees at its steepest crosses 258 m of ground steeper than 20
+  degrees on the 1 m model. Moving the route cuts that to 46 m; the rest cannot be avoided by a rover
+  that has to reach the top of the delta.
 
-**Limits.** Routes use 20 m cells and cannot see rocks or ripples. The network works at an 11 km scale
+**Limits.** Routes are planned on 20 m cells; the 1 m check sees banks and rims, not single rocks or ripples.
+The 3D world shows the mission but does not change it, and only 2 km around the landing site is detailed. The network works at an 11 km scale
 and is not used for routing. Crew health is modelled only as workload. Life-support and crop figures are
 assumptions, some still to be checked against NASA's baseline document. Nothing here is certified for
 operations.

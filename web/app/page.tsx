@@ -13,8 +13,8 @@ import { fmtDistance, fmtDuration } from "@/lib/geo";
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 const SpaceView = dynamic(() => import("@/components/SpaceView"), { ssr: false });
 
-// The optional 3D rover world runs as its own service (port 8320). It is not part of this repository,
-// so its button is shown only when that service answers.
+// The 3D world (surface-world/) runs as its own service on port 8320. It is handed the mission's id, reads
+// the same plan from the mission service and draws it. Its button is shown only when that service answers.
 const WORLD_URL = process.env.NEXT_PUBLIC_WORLD_URL ?? "http://127.0.0.1:8320";
 
 const STEPS = ["Region", "Analogs", "Route", "Crew", "Habitat", "Simulate", "Review"] as const;
@@ -70,6 +70,7 @@ export default function Workspace() {
   const [surface, setSurface] = useState(false);
   const [world, setWorld] = useState(false);          // the full 3D rover world (separate service)
   const [worldUp, setWorldUp] = useState(false);      // true once that optional service has answered
+  const [fineBusy, setFineBusy] = useState(false);    // the 1 m elevation check is reading NASA's file
   const [aim, setAim] = useState(0);
   const [dem, setDem] = useState<Terrain3D | null>(null);
   const [earthTarget, setEarthTarget] = useState<"mars" | "moon">("mars");
@@ -355,7 +356,7 @@ export default function Workspace() {
         </div>
         <span className="flex-1" />
         {mission && <span className="truncate text-[12px] text-muted">{mission.name}</span>}
-        {worldUp && <button className="btn btn-primary h-7" onClick={() => setWorld(true)} title="Drive a rover and walk an astronaut across Jezero in a full 3D world">3D world</button>}
+        {worldUp && <button className="btn btn-primary h-7" onClick={() => setWorld(true)} title="See this mission's route in a full 3D world of Jezero, and drive its first leg">3D world</button>}
         <button className={`btn h-7 ${space ? "border-mars text-mars-soft" : ""}`} aria-pressed={space} onClick={() => setSpace((v) => !v)}
                 title="See Earth, the Moon and Mars together">Space view</button>
         <a href="/guide" target="_blank" rel="noreferrer" className="text-[12px] text-muted underline-offset-4 hover:text-text hover:underline">Guide</a>
@@ -409,7 +410,8 @@ export default function Workspace() {
                 {step === 1 && <StepAnalogs result={region ? analogs[region.region] ?? null : null} loading={analogBusy} error={analogError}
                                             region={region} onRun={runAnalogs} modelReady={!!model} onOpen={openRegion} />}
                 {mission && step === 2 && <StepRoute mission={mission} profiles={profiles} placing={placing} setPlacing={setPlacing} busy={busy}
-                                                     goal={goal} setGoal={setGoal}
+                                                     goal={goal} setGoal={setGoal} fineBusy={fineBusy} onWorld={worldUp ? () => setWorld(true) : undefined}
+                                                     onFine={(avoid) => { setFineBusy(true); command(() => missionApi.fineCheck(mission.id, avoid)).finally(() => setFineBusy(false)); }}
                                                      onPlan={(mv, obj, risk) => { if (mv === "astronaut") setTriedFoot(true); command(() => missionApi.plan(mission.id, mv, obj, risk)); }}
                                                      onClear={() => command(() => missionApi.clearTargets(mission.id))} />}
                 {mission && step === 3 && <StepCrew mission={mission} reserves={reserves} />}
@@ -472,7 +474,9 @@ export default function Workspace() {
 
           {world && (
             <div className="fixed inset-x-0 bottom-0 top-12 z-50 bg-black" role="dialog" aria-label="3D rover world">
-              <iframe src={`${WORLD_URL}/?intro=0`} title="3D rover world of Jezero Crater" className="h-full w-full border-0" allow="fullscreen" />
+              <iframe key={`${mission?.id ?? "none"}-${mission?.plan?.revision ?? 0}-${mission?.fine_check?.revision ?? 0}`}
+                      src={`${WORLD_URL}/?intro=0${mission ? `&mission=${encodeURIComponent(mission.id)}` : ""}`}
+                      title="3D world of Jezero Crater showing this mission" className="h-full w-full border-0" allow="fullscreen" />
               <button className="btn absolute bottom-4 left-1/2 -translate-x-1/2 bg-panel/95" onClick={() => setWorld(false)}>Back to the mission map</button>
             </div>
           )}

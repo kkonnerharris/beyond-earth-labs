@@ -17,5 +17,5 @@ data/missions/
 data/tilecache/
 *.tsbuildinfo
 web/public/models/*.glb
-# The optional 3D rover world: earlier practice code, kept out of this repository
-surface-world/
+# The 3D world keeps its built interface (frontend/dist) in the repository so it runs without a build
+surface-world/frontend/node_modules

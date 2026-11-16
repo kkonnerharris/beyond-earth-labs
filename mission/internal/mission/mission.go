@@ -92,7 +92,8 @@ type Mission struct {
 	Overrides  map[string]float64 `json:"overrides"`
 	Habitat    lifesupport.Budget `json:"habitat"`
 	Events     []Event            `json:"events"`
-	Score      *Score             `json:"score"` // nil until the traverse has ended
+	Score      *Score             `json:"score"`      // nil until the traverse has ended
+	FineCheck  *FineCheck         `json:"fine_check"` // the current plan measured on the 1 m elevation model, or nil
 	Disclaimer string             `json:"disclaimer"`
 
 	profile mobility.Profile // the mover as currently degraded by emergencies
@@ -105,6 +106,10 @@ const disclaimer = "Simulation and planning aid built for a hackathon. Routes, t
 type Engine struct {
 	Grid *terrain.Grid
 	Now  func() time.Time
+	Fine FineChecker // measures a route on the 1 m elevation model; nil when the science service is not connected
+	// FineCells measures whole cells on the 1 m model, to find a way round steep ground; nil leaves only
+	// the cell under each steep stretch kept out.
+	FineCells FineSurveyor
 }
 
 func (e *Engine) site(id, name, kind string, x, y float64) (Site, error) {
@@ -166,6 +171,9 @@ func (e *Engine) SetMover(m *Mission, mover string, obj planner.Objective, risk 
 	if m.Sim.Phase != PhaseIdle {
 		return errors.New("the mover cannot be changed while the simulation is running; reset it first")
 	}
+	if mover != m.Mover {
+		m.dropFineHazards() // keep-outs from the 1 m check were for the other mover's slope limit
+	}
 	m.Mover, m.profile = mover, p
 	if obj == planner.Fastest || obj == planner.LeastEnergy {
 		m.Objective = obj
@@ -206,6 +214,8 @@ func (e *Engine) ClearTargets(m *Mission) error {
 	}
 	m.Targets = []Site{}
 	m.Plan = nil
+	m.FineCheck = nil
+	m.dropFineHazards()
 	m.Sim = newSim(m)
 	m.log("plan", "All targets removed.")
 	e.refreshHabitat(m)
@@ -281,6 +291,7 @@ func (m *Mission) summarise(legs []*planner.Route, dwellSeconds float64, reason 
 
 // Replan plans the whole traverse from the base. It is used before the simulation starts.
 func (e *Engine) Replan(m *Mission, reason string) error {
+	m.FineCheck = nil // a new plan has not been measured on the 1 m model yet
 	if len(m.Targets) == 0 {
 		m.Plan = nil
 		e.refreshHabitat(m)

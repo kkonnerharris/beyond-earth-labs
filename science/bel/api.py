@@ -20,6 +20,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from pydantic import BaseModel, Field
 
 from . import DATA_DIR, EXPERIMENTS_DIR, MODELS_DIR, __version__, terrain, tiles
 from .analog import Gallery, rank_region
@@ -75,7 +76,11 @@ def jezero_terrain() -> dict:
     p = JEZERO / "terrain.json"
     if not p.exists():
         raise HTTPException(503, "the Jezero mission area has not been built (python -m bel.jezero build)")
-    return json.loads(p.read_text(encoding="utf-8"))
+    out = json.loads(p.read_text(encoding="utf-8"))
+    fine = JEZERO / "finecheck.json"       # the 1 m measure along Perseverance's path (python -m bel.hirise validate)
+    if fine.exists():
+        out["validation_1m"] = json.loads(fine.read_text(encoding="utf-8"))
+    return out
 
 
 @app.get("/jezero/overlay/{name}.png")
@@ -105,6 +110,57 @@ def jezero_views(x: float, y: float, limit: int = 3) -> dict:
         return views.near(x, y, max(1, min(limit, 6)))
     except Exception as exc:  # noqa: BLE001 - reported, never replaced with placeholder images
         raise HTTPException(502, f"The Mars 2020 image feed did not answer: {exc!r}"[:300]) from exc
+
+
+class FineRequest(BaseModel):
+    points: list[list[float]] = Field(min_length=2, max_length=20000)
+    limit_deg: float = Field(gt=0, lt=90)
+
+
+@app.post("/jezero/finecheck")
+def jezero_finecheck(req: FineRequest) -> dict:
+    """Measure a route (local metres) on NASA's 1 m HiRISE elevation model."""
+    from . import hirise
+
+    half = hirise.AREA["size_m"] / 2.0
+    if any(len(p) < 2 or abs(p[0]) > half or abs(p[1]) > half for p in req.points):
+        raise HTTPException(400, "every point needs x and y inside the mission area")
+    try:
+        return hirise.check(req.points, req.limit_deg)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from None
+    except Exception as exc:  # noqa: BLE001 - reported; the 20 m plan stands and is not marked as checked
+        raise HTTPException(502, f"NASA's 1 m elevation file did not load: {exc!r}"[:300]) from exc
+
+
+class FineCellsRequest(BaseModel):
+    cells: list[list[float]] = Field(min_length=1, max_length=6000)
+    cell_m: float = Field(ge=5, le=100)
+    limit_deg: float = Field(gt=0, lt=90)
+
+
+@app.post("/jezero/finecells")
+def jezero_finecells(req: FineCellsRequest) -> dict:
+    """Measure whole planner cells on the 1 m elevation model (how much of each is steeper than a limit)."""
+    from . import hirise
+
+    half = hirise.AREA["size_m"] / 2.0
+    if any(len(p) < 2 or abs(p[0]) > half or abs(p[1]) > half for p in req.cells):
+        raise HTTPException(400, "every cell needs x and y inside the mission area")
+    try:
+        return hirise.survey(req.cells, req.cell_m, req.limit_deg)
+    except Exception as exc:  # noqa: BLE001 - reported; the route is left as it was
+        raise HTTPException(502, f"NASA's 1 m elevation file did not load: {exc!r}"[:300]) from exc
+
+
+@app.get("/jezero/finecheck/reference")
+def jezero_finecheck_reference() -> dict:
+    """The same 1 m measure along the path Perseverance drove (python -m bel.hirise validate)."""
+    from . import hirise
+
+    if not hirise.OUT.exists():
+        raise HTTPException(503, "the 1 m check has not been run on Perseverance's path yet")
+    return json.loads(hirise.OUT.read_text(encoding="utf-8"))
 
 
 @app.get("/globe/{body}.jpg")

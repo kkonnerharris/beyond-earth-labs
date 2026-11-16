@@ -2,13 +2,13 @@
 
     python scripts/fetch_nasa_models.py
 
-The files (about 50 MB together) are not stored in the repository. Without
-them the map still works and shows movers as flat icons.
+The files (about 30 MB together) are not stored in the repository. Without
+them the map still works and shows those movers as flat icons. The crew rover needs no file:
+its six-wheel model is built in the browser.
 
 Sources and credits:
   perseverance.glb  NASA Science, "Mars Perseverance Rover, 3D Model"
                     https://science.nasa.gov/resource/mars-perseverance-rover-3d-model/  (NASA/JPL-Caltech)
-  sev.glb           NASA 3D Resources, "Space Exploration Vehicle" (NASA's crewed surface rover concept)
   z2_suit.glb       NASA 3D Resources, "Z2 Spacesuit" (NASA's prototype planetary surface suit)
                     https://github.com/nasa/NASA-3D-Resources
 """
@@ -19,7 +19,6 @@ import urllib.request
 REPO = "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/3D Models/"
 MODELS = {
     "perseverance.glb": "https://assets.science.nasa.gov/content/dam/science/psd/mars/resources/gltf_files/25042_Perseverance.glb",
-    "sev.glb": REPO + "Space Exploration Vehicle/Space Exploration Vehicle.glb",
     "z2_suit.glb": REPO + "Z2 Spacesuit/Z2 Spacesuit.glb",
 }
 

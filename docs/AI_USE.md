@@ -12,8 +12,8 @@ Max subscription, working from my written project brief. I used it for three thi
   check them (`scripts/`), and the set of documents in `docs/`.
 - **Choosing which data to use.** It researched the official challenge statement, recommended which NASA
   dataset to use for each job, and tested each data endpoint before the code relied on it. For example,
-  it recommended the 20 m CTX elevation model for routes because the 1 m HiRISE model was too large for
-  the build machine, NASA Solar System Treks tiles for map imagery, and Landsat HLS through a public
+  it recommended the 20 m CTX elevation model for planning routes because the 1 m HiRISE model was too
+  large for the build machine (the 1 m model is now read only under a planned route, to check it), NASA Solar System Treks tiles for map imagery, and Landsat HLS through a public
   mirror because the home archive needs a login. The choices, and the datasets that were considered and
   not used, are recorded in [DATA.md](DATA.md).
 - **Coding help.** I used it as a coding assistant on the code, the tests and the documentation,

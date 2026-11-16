@@ -7,6 +7,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -338,6 +339,17 @@ func (s *server) routes() http.Handler {
 		})
 	})
 
+	mux.HandleFunc("POST /api/missions/{id}/finecheck", func(w http.ResponseWriter, r *http.Request) {
+		var req struct {
+			Avoid bool `json:"avoid"`
+		}
+		if err := decode(r, &req); err != nil {
+			fail(w, 400, err)
+			return
+		}
+		s.with(w, r, func(m *mission.Mission) error { return s.engine.CheckFine(m, req.Avoid) })
+	})
+
 	mux.HandleFunc("POST /api/missions/{id}/habitat", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Crew       int                `json:"crew"`
@@ -410,10 +422,72 @@ func cors(next http.Handler) http.Handler {
 	})
 }
 
+// scienceClient calls the science service, which reads NASA's 1 m HiRISE elevation model.
+type scienceClient struct {
+	base string
+	http *http.Client
+}
+
+func newScienceClient(url string) *scienceClient {
+	// A first read downloads the elevation under the route, so the timeout is long.
+	return &scienceClient{base: strings.TrimRight(url, "/"), http: &http.Client{Timeout: 8 * time.Minute}}
+}
+
+func (c *scienceClient) post(path string, in, out any) error {
+	body, err := json.Marshal(in)
+	if err != nil {
+		return err
+	}
+	resp, err := c.http.Post(c.base+path, "application/json", bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("the science service did not answer: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		var e struct {
+			Detail any `json:"detail"`
+		}
+		_ = json.NewDecoder(resp.Body).Decode(&e)
+		return fmt.Errorf("science service: %v (HTTP %d)", e.Detail, resp.StatusCode)
+	}
+	if err := json.NewDecoder(resp.Body).Decode(out); err != nil {
+		return fmt.Errorf("science service reply: %w", err)
+	}
+	return nil
+}
+
+// checkRoute measures a route on the 1 m elevation model.
+func (c *scienceClient) checkRoute(points [][2]float64, limitDeg float64) (*mission.FineCheck, error) {
+	var out mission.FineCheck
+	if err := c.post("/jezero/finecheck", map[string]any{"points": points, "limit_deg": limitDeg}, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// surveyCells measures whole planner cells on the 1 m elevation model.
+func (c *scienceClient) surveyCells(cells [][2]float64, cellM, limitDeg float64) ([]mission.FineCell, error) {
+	var out struct {
+		Cells []mission.FineCell `json:"cells"`
+	}
+	const batch = 4000 // the science service accepts up to 6000 cells in one request
+	var all []mission.FineCell
+	for i := 0; i < len(cells); i += batch {
+		j := min(i+batch, len(cells))
+		out.Cells = nil
+		if err := c.post("/jezero/finecells", map[string]any{"cells": cells[i:j], "cell_m": cellM, "limit_deg": limitDeg}, &out); err != nil {
+			return nil, err
+		}
+		all = append(all, out.Cells...)
+	}
+	return all, nil
+}
+
 func main() {
 	terrainDir := flag.String("terrain", filepath.Join("..", "data", "jezero"), "folder with terrain.json and terrain.bin")
 	storeDir := flag.String("store", filepath.Join("..", "data", "missions"), "folder where missions are saved (empty to disable)")
 	addr := flag.String("addr", "127.0.0.1:8300", "listen address")
+	science := flag.String("science", "http://127.0.0.1:8310", "science service, which reads the 1 m elevation model (empty to disable)")
 	flag.Parse()
 
 	grid, err := terrain.Load(*terrainDir)
@@ -426,6 +500,10 @@ func main() {
 		}
 	}
 	s := &server{engine: &mission.Engine{Grid: grid}, missions: map[string]*mission.Mission{}, storeDir: *storeDir}
+	if *science != "" {
+		sc := newScienceClient(*science)
+		s.engine.Fine, s.engine.FineCells = sc.checkRoute, sc.surveyCells
+	}
 	log.Printf("terrain: %s, %d x %d cells of %.0f m", grid.Meta.Name, grid.N, grid.N, grid.CellM)
 	log.Printf("mission service listening on http://%s", *addr)
 	srv := &http.Server{Addr: *addr, Handler: s.routes(), ReadHeaderTimeout: 10 * time.Second}

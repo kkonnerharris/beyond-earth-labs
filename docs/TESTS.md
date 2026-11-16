@@ -4,10 +4,12 @@ Run on 15 November 2026 (local time) on the build machine: Windows 10, 7.4 GB RA
 
 | Suite | Command | Result |
 |---|---|---|
-| Science unit tests | `cd science && python -m pytest` | **22 passed** |
-| Mission service unit tests | `cd mission && go test ./...` | **37 passed** in 5 packages |
-| Mission API end to end | `python scripts/smoke_mission.py` | **14 of 14 checks passed** |
-| Interface walkthrough | `node scripts/ui_check.cjs <folder>` (headless Edge) | 22 screens captured, including 3D terrain, the three globes, the links between worlds, training mode and the guide page; **no console errors, failed requests or HTTP errors** |
+| Science unit tests | `cd science && python -m pytest` | **31 passed** |
+| Mission service unit tests | `cd mission && go test ./...` | **45 passed** in 5 packages |
+| 3D world unit tests | `cd surface-world && python -m pytest` | **35 passed** (9 of them on the link to the mission) |
+| Mission API end to end | `python scripts/smoke_mission.py` | **19 of 19 checks passed**, including the 1 m check on the live NASA file |
+| Mission to 3D world | `node scripts/ui_world.cjs <folder>` (headless Edge) | **8 of 8 checks passed**: the 3D world reports the same mission, plan revision, route length (7,632 m both), legs, targets and 1 m result as the mission service; the first leg is drivable on 5 m terrain; five screens saved; no page or HTTP errors |
+| Interface walkthrough | `node scripts/ui_check.cjs <folder>` (headless Edge) | 24 screens captured, including the 1 m check and the route moved off steep ground, 3D terrain, the three globes, the links between worlds, training mode and the guide page; **no console errors, failed requests or HTTP errors** |
 | Space view, 3D models, hand driving | `node scripts/ui_models.cjs <folder>` (headless Edge) | Solar system view, and each mover's NASA model in 3D and in the surface view after driving by keyboard; no console or HTTP errors |
 | Type check and production build | `tsc --noEmit`, `next build` | clean |
 | `go vet`, `gofmt` | | clean |
@@ -22,6 +24,11 @@ Run on 15 November 2026 (local time) on the build machine: Windows 10, 7.4 GB RA
   distance, save and load round-trip, the CORAL term runs.
 - The standardiser is fitted on training cells only.
 - Classical features are finite and respond to texture; normalisation removes a sensor's brightness scale.
+
+- The 1 m measure: a plane fit recovers a known tilt and uses the true east-west post spacing, roughness
+  is height about the plane and not the tilt, a missing post gives no value, a route is sampled every
+  metre, short gaps between steep stretches are joined and single posts ignored, and on made-up ground a
+  bank is flagged where it is and not for a mover with a higher limit.
 
 **Mission (`mission/internal/...`)**
 - The Go map projection matches PROJ at the four corners of the real Jezero grid to under 12 cm, and the
@@ -39,16 +46,33 @@ Run on 15 November 2026 (local time) on the build machine: Windows 10, 7.4 GB RA
   traverse. Reset restores the mission. A nominal traverse scores 100; an early turn-back scores no
   science and full safety; there is no score before the traverse ends. The health monitor tracks
   workload, raises no alert on a nominal walk, flags the injected fault, and does not monitor the scout.
+- The 1 m check refuses to run without the science service or a route; a clean route changes nothing; a
+  report-only check never moves the route; with avoidance the route is replanned off a steep spot and the
+  detour is longer and still feasible; a steep stretch at a target is reported, not avoided; a long bank
+  is followed to its gap; a target ringed by steep ground is still reached, the avoidable spot is
+  avoided, and the summary says why steep ground remains; keep-outs from the 1 m model survive a reset
+  but not a change of mover.
 - Life-support needs scale with crew, the oxygen balance closes, a greenhouse adds load and water and
   reduces shipped food, insolation falls with latitude, and radiation dose scales with stay length and
   dose rate and is not applied to the Moon.
 - The walkthrough clicks a point on Perseverance's path and waits for the terrain values and rover images;
   it also opens a CLPS delivery and waits for its Earth analog ranking.
+- The walkthrough runs the 1 m check on a planned route, waits for its result, asks for the route to be
+  moved and waits for the new summary (added 15 November).
 - The walkthrough also covers the links that join the parts (added 15 November): it picks a 45-minute
   science activity and waits for it on the target, moves from Crew to Habitat with the footer's Continue
   button, waits for the crew monitor in the Simulate step, opens the "How the parts worked together" list,
   opens a Mars match from the Earth view and waits for the Region step's note, opens the habitat's field
   site on the Earth map, returns to Mars, and turns training mode on.
+
+**3D world (`surface-world/backend/tests/`)**
+- The mission's base lands on the world's landing site; a target west of the 2 km map is marked outside;
+  the route is densified to 5 m and split into the part inside the map and the part beyond it; steep
+  stretches mark route points only when the 1 m check belongs to the current plan revision; a keep-out
+  placed by its offset from the base agrees with its longitude and latitude to under 5 m; a mission with
+  no plan has no legs; a missing mission service gives a clear 404.
+- The drive of the first leg joins the 5 m planner's pieces with no gap, keeps hazard indices valid, stays
+  inside the map, and refuses a mission without a plan.
 
 ## What is not tested
 
@@ -75,6 +99,9 @@ Run on 15 November 2026 (local time) on the build machine: Windows 10, 7.4 GB RA
   its picture were then fetched and returned HTTP 200, and the walkthrough was not rerun.
 - The pitch deck (`docs/pitch/`) is checked by `scripts/pitch_pdf.cjs`, which reports missing pictures,
   fonts that did not load and any slide taller than its page; it printed five pages with none of those.
+- The 3D world's drawing (the route line, beacons, flyover camera) has no assertions; it was judged from
+  the five screenshots. Headless software rendering runs it at one or two frames a second, so the flyover
+  and the drive were seen to start, not to finish.
 - Nothing was tested on macOS or Linux.
 
 ## Notes

@@ -127,9 +127,8 @@ do when the plan breaks. Thank you."
 - Check the six challenge titles on slide 2 against the official challenge list. Only the Martian Map
   and Space Mission Design Game titles were confirmed on the site; the other four come from the brief.
 - Slide 5 shows the 3D world with every overlay hidden. Its terrain shape comes from NASA HiRISE
-  elevation; the rover model and the ground textures are illustrative. That 3D world is earlier
-  practice code. It is kept out of the public repository and the submission, so be ready to say
-  that if a judge asks where it is.
+  elevation; the rover model and the ground textures are illustrative. The 3D world is in the
+  repository under `surface-world/` and opens from the main map on the mission being planned.
 
 ## About the pictures
 

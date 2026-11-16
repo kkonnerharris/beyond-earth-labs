@@ -181,8 +181,7 @@ Each entry records a choice, the measurement or fact behind it, and what it cost
 
 ## D25. Surface view and hand driving
 
-- A ground-level chase camera behind the mover, like the practice project's rover view, rebuilt here
-  with the map's own 3D terrain and NASA's models. No code was copied from the practice project.
+- A ground-level chase camera behind the mover, built on the map's own 3D terrain and 3D models.
 - Hand driving is a command to the mission service (`sim/drive`): the browser sends a heading and a
   distance, and the service applies the same mobility model, slope limits and consumables as a planned
   route, then reports the way home. The browser never moves the mover itself.
@@ -218,5 +217,42 @@ Each entry records a choice, the measurement or fact behind it, and what it cost
 - The crew monitor's main readings are repeated in the Simulate step, because that is where the user is
   when an injected health fault raises the alert.
 - The best score of a session is kept in the browser only. It is not mission state and is not saved.
-- Not done: the "3D world" has its own state and does not join this thread. It is earlier practice code
-  and is not part of this repository; the interface shows its button only when that service is running.
+- At the time of this decision the "3D world" had its own state and did not join this thread. D29 changes that.
+
+## D28. Plan at 20 m, check at 1 m
+
+- The 1 m HiRISE elevation model was first set aside because the whole file (1.8 GB) does not fit the
+  build machine. It is uncompressed, so any post is at a known byte offset: a route can be checked by
+  reading only the posts under it. Planning stays on the 20 m grid; the 1 m model is the second opinion.
+- The check never changes a route unless asked. When asked, it keeps the route out of whole 20 m cells
+  that have steep ground in them (eight or more 1 m points, 2% of the cell), replans and measures again.
+- First version: if keeping out of all the steep ground left no route, it gave up and changed nothing.
+  The end-to-end check caught this on the demonstration route, where the delta top can only be reached
+  across the scarp. Now the stretches are taken one at a time, worst first, and the result states what
+  could not be avoided. On that route: 258 m over the limit before, 46 m after.
+- Not claimed: a route that is "clear" at 1 m is clear of banks and rims a few metres across, not of rocks.
+
+## D29. The 3D world joins the mission
+
+- The 3D world in `surface-world/` was a separate scene with its own routes. It now reads the mission
+  from the mission service (`backend/api/mission_link.py`) and draws that plan: legs, targets, keep-outs
+  and the 1 m result. Positions are converted from longitude and latitude, not from either map's grid.
+- Its detailed terrain is 2 km across; a traverse to the delta is longer. Inside the 2 km the route lies
+  on 5 m HiRISE terrain; beyond it the route is drawn on the 80 km CTX backdrop, on the same triangles
+  the backdrop is drawn with, so the line sits on the ground. The panel says how much of the route is in
+  each.
+- "Drive it" does not replay the 20 m line blindly: the world's own 5 m planner is asked to reach a
+  point on the mission line every 120 m, so the rover steers round rocks and steep 5 m cells. On the
+  demonstration route the driven line stays a median 2.6 m from the mission line (20 m at most).
+- One direction only. The 3D world never changes the mission; driving there does not advance the
+  mission's simulation. Two-way state was left out as too much to test in the time.
+
+## D30. One rover, one look
+
+- The map's 3D and surface views drew the crew rover as NASA's Space Exploration Vehicle, while the 3D
+  world drove a six-wheel rover: two vehicles for one mover. The crew rover is now the six-wheel rover in
+  both (`web/components/roverModel.ts` builds it from the same shapes and sizes as
+  `surface-world/frontend/src/simulation/rover/Rover.tsx`). The scout is still NASA's Perseverance model
+  and the astronaut NASA's Z-2 suit. This supersedes the crew rover line of D22.
+- The 3D world now uses the map's type (IBM Plex) and palette: Mars orange for the primary action and the
+  mission route, the same teal for the driven line, the same panel colours.

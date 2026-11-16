@@ -167,6 +167,11 @@ export function StepReview({ mission, model, region, parts, best }: {
               <Stat label={`${r.name} left`} value={`${((s.remaining / Math.max(s.capacity, 1e-9)) * 100).toFixed(0)}%`} />
               <Stat label="Replans" value={s.replans} />
             </Grid>
+            <p className="mt-2.5 text-[12px] leading-snug text-muted">
+              {mission.fine_check && p && mission.fine_check.revision === p.revision
+                ? <>1 m check: {mission.fine_check.summary}</>
+                : <>This plan was not checked against NASA&apos;s 1 m elevation model (Route step).</>}
+            </p>
             {decisions.length > 0 && (
               <ol className="mt-3 flex flex-col gap-1.5 border-t border-line pt-2.5">
                 {decisions.map((e, i) => (
@@ -195,7 +200,7 @@ export function StepReview({ mission, model, region, parts, best }: {
 
       <Section title="Limits of this build">
         <ul className="flex list-disc flex-col gap-1.5 pl-4 text-[12px] leading-snug text-muted">
-          <li>Routes are planned on 20 m elevation cells. Rocks, ripples and sand smaller than a cell are invisible to the planner.</li>
+          <li>Routes are planned on 20 m elevation cells and can then be checked on NASA&apos;s 1 m elevation model, which shows banks and scarps a few metres across. Individual rocks, ripples and loose sand are invisible to both.</li>
           <li>The terrain model works at an 11 km regional scale. It does not assess metre-scale hazards and is not used for route costs.</li>
           <li>Mars cells are thermal-infrared images; Earth and Moon cells are visible light.</li>
           <li>Rover, suit, life-support and crop numbers are assumptions; several were entered from memory of NASA documents and are flagged for checking.</li>

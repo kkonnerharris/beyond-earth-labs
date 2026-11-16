@@ -94,10 +94,13 @@ Review step. The list of parts shown there and in the built-in guide comes from 
   (Perseverance's path and navigation-camera images).
 - **Code.** `web/components/MapView.tsx`, `science/bel/{jezero,tiles,terrain3d,views}.py`,
   `mission/internal/{terrain,mobility,planner,mission}`.
-- **Left out.** Routes use 20 m cells and cannot see rocks or ripples. No radiation map layer and no
-  space-weather feed. Science targets are placed by the user, not suggested from mineral data. The
-  separate "3D world" is earlier practice code with its own state. It is not part of this repository
-  or the submission; its button appears in the interface only when that service is running.
+- **Checked at 1 m, seen in 3D.** A planned route can be measured on NASA's 1 m HiRISE elevation model
+  and moved off the steep ground it finds. The "3D world" (`surface-world/`) opens the same mission in a
+  full 3D scene, draws the plan and the 1 m result on the ground, flies the route and drives its first
+  leg on 5 m terrain.
+- **Left out.** Routes are planned on 20 m cells; the 1 m check sees banks and rims but not single rocks
+  or ripples. No radiation map layer and no space-weather feed. Science targets are placed by the user,
+  not suggested from mineral data. The 3D world reads the mission and does not write back to it.
 
 ### 2. Identify Earth Locations That Analog Moon and Mars
 

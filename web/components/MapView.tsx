@@ -140,7 +140,7 @@ export default function MapView(p: Props) {
     map.on("load", () => {
       map.addImage("rover", roverIcon(), { pixelRatio: 2 });
       map.addImage("walker", walkerIcon(), { pixelRatio: 2 });
-      for (const id of ["m2020", "plan", "active", "track", "hazards", "mover", "area"]) {
+      for (const id of ["m2020", "plan", "active", "track", "hazards", "fine", "mover", "area"]) {
         map.addSource(id, { type: "geojson", data: EMPTY });
       }
       map.addLayer({ id: "area", type: "line", source: "area",
@@ -157,6 +157,9 @@ export default function MapView(p: Props) {
                      paint: { "line-color": "#e2733c", "line-width": 3 } });
       map.addLayer({ id: "track", type: "line", source: "track", layout: { "line-join": "round", "line-cap": "round" },
                      paint: { "line-color": "#5fd4e0", "line-width": 2.5 } });
+      // Stretches of the route that are steeper than the mover's limit on the 1 m elevation model.
+      map.addLayer({ id: "fine", type: "circle", source: "fine",
+                     paint: { "circle-radius": 6, "circle-color": "#ef6a5e", "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.5 } });
       map.addLayer({ id: "mover", type: "symbol", source: "mover",
                      layout: { "icon-image": ["get", "icon"], "icon-rotate": ["get", "heading"], "icon-rotation-alignment": "map",
                                "icon-pitch-alignment": "map", "icon-allow-overlap": true, "icon-ignore-placement": true,
@@ -255,8 +258,8 @@ export default function MapView(p: Props) {
     for (const name of OVERLAYS) show(`ov-${name}`, p.body === "mars" && !!p.layers[name]);
     const mars = p.body === "mars";
     show("m2020", mars && !!p.layers.m2020);
-    for (const id of ["area", "plan", "active", "active-casing", "track", "hazards-fill", "hazards-line", "mover"]) show(id, mars);
-    // In 3D the mover is drawn as a NASA model, so its flat icon is hidden (unless that model failed to load).
+    for (const id of ["area", "plan", "active", "active-casing", "track", "hazards-fill", "hazards-line", "fine", "mover"]) show(id, mars);
+    // In 3D the mover is drawn as a 3D model, so its flat icon is hidden (unless that model failed to load).
     if (layerOn && p.threeD && p.mission && modelsOk[MODEL_FOR_MOVER[p.mission.mover]] !== false) show("mover", false);
     map.setSky(SKY[p.body]);
   }, [ready, p.layers, p.body, p.terrain, layerOn, modelsOk, p.threeD, p.mission?.mover, p.mission?.id]);
@@ -329,6 +332,14 @@ export default function MapView(p: Props) {
       features: m.hazards.map((h) => ({ type: "Feature" as const, properties: { id: h.id },
         geometry: { type: "Polygon" as const, coordinates: [circleRing(h.x, h.y, h.radius_m, p.terrain!.grid.lat0, p.terrain!.grid.lon0, BODY_RADIUS_M.mars)] } })),
     } : EMPTY);
+
+    // Stretches of the current plan that are steeper than the limit on the 1 m elevation model.
+    const fine = m?.fine_check && m.plan && m.fine_check.revision === m.plan.revision ? m.fine_check.stretches : [];
+    (map.getSource("fine") as GeoJSONSource).setData({
+      type: "FeatureCollection",
+      features: fine.map((s) => ({ type: "Feature" as const, properties: { slope: s.max_slope_deg },
+        geometry: { type: "Point" as const, coordinates: [s.lon, s.lat] } })),
+    });
 
     // Base and target markers are HTML so their labels stay crisp.
     markers.current.forEach((mk) => mk.remove());
@@ -426,7 +437,7 @@ export default function MapView(p: Props) {
         )}
         {p.threeD && p.body === "mars" && (
           <span className="rounded border border-line bg-ink/80 px-2 py-0.5 text-[11px] text-muted">
-            Heights exaggerated {EXAGGERATION}×{layerOn ? " · NASA models enlarged" : ""} · drag with the right button to tilt and turn
+            Heights exaggerated {EXAGGERATION}×{layerOn ? " · 3D models enlarged" : ""} · drag with the right button to tilt and turn
           </span>
         )}
       </div>

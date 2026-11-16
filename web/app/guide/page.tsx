@@ -48,7 +48,7 @@ const DATASETS: [string, string, string, string][] = [
   ["Mars", "Perseverance raw images, navigation camera", "Mars 2020", "Ground views near a selected point"],
   ["Mars", "Surface radiation dose rate (one published value)", "Mars Science Laboratory, Curiosity RAD", "Crew radiation estimate"],
   ["Mars", "Mars Perseverance Rover, 3D Model", "NASA/JPL-Caltech", "The scout rover, and Perseverance at its last stop, in the 3D view"],
-  ["Mars", "Space Exploration Vehicle, 3D model", "NASA 3D Resources", "The crew rover in the 3D view"],
+  ["Mars", "HiRISE stereo elevation model of Jezero, 1 m", "Mars Reconnaissance Orbiter", "Checking a planned route for steep ground, and the terrain of the 3D world"],
   ["Mars", "Z-2 Spacesuit, 3D model", "NASA 3D Resources", "The astronaut in the 3D view"],
   ["Moon", "LOLA gridded elevation (LDEM 64), 474 m", "Lunar Reconnaissance Orbiter", "Measured terrain of every Moon cell"],
   ["Moon", "LROC Wide Angle Camera global mosaic, 100 m", "Lunar Reconnaissance Orbiter", "What the terrain network sees on the Moon; the Moon globe"],
@@ -61,7 +61,7 @@ const DATASETS: [string, string, string, string][] = [
 
 const CONTENTS: [string, string][] = [
   ["start", "Start in one minute"], ["thread", "One mission, seven parts"], ["space", "The solar system"], ["map", "The map"], ["three-d", "3D terrain and globes"], ["surface", "Surface view: drive it yourself"], ["analogs", "Earth analogs"],
-  ["route", "Routes"], ["crew", "Crew safety and health"], ["habitat", "Habitat and farming"], ["simulate", "Run the traverse"],
+  ["route", "Routes"], ["world", "The 3D world"], ["crew", "Crew safety and health"], ["habitat", "Habitat and farming"], ["simulate", "Run the traverse"],
   ["review", "Review the evidence"], ["worlds", "The Moon and Earth"], ["training", "Training mode"], ["tags", "What the tags mean"],
   ["limits", "Limits"], ["data", "NASA datasets used"],
 ];
@@ -161,7 +161,7 @@ export default function Guide() {
           <Shot file="terrain3d.jpg" alt="Jezero in a tilted 3D view with the route on the terrain and a 3D vehicle at the landing site"
                 caption="Jezero in 3D, raised from the CTX stereo elevation model with HiRISE imagery on top. The view opens on your rover or astronaut." />
           <P>
-            In the 3D view everyone is a NASA 3D model. The robotic scout is NASA&apos;s model of Perseverance. The crew rover is NASA&apos;s Space Exploration Vehicle, its concept for a crewed surface rover. The astronaut wears the Z-2, NASA&apos;s prototype suit for walking on another world. They move along the route as the traverse runs. A second Perseverance stands where the real rover last reported its position inside this map. All of them are drawn far larger than life until you zoom right in, and the label says so.
+            In the 3D view everyone is a 3D model. The crew rover is the six-wheel rover, the same one you drive in the 3D world. The robotic scout is NASA&apos;s model of Perseverance. The astronaut wears the Z-2, NASA&apos;s prototype suit for walking on another world. They move along the route as the traverse runs. A second Perseverance stands where the real rover last reported its position inside this map. All of them are drawn far larger than life until you zoom right in, and the label says so.
           </P>
           <Shot file="astronaut3d.jpg" alt="A 3D model of an astronaut in NASA's Z-2 suit seen from behind, walking across the terrain"
                 caption="The astronaut on foot in NASA's Z-2 suit, walking away from the landing site." />
@@ -207,6 +207,24 @@ export default function Guide() {
           </P>
           <Shot file="route.jpg" alt="A three-leg route from the landing site to two targets with distance, duration, energy and an elevation profile"
                 caption="A planned traverse: distance, time, energy, the steepest ground crossed, and the elevation profile." />
+          <P>
+            The route is planned on 20 metre squares, and a square that size cannot see a bank a few metres wide. Press <strong>Check this route at 1 m</strong> to measure the same route on NASA&apos;s 1 metre elevation model from the HiRISE camera. It lists every stretch steeper than your mover&apos;s limit and marks them on the map. <strong>Move the route around them</strong> replans to keep off the steep ground it can avoid, and tells you plainly what it could not: a target on top of a scarp can only be reached across it. The first check reads the elevation under your route from NASA&apos;s file, so it can take a minute.
+          </P>
+
+          <H2 id="world">The 3D world</H2>
+          <P>
+            Click <strong>3D world</strong> at the top, or <strong>Open this route in the 3D world</strong> in the Route step, to stand on the ground your mission crosses. It is the same plan, read from the same mission service: the orange line is your route, each target has a beacon, and the red stretches are the ground the 1 metre check found too steep.
+          </P>
+          <Steps>
+            <li><strong>Fly the route</strong> takes the camera along the whole traverse, out to every target and back.</li>
+            <li><strong>Drive it</strong> sends the rover down the first leg. It follows your route but steers round rocks and steep patches the 20 metre plan could not see, and the panel says how closely it kept to your line.</li>
+            <li>Press <strong>4</strong> for a view from above framed on the whole route, <strong>3</strong> to ride behind the rover, <strong>1</strong> to fly free.</li>
+          </Steps>
+          <Shot file="world.jpg" alt="A 3D view across Jezero: an orange route line runs over rippled ground toward the delta, with two labelled target beacons on the horizon and a mission panel on the right"
+                caption="The mission in the 3D world: the planned route in orange, beacons on the two targets at the delta, and the 1 m check's result in the panel." />
+          <P>
+            Only the 2 kilometres around the landing site are detailed, from the HiRISE elevation model at 5 metres. Beyond that the route is drawn on a coarser 80 kilometre backdrop that shows the delta and the crater rim but cannot be driven. The 3D world shows your mission; it does not change it.
+          </P>
 
           <H2 id="crew">Crew safety and health</H2>
           <P>
@@ -272,7 +290,8 @@ export default function Guide() {
 
           <H2 id="limits">Limits</H2>
           <ul className="mt-3 flex list-disc flex-col gap-1.5 pl-5 text-[14.5px] leading-relaxed text-[#b9c6d6]">
-            <li>Routes are planned on 20 metre squares. A rock or a sand ripple smaller than that is invisible to the planner.</li>
+            <li>Routes are planned on 20 metre squares. The 1 metre check sees banks and rims a few metres across; a single rock or a sand ripple is still invisible.</li>
+            <li>The 3D world is detailed for 2 kilometres around the landing site only, and driving there does not move the mission&apos;s simulation.</li>
             <li>The terrain network works at an 11 kilometre scale. It ranks regions; it is not used to plan routes.</li>
             <li>The 3D view doubles heights and fades them out at the edge of the elevation data. It is for looking, not measuring.</li>
             <li>The 3D models are enlarged and do not animate: the astronaut glides and the wheels do not turn.</li>

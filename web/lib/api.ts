@@ -28,7 +28,28 @@ export type Plan = {
   max_slope_deg: number; feasibility: Feasibility; revision: number; reason: string;
 };
 
-export type Hazard = { id: string; x: number; y: number; radius_m: number; reason: string };
+export type Hazard = { id: string; x: number; y: number; radius_m: number; reason: string; source?: string };
+
+/** One stretch of the route steeper than the mover's limit on NASA's 1 m elevation model. */
+export type FineStretch = { start_m: number; end_m: number; length_m: number; max_slope_deg: number;
+                            x: number; y: number; lon: number; lat: number };
+export type FineReference = {
+  length_m: number; checked_m: number; slope_deg: Record<string, number>; roughness_m?: Record<string, number>;
+  fraction_steeper_than: Record<string, number>;
+  waypoint_elevation_minus_model_m?: { n: number; median: number; median_abs_deviation: number }; note: string;
+};
+/** The current plan measured on the 1 m HiRISE elevation model. */
+export type FineCheck = {
+  revision: number; limit_deg: number; length_m: number; checked_m: number; no_data_m: number; over_limit_m: number;
+  slope_deg: Record<string, number>; roughness_m: Record<string, number>; stretches: FineStretch[];
+  profile?: { spacing_m: number; elevation_m: (number | null)[]; slope_deg: (number | null)[] };
+  perseverance?: FineReference;
+  source?: { title: string; mission: string; instrument: string; doi: string; publisher: string; native_cell_m: number };
+  method: string; limits: string;
+  clear: boolean; rounds: number; keep_outs: number; unavoidable: FineStretch[];
+  first_found: { stretches: number; over_limit_m: number; max_slope_deg: number; distance_m: number } | null;
+  added_m: number; summary: string;
+};
 
 export type Sim = {
   phase: "idle" | "moving" | "at_target" | "holding" | "complete" | "aborted" | "manual";
@@ -66,6 +87,7 @@ export type Mission = {
   plan: Plan | null; sim: Sim; crew: number; sols: number; crop_area_m2: Record<string, number>;
   overrides: Record<string, number>; habitat: Habitat; events: MissionEvent[]; disclaimer: string;
   score: { total: number; rank: string; note: string; lines: { label: string; points: number; max: number; why: string }[] } | null;
+  fine_check: FineCheck | null;
 };
 
 export type Profile = {
@@ -96,6 +118,8 @@ export type Terrain = {
     waypoint_elevation_minus_model_m?: { n: number; median: number; median_abs_deviation: number };
     note?: string;
   };
+  /** The 1 m measure along Perseverance's path, when it has been built. */
+  validation_1m?: FineReference;
 };
 
 export type M2020 = {
@@ -188,6 +212,8 @@ export const missionApi = {
   sim: (id: string, action: "start" | "step" | "reset" | "emergency" | "drive",
         body?: { seconds?: number; kind?: string; heading_deg?: number; distance_m?: number }) =>
     request<Mission>(`${M}/missions/${id}/sim/${action}`, post(body ?? {})),
+  /** Measure the plan on NASA's 1 m elevation model; with `avoid`, also move the route off steep ground. */
+  fineCheck: (id: string, avoid: boolean) => request<Mission>(`${M}/missions/${id}/finecheck`, post({ avoid })),
   sample: (lon: number, lat: number) =>
     request<{ sample: { elevation_m: number; slope_deg: number; roughness_m: number; lon: number; lat: number; x: number; y: number };
               enterable: Record<string, boolean> }>(`${M}/terrain/sample?lon=${lon}&lat=${lat}`),

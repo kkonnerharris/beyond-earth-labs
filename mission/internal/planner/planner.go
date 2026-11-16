@@ -32,6 +32,7 @@ type Hazard struct {
 	Y       float64 `json:"y"`
 	RadiusM float64 `json:"radius_m"`
 	Reason  string  `json:"reason"`
+	Source  string  `json:"source,omitempty"` // where the keep-out came from; empty for a simulated report
 }
 
 // Request describes one planning problem.
@@ -75,8 +76,10 @@ type Route struct {
 	MaxRoughnessM  float64   `json:"max_roughness_m"`
 	NodesExpanded  int       `json:"nodes_expanded"`
 	HazardsAvoided int       `json:"hazards_avoided"`
-	SlopeLimitDeg  float64   `json:"slope_limit_deg"`
-	Explanation    []string  `json:"explanation"`
+	// FineCellsAvoided counts cells kept out because the 1 m elevation model shows them to be too steep.
+	FineCellsAvoided int      `json:"fine_cells_avoided"`
+	SlopeLimitDeg    float64  `json:"slope_limit_deg"`
+	Explanation      []string `json:"explanation"`
 }
 
 // ErrNoRoute means the goal cannot be reached within the mover's limits.
@@ -120,6 +123,31 @@ func blockedByHazard(hz []Hazard, x, y float64) bool {
 	return false
 }
 
+// hazardMask marks every cell whose centre is inside a keep-out area. A 1 m elevation check can add
+// hundreds of single-cell keep-outs, so they are looked up from a mask and not searched at every step.
+func hazardMask(g *terrain.Grid, hz []Hazard) []bool {
+	if len(hz) == 0 {
+		return nil
+	}
+	mask := make([]bool, g.N*g.N)
+	for _, h := range hz {
+		reach := int(h.RadiusM/g.CellM) + 1
+		r0, c0, _ := g.CellAt(h.X, h.Y) // also valid as a starting point when the centre is off the map
+		for r := r0 - reach; r <= r0+reach; r++ {
+			for c := c0 - reach; c <= c0+reach; c++ {
+				if !g.InBounds(r, c) {
+					continue
+				}
+				x, y := g.Centre(r, c)
+				if math.Hypot(x-h.X, y-h.Y) <= h.RadiusM {
+					mask[g.Index(r, c)] = true
+				}
+			}
+		}
+	}
+	return mask
+}
+
 // Plan runs A* and returns the best route for the request.
 func Plan(g *terrain.Grid, req Request) (*Route, error) {
 	sr, sc, ok := g.CellAt(req.StartX, req.StartY)
@@ -143,6 +171,7 @@ func Plan(g *terrain.Grid, req Request) (*Route, error) {
 	if blockedByHazard(req.Hazards, gx, gy) {
 		return nil, errors.New("goal is inside a reported hazard")
 	}
+	blocked := hazardMask(g, req.Hazards)
 
 	// Admissible heuristic: straight-line distance at the best possible cost per metre.
 	perMetre := p.FastestSecondsPerMetre()
@@ -187,8 +216,7 @@ func Plan(g *terrain.Grid, req Request) (*Route, error) {
 			if closed[ni] {
 				continue
 			}
-			x, y := g.Centre(nr, nc)
-			if len(req.Hazards) > 0 && blockedByHazard(req.Hazards, x, y) {
+			if blocked != nil && blocked[g.Index(nr, nc)] {
 				continue
 			}
 			dist := g.CellM
@@ -226,7 +254,14 @@ func Plan(g *terrain.Grid, req Request) (*Route, error) {
 		chain[i], chain[j] = chain[j], chain[i]
 	}
 	rt := &Route{Objective: req.Objective, ProfileKey: p.Key, NodesExpanded: expanded,
-		SlopeLimitDeg: p.MaxSlopeDeg, HazardsAvoided: len(req.Hazards)}
+		SlopeLimitDeg: p.MaxSlopeDeg}
+	for _, h := range req.Hazards {
+		if h.Source == "" {
+			rt.HazardsAvoided++
+		} else {
+			rt.FineCellsAvoided++
+		}
+	}
 	var slopeSum float64
 	for i, idx := range chain {
 		r, c := g.RowCol(int(idx))
@@ -277,6 +312,9 @@ func explain(rt *Route, p mobility.Profile) []string {
 	out = append(out, fmt.Sprintf("Climbs %.0f m and descends %.0f m.", rt.AscentM, rt.DescentM))
 	if rt.HazardsAvoided > 0 {
 		out = append(out, fmt.Sprintf("Keeps clear of %d reported hazard area(s).", rt.HazardsAvoided))
+	}
+	if rt.FineCellsAvoided > 0 {
+		out = append(out, fmt.Sprintf("Keeps out of %d cell(s) the 1 m elevation model shows to be too steep.", rt.FineCellsAvoided))
 	}
 	return out
 }

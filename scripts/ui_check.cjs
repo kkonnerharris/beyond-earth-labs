@@ -55,16 +55,31 @@ const { chromium } = require(process.argv[3] || "playwright");
   await page.waitForSelector("text=45 min on site", { timeout: 15000 });
   await shot("04-route");
 
+  // The same route measured on NASA's 1 m elevation model, then moved off any steep ground it finds.
+  // (The first run downloads the elevation under the route, so the waits are long.)
+  await page.getByRole("button", { name: "Check this route at 1 m" }).click();
+  await page.waitForSelector("text=Steepest at 1 m", { timeout: 300000 });
+  await page.getByText("Steepest at 1 m").scrollIntoViewIfNeeded();
+  await settle(800);
+  await shot("04c-checked-at-1m");
+  const move = page.getByRole("button", { name: "Move the route around them" });
+  if (await move.count()) {
+    await move.click();
+    await page.waitForFunction(() => /The route was (moved|replanned)|stays on the route|left on the route|has to go/.test(document.body.innerText), null, { timeout: 300000 });
+    await settle(1500);
+    await shot("04d-moved-off-steep-ground");
+  }
+
   // Inspect a point on Perseverance's path: terrain values and rover camera frames.
   await page.mouse.click(box.x + box.width * 0.515, box.y + box.height * 0.62);
   await page.waitForSelector("text=View from the ground", { timeout: 15000 });
   await settle(9000);
   await shot("04a-point-and-ground-view");
 
-  await page.getByLabel("Slope").check();
+  await page.getByRole("checkbox", { name: /^Slope/ }).check();
   await settle(2500);
   await shot("04b-slope-layer");
-  await page.getByLabel("Slope").uncheck();
+  await page.getByRole("checkbox", { name: /^Slope/ }).uncheck();
 
   await stepBtn(/Crew/).click();
   await settle(400);

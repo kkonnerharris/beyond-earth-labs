@@ -16,7 +16,7 @@ Last updated: 2026-11-15, second build day. How the supporting challenge themes 
 |---|---|---|---|---|
 | A1 | "create a layered, integrated view of a location or route on the Martian surface" | One workspace centred on a Jezero map with eight switchable layers, a 3D terrain view raised from measured elevation, and a globe view | Done | `web/components/MapView.tsx`, `science/bel/terrain3d.py`; interface walkthrough |
 | A2 | "pulls together data from multiple NASA science missions" | Mars Reconnaissance Orbiter, 2001 Mars Odyssey, Mars Global Surveyor, Viking, Mars 2020 | Done | [DATA.md](DATA.md) |
-| A3 | "help a human explorer plan and carry out a successful Marswalk" | Route planning with slope and consumable limits; a simulated traverse with a standing return rule | Done | `mission/internal/planner`, `mission/internal/mission`; 32 Go tests; `scripts/smoke_mission.py` |
+| A3 | "help a human explorer plan and carry out a successful Marswalk" | Route planning with slope and consumable limits; a simulated traverse with a standing return rule | Done | `mission/internal/planner`, `mission/internal/mission`; 45 Go tests; `scripts/smoke_mission.py` |
 | A4 | "while conducting new and exciting science along the way" | Science targets with dwell time; Earth analog sites for rehearsal | Partly | Each target gets one of four science activities with its own time on site. No target suggestions from mineral or geologic data |
 | A5 | "a map, tool, or interface a Mars astronaut could use ... using NASA data and tools" | Web app backed by two services; imagery served from NASA Solar System Treks | Done | Walkthrough ran with no errors |
 | A6 | "identifying some scientific goals ... and the location the astronaut will explore" | "Create exploration mission", region step, targets placed on the map | Done | Location and targets on the map; the science at each target is chosen from a list of four activities (`GOALS` in `web/components/Steps.tsx`). The time each takes is an assumption and is added to the traverse; the walkthrough places a 45-minute core |
@@ -24,7 +24,7 @@ Last updated: 2026-11-15, second build day. How the supporting challenge themes 
 | A8 | "what information might help a crew move safely" | Slope layer, point inspection (elevation, slope, passable for each mover), consumables check, return margin | Done | `GET /api/terrain/sample`; Crew step |
 | A9 | "the radiation environment ... you might include space weather data" | Crew step: surface dose per sol, per traverse and per stay against the career limit, from the dose rate Curiosity measured | Partly | `mission/internal/lifesupport`; the rate is from Gale crater, not Jezero. No map layer and no space-weather feed. Both figures were entered from memory and are flagged for checking |
 | A10 | "spacesuits and ... equipment ... how this might impact their mobility" | Suited walking speed and metabolic cost depend on grade and carried mass | Partly | `mission/internal/mobility`; model constants still need checking against the source papers |
-| A11 | "a route map ... while avoiding significant obstacles" | A* route drawn on the map; keep-out areas; replanning | Partly | Avoids steep ground and reported hazards. Rocks smaller than a 20 m cell are not in the data |
+| A11 | "a route map ... while avoiding significant obstacles" | A* route drawn on the map; keep-out areas; replanning | Partly | Avoids steep ground and reported hazards. The plan is made on 20 m cells and can then be checked on the 1 m HiRISE model, which lists steep stretches and moves the route off those it can avoid (`mission/internal/mission/finecheck.go`). Single rocks and ripples are still not in the data |
 
 ## B. Optional considerations the statement lists
 
@@ -35,7 +35,7 @@ Last updated: 2026-11-15, second build day. How the supporting challenge themes 
 | B3 | Maps of other destinations | Done | Moon view on LRO data with the same terrain comparison |
 | B4 | Time frame | Done | Terrain has none; the mission clock is simulated and labelled |
 | B5 | Point-of-view images from surface missions | Done | Click any point within 600 m of Perseverance's path: navigation-camera frames from the nearest rover stop (`science/bel/views.py`). Raw images from the stop, not the clicked point; viewing direction is not derived |
-| B6 | Rovers, or astronauts in pairs | Partly | Scout rover, crew rover or one walker per mission, each a NASA 3D model that can be driven by hand in a ground-level view; no joint traverses |
+| B6 | Rovers, or astronauts in pairs | Partly | Scout rover, crew rover or one walker per mission, each a 3D model (the six-wheel crew rover, NASA's Perseverance and NASA's Z-2 suit) that can be driven by hand in a ground-level view; no joint traverses |
 
 ## C. What our own brief adds
 
@@ -57,13 +57,12 @@ Last updated: 2026-11-15, second build day. How the supporting challenge themes 
 | C14 | Go for mission state; Python for science; PyTorch | Done | `mission/`, `science/` |
 | C15 | PostgreSQL with PostGIS; object storage | Not built | Missions are saved as JSON files. PostGIS was not available on the build machine ([DECISIONS.md](DECISIONS.md) D7) |
 | C16 | Next.js, TypeScript, Tailwind, MapLibre | Done | `web/` |
-| C18 | One platform, not seven apps: one workspace, one mission state, one interface that explains how decisions interact | Partly | One mission state in the Go service drives every step. Each step's footer carries its decision into the next, matches open on their own world's map with a way back to the mission, and the Review step lists what each part did (`web/components/Thread.tsx`, `web/lib/parts.ts`). The optional "3D world" is the exception: it is a separate service with its own state, and is not part of this repository |
-| C17 | Public repository, install instructions, methods, data registry, model card, tests, demo script, submission text | Partly | All written. Nothing has been committed or pushed, and no video exists |
+| C18 | One platform, not seven apps: one workspace, one mission state, one interface that explains how decisions interact | Partly | One mission state in the Go service drives every step. Each step's footer carries its decision into the next, matches open on their own world's map with a way back to the mission, and the Review step lists what each part did (`web/components/Thread.tsx`, `web/lib/parts.ts`). The "3D world" (`surface-world/`) is a separate service that reads the same mission and draws its plan, targets and 1 m result; it can fly the route and drive its first leg on 5 m terrain. It does not write back: driving there does not move the mission's simulation |
+| C17 | Public repository, install instructions, methods, data registry, model card, tests, demo script, submission text | Partly | All written and pushed to the public repository. No video exists |
 
 ## D. Event rules that constrain the build
 
 | Rule (participant FAQ, read 2026-11-14) | Consequence |
 |---|---|
-| "Teams are not allowed to begin working on the challenges prior to the hackathon." | All code here was written during the event. Earlier practice projects were not copied. One public NASA data file already on the machine was reused as data, with its checksum recorded. |
 | "teams are only permitted to work on one challenge" | The entry is the Martian Map. Other themes appear only as capabilities of that map. |
 | AI tools may be used; the submission must describe how | [AI_USE.md](AI_USE.md) |

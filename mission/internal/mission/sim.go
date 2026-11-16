@@ -117,7 +117,14 @@ func (e *Engine) Start(m *Mission) error {
 // Reset returns the simulation to the base with full consumables and clears emergencies.
 func (e *Engine) Reset(m *Mission) {
 	m.profile = mobility.Profiles[m.Mover]
-	m.Hazards = []planner.Hazard{}
+	// Simulated obstacles go; keep-outs found on the 1 m elevation model are real terrain and stay.
+	fine := []planner.Hazard{}
+	for _, h := range m.Hazards {
+		if h.Source == FineSource {
+			fine = append(fine, h)
+		}
+	}
+	m.Hazards = fine
 	for i := range m.Targets {
 		m.Targets[i].Visited = false
 	}

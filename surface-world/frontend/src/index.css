@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  /* The same type and palette as the mission map (web/app/globals.css), so the 3D world reads as one product with it. */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --color-void: #070a0f;
+  --color-panel: rgb(12 17 24 / 0.88);
+  --color-panel-solid: #0c1118;
+  --color-line: rgb(120 150 185 / 0.20);
+  --color-line-strong: rgb(120 150 185 / 0.34);
+  --color-ink: #dbe4ee;
+  --color-ink-2: #b6c3d2;
+  --color-ink-3: #8496aa;
+
+  /* "nasa" is the name the components use for the primary action colour; it is the map's Mars orange. */
+  --color-nasa: #e2733c;
+  --color-nasa-hover: #f0a070;
+  --color-accent: #5fd4e0;
+  --color-mars: #e2733c;
+  --color-nominal: #58c98b;
+  --color-caution: #e8b84a;
+  --color-warning: #ef6a5e;
+}
+
+@layer base {
+  html, body, #root { height: 100%; margin: 0; overflow: hidden; }
+  body { @apply bg-void text-ink font-sans antialiased; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 6px; }
+  .tabular { font-variant-numeric: tabular-nums; }
+}
+
+.glass { background: var(--color-panel); backdrop-filter: blur(10px); border: 1px solid var(--color-line); }
+
+/* Text on the orange primary colour is dark, as on the mission map's primary button. */
+.bg-nasa, .bg-nasa svg, .hover\:bg-nasa-hover { color: #140a04 !important; }
+.bg-nasa { font-weight: 600; }
+
+/* slow cinematic push-in for the intro still */
+@keyframes kenburns { from { transform: scale(1.04) translate3d(0, 0, 0); } to { transform: scale(1.16) translate3d(-1.5%, 1%, 0); } }
+.intro-kenburns { animation: kenburns 28s ease-out forwards; }
+@media (prefers-reduced-motion: reduce) { .intro-kenburns { animation: none; } }

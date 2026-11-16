@@ -1,0 +1,107 @@
+{
+  "category": "illustrative",
+  "notice": "AI-generated artwork used for visual realism only. Not NASA data, not a real location, never used for any calculation.",
+  "generators": {
+    "stills": "Higgsfield Soul v2 (higgsfield-ai/soul/v2/standard)",
+    "video": "Kling 2.5 Turbo Pro image-to-video via Higgsfield"
+  },
+  "assets": [
+    {
+      "file": "frontend/public/textures/regolith.jpg",
+      "normal_map": "frontend/public/textures/regolith_n.jpg",
+      "source": "tex-regolith",
+      "processing": "resized to 1024, lighting flattened, made seamless; normal map from luminance (strength 6.0)"
+    },
+    {
+      "file": "frontend/public/textures/sand.jpg",
+      "normal_map": "frontend/public/textures/sand_n.jpg",
+      "source": "tex-sand-2",
+      "processing": "resized to 1024, lighting flattened, made seamless; normal map from luminance (strength 5.0)"
+    },
+    {
+      "file": "frontend/public/textures/cliff.jpg",
+      "normal_map": "frontend/public/textures/cliff_n.jpg",
+      "source": "tex-cliff",
+      "processing": "cropped, resized to 1024, lighting flattened, made seamless; normal map from luminance (strength 9.0)"
+    },
+    {
+      "file": "frontend/public/textures/rock.jpg",
+      "normal_map": "frontend/public/textures/rock_n.jpg",
+      "source": "tex-rock",
+      "processing": "cropped, resized to 512, lighting flattened, made seamless; normal map from luminance (strength 8.0)"
+    },
+    {
+      "file": "frontend/public/textures/rock2.jpg",
+      "normal_map": "frontend/public/textures/rock2_n.jpg",
+      "source": "tex-rock-tan",
+      "processing": "resized to 512, lighting flattened, made seamless; normal map from luminance (strength 8.0)"
+    },
+    {
+      "file": "frontend/public/textures/horizon.jpg",
+      "source": "horizon",
+      "processing": "cropped to sky + horizon band (18-62% of height)"
+    },
+    {
+      "file": "frontend/public/textures/horizon-dust.jpg",
+      "source": "horizon-dust",
+      "processing": "cropped to sky + horizon band (18-62% of height)"
+    },
+    {
+      "file": "frontend/public/intro/intro.jpg",
+      "source": "intro-still",
+      "processing": "resized to 1920x1080 (poster)"
+    }
+  ],
+  "requests": {
+    "film-intro": {
+      "model": "kling-video/v2.5-turbo/pro/image-to-video",
+      "request_id": null,
+      "prompt": "Very slow cinematic push-in toward the habitat across the plain. Fine dust drifts on the wind near the ground, long shadows stay still, the light holds. One continuous shot, smooth, steady, majestic."
+    },
+    "horizon-dust": {
+      "model": "higgsfield-ai/soul/v2/standard",
+      "request_id": "3af91bfa-042a-48d4-b665-417507d6bf7b",
+      "prompt": "Photoreal planetary surface photography in the style of a Mars rover camera, natural Martian lighting, butterscotch dusty atmosphere, iron-oxide red-orange and ochre regolith, basaltic dark grey rocks, sharp detail, neutral realistic colour. Photographic realism. NOT 3D render, NOT illustration. No text, no letters, no logos, no rovers, no people, no spacecraft, no sky in texture shots.\n\nWide panoramic view across a Martian crater plain during a regional dust storm: distant crater rim barely visible through thick orange-brown airborne dust, sun a dim pale disc, low contrast, flat dusty foreground in the lower quarter only, no rocks close to the camera, no objects."
+    },
+    "horizon": {
+      "model": null,
+      "request_id": "9d340943-a7c7-4239-a3b4-aa4cd6e19f80",
+      "prompt": "Photoreal planetary surface photography in the style of a Mars rover camera, natural Martian lighting, butterscotch dusty atmosphere, iron-oxide red-orange and ochre regolith, basaltic dark grey rocks, sharp detail, neutral realistic colour. Photographic realism. NOT 3D render, NOT illustration. No text, no letters, no logos, no rovers, no people, no spacecraft, no sky in texture shots.\n\nWide panoramic view across a Martian crater plain to a distant horizon: low eroded crater rim and gentle hills far away, hazy butterscotch sky fading to pale at the horizon, flat dusty foreground in the lower quarter only, no rocks close to the camera, no objects, soft afternoon light."
+    },
+    "intro-still": {
+      "model": "higgsfield-ai/soul/v2/standard",
+      "request_id": "6e5a1dc8-161c-43cc-8d2e-e1f3cbac58fc",
+      "prompt": "Photoreal cinematic film still, large-format camera, natural physically plausible Martian light, rich but realistic colour, fine film grain. NOT 3D render, NOT illustration, NOT cartoon.\n\nCinematic wide establishing shot on Mars at golden hour: a small white inflatable surface habitat dome with solar panels on a vast rust-red crater plain, a six-wheeled rover parked nearby, long shadows, a low eroded crater rim on the horizon, hazy butterscotch sky, tiny scale against the landscape, quiet and majestic. Photoreal, filmic, anamorphic feel. No text, no letters, no logos, no flags, no people."
+    },
+    "tex-cliff": {
+      "model": "higgsfield-ai/soul/v2/standard",
+      "request_id": "a5d880a5-03e6-445f-9146-d38ea9a93dbb",
+      "prompt": "Photoreal planetary surface photography in the style of a Mars rover camera, natural Martian lighting, butterscotch dusty atmosphere, iron-oxide red-orange and ochre regolith, basaltic dark grey rocks, sharp detail, neutral realistic colour. Photographic realism. NOT 3D render, NOT illustration. No text, no letters, no logos, no rovers, no people, no spacecraft, no sky in texture shots.\n\nSeamless cliff texture: straight-on view of a steep Martian crater wall face, finely layered sedimentary and fractured basaltic rock strata running horizontally, talus grains caught on ledges, reddish dust in cracks, evenly lit, uniform across the frame, no sky, no ground, no horizon, no vignette."
+    },
+    "tex-regolith": {
+      "model": null,
+      "request_id": "a91c2439-4d86-4132-b976-26da6833d968",
+      "prompt": "Photoreal planetary surface photography in the style of a Mars rover camera, natural Martian lighting, butterscotch dusty atmosphere, iron-oxide red-orange and ochre regolith, basaltic dark grey rocks, sharp detail, neutral realistic colour. Photographic realism. NOT 3D render, NOT illustration. No text, no letters, no logos, no rovers, no people, no spacecraft, no sky in texture shots.\n\nSeamless ground texture: looking straight down at Martian regolith, camera perpendicular to the ground, orthographic, evenly lit by diffuse light with no strong shadows, fine dust and sand with scattered small pebbles and tiny angular rock fragments, uniform density across the whole frame, no horizon, no large features, no vignette."
+    },
+    "tex-rock": {
+      "model": null,
+      "request_id": "8f5f36ac-7743-4ef5-9d18-ca1609c85c4d",
+      "prompt": "Photoreal planetary surface photography in the style of a Mars rover camera, natural Martian lighting, butterscotch dusty atmosphere, iron-oxide red-orange and ochre regolith, basaltic dark grey rocks, sharp detail, neutral realistic colour. Photographic realism. NOT 3D render, NOT illustration. No text, no letters, no logos, no rovers, no people, no spacecraft, no sky in texture shots.\n\nSeamless rock texture: close straight-down view of a weathered dark basaltic rock surface with fine vesicles, cracks and a thin coating of reddish dust, evenly lit, uniform across the frame, no horizon, no shadows, no vignette."
+    },
+    "tex-rock-tan": {
+      "model": "higgsfield-ai/soul/v2/standard",
+      "request_id": "bf00081d-5062-40af-ba8d-1d4ed9373199",
+      "prompt": "Photoreal planetary surface photography in the style of a Mars rover camera, natural Martian lighting, butterscotch dusty atmosphere, iron-oxide red-orange and ochre regolith, basaltic dark grey rocks, sharp detail, neutral realistic colour. Photographic realism. NOT 3D render, NOT illustration. No text, no letters, no logos, no rovers, no people, no spacecraft, no sky in texture shots.\n\nSeamless rock texture: close straight-down view of a weathered tan-ochre sedimentary rock surface with fine laminations, pits and a dusting of red regolith, evenly lit, uniform across the frame, no horizon, no shadows, no vignette."
+    },
+    "tex-sand-2": {
+      "model": "higgsfield-ai/soul/v2/standard",
+      "request_id": "c9fd8ec3-5ad5-42da-8742-c4b288601e9a",
+      "prompt": "Photoreal planetary surface photography in the style of a Mars rover camera, natural Martian lighting, butterscotch dusty atmosphere, iron-oxide red-orange and ochre regolith, basaltic dark grey rocks, sharp detail, neutral realistic colour. Photographic realism. NOT 3D render, NOT illustration. No text, no letters, no logos, no rovers, no people, no spacecraft, no sky in texture shots.\n\nSeamless ground texture: looking straight down at fine dark grey-brown basaltic dune sand covered only in small regular wind ripples running diagonally across the whole frame, completely uniform, NO stones, NO rocks, NO pebbles, NO objects, NO machines, nothing but sand ripples, evenly lit, no horizon, no vignette."
+    },
+    "tex-sand": {
+      "model": "higgsfield-ai/soul/v2/standard",
+      "request_id": "9fdd6a05-c1b0-40d6-ab7c-07d839685cd1",
+      "prompt": "Photoreal planetary surface photography in the style of a Mars rover camera, natural Martian lighting, butterscotch dusty atmosphere, iron-oxide red-orange and ochre regolith, basaltic dark grey rocks, sharp detail, neutral realistic colour. Photographic realism. NOT 3D render, NOT illustration. No text, no letters, no logos, no rovers, no people, no spacecraft, no sky in texture shots.\n\nSeamless ground texture: looking straight down at dark basaltic Martian dune sand with fine wind ripples running diagonally, a few lighter dust streaks, uniform across the frame, evenly lit, no horizon, no large features, no vignette."
+    }
+  }
+}

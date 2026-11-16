@@ -161,6 +161,36 @@ time has been demonstrated or is claimed.**
 - Perseverance crossed no 20 m cell steeper than 18.3°. 1.7% of the mission area is steeper than 20°;
   0% of the rover's path is. This is the basis for the rovers' 20° limit.
 
+## 6b. Checking a route on the 1 m elevation model
+
+Routes are planned on 20 m cells, which cannot see a bank or a crater rim a few metres wide. NASA's 1 m
+HiRISE elevation model of Jezero can (`science/bel/hirise.py`, `mission/internal/mission/finecheck.go`).
+
+- **Reading it.** The file is 1.8 GB and uncompressed, so the bytes of any elevation post sit at a known
+  offset. Only the posts under a route are read, in 128 x 128 blocks by HTTP range request, and kept on
+  disk. The mission area is still not planned on it: that would need the whole file in memory.
+- **The measure.** Every 1 m along the route a plane is fitted to the 5 x 5 posts around that point (4 m
+  across, about a rover's footprint). Slope is the tilt of that plane; roughness is the RMS height about
+  it. A stretch is reported when slope stays above the mover's limit for 2 m or more.
+- **Checked against the real rover.** The same measure along the 26.8 km Perseverance drove inside the
+  mission area gives a median slope of 3.6 degrees and a 99th percentile of 15.5; 0.1% of it is steeper
+  than 20 degrees. The path and the orbital model can be a few metres out of register, so the steepest
+  values are an upper bound. The model's elevation agrees with the rover's at 464 waypoints to a median
+  of 0.00 m (median absolute deviation 0.02 m).
+- **What it finds.** On the two-target route used in the tests (7.6 km to the delta front and the delta
+  top), the 20 m plan reports a steepest slope of 17.2 degrees. The 1 m model finds 10 stretches, 258 m
+  in all, steeper than the crew rover's 20 degree limit, up to 41.8 degrees.
+- **Moving the route.** When asked, the mission service surveys the ground around each steep stretch on
+  the 1 m model, keeps the route out of every 20 m cell with steep ground in it, replans and measures
+  again, up to six times. If keeping out of all of it leaves no route (a target on top of a scarp can
+  only be reached across it), the stretches are taken one at a time, worst first, and the ground around
+  one is kept out only if every target can still be reached. On the same route this leaves 5 stretches,
+  46 m, up to 27.3 degrees, on a route 0.8 km longer. That is a real reduction and not a clear route: the
+  delta top cannot be reached by the crew rover without crossing ground the 1 m model shows as steep, and
+  the check says so.
+- **Limits.** A 1 m model made from orbital stereo resolves shapes a few metres across. It does not show
+  single rocks, loose sand or ripples.
+
 ## 7. What the model is and is not used for
 
 - **Used:** ranking Earth analog regions; regional terrain attributes where only imagery is at hand.

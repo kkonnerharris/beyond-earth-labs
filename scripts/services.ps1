@@ -1,7 +1,7 @@
 # Start, stop or check the three local services.
 #   powershell -File scripts\services.ps1 start|stop|status
-# Ports: mission 8300 (Go), science 8310 (Python), world 8320 (Python, the optional 3D rover world, started
-# only if a surface-world folder is present; it is not part of this repository), web 4770 (Next.js).
+# Ports: mission 8300 (Go), science 8310 (Python), world 8320 (Python, the 3D world in surface-world/, which reads
+# the mission from the mission service and draws it), web 4770 (Next.js).
 param([Parameter(Position = 0)][ValidateSet("start", "stop", "status")][string]$Action = "status")
 
 $root = Split-Path -Parent $PSScriptRoot

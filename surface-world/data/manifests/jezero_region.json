@@ -1,0 +1,231 @@
+{
+  "region": {
+    "name": "Jezero Crater floor at the western delta front, including the Perseverance landing site",
+    "centre_lat_deg": 18.453135,
+    "centre_lon_deg": 77.440129,
+    "landing_site_lat_lon": [
+      18.4447,
+      77.4508
+    ],
+    "landing_site_note": "Mars 2020 Perseverance landing site (Octavia E. Butler Landing), per NASA JPL.",
+    "size_m": 2000.0,
+    "grid_n": 401,
+    "cell_m": 5.0,
+    "local_crs": "+proj=ortho +lat_0=18.453135 +lon_0=77.440129 +x_0=0 +y_0=0 +R=3396190 +units=m +no_defs=True",
+    "frame": "x = east (m), z = south (m), origin at region centre; row 0 = north edge",
+    "datum_offset_m": -2583.0,
+    "elevation_reference": "Mars 2000 sphere, heights referenced to the MOLA areoid (per source metadata)",
+    "elevation_min_m": -2582.959716796875,
+    "elevation_max_m": -2468.423583984375,
+    "hirise_coverage": 1.0,
+    "hirise_minus_ctx_median_m": -0.313232421875,
+    "m20_dtm_minus_rover_elev_median_m": -0.016
+  },
+  "sources": {
+    "hirise_dtm": {
+      "url": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif",
+      "title": "HiRISE DTM mosaic of Jezero Crater for Mars 2020 surface operations (1 m/post)",
+      "mission": "Mars Reconnaissance Orbiter (NASA)",
+      "instrument": "HiRISE",
+      "publisher": "USGS Astrogeology Science Center, with NASA JPL",
+      "year": 2020,
+      "doi": "https://doi.org/10.5066/P9REJ9JN",
+      "citation": "Fergason, R.L., et al. (2020). Mars 2020 Terrain Relative Navigation HiRISE DTM mosaic. USGS Astrogeology Science Center.",
+      "read_meta": {
+        "crs": "PROJCS[\"Equirectangular Mars 2000 Sphere IAU\",GEOGCS[\"D_Mars_2000_Sphere\",DATUM[\"Mars_2000_(Sphere)\",SPHEROID[\"Mars_2000_Sphere_IAU\",3396190,0],AUTHORITY[\"ESRI\",\"106971\"]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",0],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+        "res_m": [
+          1.0,
+          1.0
+        ],
+        "width": 21400,
+        "height": 21488,
+        "nodata": -3.4028226550889045e+38,
+        "dtype": "float32",
+        "window": [
+          11756,
+          11754,
+          2235,
+          2120
+        ]
+      }
+    },
+    "hirise_ortho": {
+      "url": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_007_orthoMosaic_25cm_Ortho_blend120.tif",
+      "title": "HiRISE orthorectified image mosaic for Mars 2020 surface operations (25 cm/px)",
+      "mission": "Mars Reconnaissance Orbiter (NASA)",
+      "instrument": "HiRISE",
+      "publisher": "USGS Astrogeology Science Center, with NASA JPL",
+      "year": 2020,
+      "doi": "https://doi.org/10.5066/P9QJDP48",
+      "citation": "Fergason, R.L., et al. (2020). High-Resolution Imaging Science Experiment orthorectified image mosaic for Mars 2020 surface operations. USGS Astrogeology Science Center.",
+      "read_meta": {
+        "crs": "PROJCS[\"unnamed\",GEOGCS[\"Geographic Coordinate System\",DATUM[\"Mars_2000_(Sphere)\",SPHEROID[\"Mars_2000_Sphere_IAU\",3396190,0],AUTHORITY[\"ESRI\",\"106971\"]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Orthographic\"],PARAMETER[\"latitude_of_origin\",18.4663],PARAMETER[\"central_meridian\",77.4298],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+        "res_m": [
+          0.25,
+          0.25
+        ],
+        "width": 81064,
+        "height": 85936,
+        "nodata": 0.0,
+        "dtype": "uint8",
+        "window": [
+          44530,
+          47025,
+          8480,
+          8480
+        ]
+      }
+    },
+    "ctx_dtm": {
+      "url": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
+      "title": "CTX DTM mosaic of Jezero Crater (Mars 2020 Terrain Relative Navigation, 20 m/post)",
+      "mission": "Mars Reconnaissance Orbiter (NASA)",
+      "instrument": "Context Camera (CTX)",
+      "publisher": "USGS Astrogeology Science Center, with NASA JPL",
+      "year": 2020,
+      "doi": "https://doi.org/10.5066/P906QQT8",
+      "citation": "USGS Astrogeology Science Center (2020). Mars 2020 Terrain Relative Navigation Context Camera DTM mosaic.",
+      "read_meta": {
+        "crs": "PROJCS[\"Equirectangular Mars 2000 Sphere IAU\",GEOGCS[\"GCS_Mars_2000_Sphere\",DATUM[\"Mars_2000_(Sphere)\",SPHEROID[\"Mars_2000_Sphere_IAU\",3396190,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",0],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+        "res_m": [
+          20.0,
+          20.0
+        ],
+        "width": 1596,
+        "height": 1512,
+        "nodata": -3.4028226550889045e+38,
+        "dtype": "float32",
+        "window": [
+          773,
+          741,
+          112,
+          106
+        ]
+      }
+    },
+    "themis_dir": {
+      "url": "https://astrogeo-ard.s3.us-west-2.amazonaws.com/mars/mo/themis/controlled_mosaics/mc13_syrtis_major_dir/mc13_syrtis_major_dir.tif",
+      "title": "THEMIS daytime infrared controlled mosaic, MC-13 Syrtis Major (~100 m/px)",
+      "mission": "2001 Mars Odyssey (NASA)",
+      "instrument": "THEMIS",
+      "publisher": "USGS Astrogeology Science Center / Arizona State University",
+      "year": 2019,
+      "doi": "https://doi.org/10.5066/P96FA04Z",
+      "citation": "USGS Astrogeology Science Center / ASU. THEMIS controlled mosaics (analysis-ready data, CC0).",
+      "read_meta": {
+        "crs": "PROJCS[\"Mars (2015) - Sphere / Ocentric / Equirectangular, clon = 0\",GEOGCS[\"Mars (2015) - Sphere / Ocentric\",DATUM[\"Mars (2015) - Sphere\",SPHEROID[\"Mars (2015) - Sphere\",3396190,0,AUTHORITY[\"IAU\",\"49900\"]],AUTHORITY[\"IAU\",\"49900\"]],PRIMEM[\"Reference Meridian\",0,AUTHORITY[\"IAU\",\"49900\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"IAU\",\"49900\"]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",0],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],AUTHORITY[\"IAU\",\"49910\"]]",
+        "res_m": [
+          100.00000000000003,
+          100.00000000000003
+        ],
+        "width": 26674,
+        "height": 17783,
+        "nodata": 0.0,
+        "dtype": "uint8",
+        "window": [
+          19214,
+          6831,
+          30,
+          28
+        ]
+      }
+    },
+    "m20_paths": {
+      "url": "https://mars.nasa.gov/maps/location/?mission=M20",
+      "files": [
+        "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_traverse.json",
+        "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json",
+        "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/m20_heli_flight_path.json",
+        "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/m20_heli_waypoints.json"
+      ],
+      "title": "Mars 2020 rover traverse, waypoints and Ingenuity flight paths (localized)",
+      "mission": "Mars 2020 (NASA)",
+      "instrument": "Perseverance rover + Ingenuity helicopter localization",
+      "publisher": "NASA/JPL-Caltech",
+      "year": 2026,
+      "doi": "https://mars.nasa.gov/maps/location/?mission=M20",
+      "citation": "NASA/JPL-Caltech. Mars 2020 'Where is the rover?' map data (MMGIS)."
+    },
+    "ctx_jpl_dem": {
+      "url": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/mars2020_trn/CTX/ScienceInvestigationMaps_JPL/M20_JezeroCrater_CTXDEM_20m.tif",
+      "title": "Mars 2020 Science Investigation CTX DEM Mosaic (20 m)",
+      "mission": "Mars Reconnaissance Orbiter (NASA)",
+      "instrument": "Context Camera (CTX)",
+      "publisher": "NASA JPL / USGS Astrogeology",
+      "year": 2021,
+      "doi": "https://doi.org/10.1126/science.abl4051",
+      "citation": "Mars 2020 Science Investigation CTX mosaics (NASA JPL / USGS Astrogeology); see Mangold et al. (2021), Science 374, 711-717.",
+      "read_meta": {
+        "crs": "PROJCS[\"Jezero_Crater_Projection\",GEOGCS[\"GCS_Mars_2000_Sphere\",DATUM[\"Mars_2000_(Sphere)\",SPHEROID[\"Mars_2000_Sphere\",3396190,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",18.4663],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+        "res_m": [
+          20.0,
+          20.0
+        ],
+        "width": 4456,
+        "height": 5067,
+        "nodata": -3.4028234663852886e+38,
+        "window": [
+          0,
+          480,
+          3252,
+          4004
+        ],
+        "decimation": 8
+      }
+    },
+    "ctx_jpl_ortho": {
+      "url": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/mars2020_trn/CTX/ScienceInvestigationMaps_JPL/M20_JezeroCrater_CTXortho_mosaic_5m.tif",
+      "title": "Mars 2020 Science Investigation CTX Orthoimage Mosaic (5 m)",
+      "mission": "Mars Reconnaissance Orbiter (NASA)",
+      "instrument": "Context Camera (CTX)",
+      "publisher": "NASA JPL / USGS Astrogeology",
+      "year": 2021,
+      "doi": "https://doi.org/10.1126/science.abl4051",
+      "citation": "Mars 2020 Science Investigation CTX mosaics (NASA JPL / USGS Astrogeology); see Mangold et al. (2021), Science 374, 711-717.",
+      "read_meta": {
+        "crs": "PROJCS[\"Equirectangular\",GEOGCS[\"GCS_Geographic_Coordinate_System\",DATUM[\"D_MARS\",SPHEROID[\"MARS\",3396190,0]],PRIMEM[\"Reference Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",18.4663],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+        "res_m": [
+          5.002064681102627,
+          5.002262971613293
+        ],
+        "width": 17766,
+        "height": 20234,
+        "nodata": null,
+        "window": [
+          0,
+          1907,
+          12966,
+          16009
+        ],
+        "decimation": 4
+      }
+    }
+  },
+  "processing": [
+    "Region bounds transformed into each source CRS by GDAL; only that window is read (HTTP range requests for remote files).",
+    "HiRISE 1 m DTM block-averaged (GDAL 'average') onto the 5 m local grid; cells with no HiRISE data filled from the CTX 20 m DTM (cubic).",
+    "Fine slope: slope of the native 1 m HiRISE DTM (ground-corrected for the equirectangular x stretch), third-quartile (GDAL q3) resample per 5 m cell.",
+    "Heights stored relative to datum_offset_m so the 3D scene stays near the origin; true elevation = height + datum_offset_m.",
+    "HiRISE 25 cm orthoimage area-averaged to 4096 x 4096 (0.49 m/px) and contrast-stretched (0.5-99.5 percentile). Grayscale, not colour.",
+    "THEMIS day-IR mosaic resampled (bilinear) to 64 x 64 for a display layer; values are 8-bit brightness, not calibrated temperature.",
+    "Mars 2020 traverse, waypoints and Ingenuity flights (NASA/JPL MMGIS GeoJSON) projected into the local frame; rover elevations checked against the HiRISE terrain.",
+    "Mars 2020 traverse, waypoints and Ingenuity flights (NASA/JPL MMGIS GeoJSON) projected into the local frame; rover elevations checked against the HiRISE terrain.",
+    "Surroundings: 80 km square of the Mars 2020 Science Investigation CTX DEM (decimated, bilinear) and orthoimage (area-averaged) in the same local frame; gaps outside the mosaic smoothly filled; orthoimage colour-mapped with the same ramp as the HiRISE ground.",
+    "Surroundings: 80 km square of the Mars 2020 Science Investigation CTX DEM (decimated, bilinear) and orthoimage (area-averaged) in the same local frame; gaps outside the mosaic smoothly filled; orthoimage colour-mapped with the same ramp as the HiRISE ground.",
+    "Mars 2020 traverse, waypoints and Ingenuity flights (NASA/JPL MMGIS GeoJSON) projected into the local frame; rover elevations checked against the HiRISE terrain.",
+    "Surroundings: 80 km square of the Mars 2020 Science Investigation CTX DEM (decimated, bilinear) and orthoimage (area-averaged) in the same local frame; gaps outside the mosaic smoothly filled; orthoimage brightness matched to HiRISE over the overlap, then colour-mapped exactly like the HiRISE ground."
+  ],
+  "retrieved": "2026-10-25",
+  "script": "scripts/import_mars_data.py",
+  "m20_retrieved": "2026-10-26",
+  "surround": {
+    "filled_note": "Areas outside the CTX mosaic: heights smoothly interpolated, imagery a flat neutral tone.",
+    "image_coverage": 0.8017454147338867,
+    "size_m": 80000.0,
+    "grid_n": 257,
+    "cell_m": 312.5,
+    "image_px": 2048,
+    "coverage": 0.811049372435616,
+    "ctx_minus_hirise_centre_median_m": -2.49
+  }
+}

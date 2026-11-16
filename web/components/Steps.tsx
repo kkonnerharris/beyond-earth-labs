@@ -74,6 +74,16 @@ export function StepRegion({ terrain, regions, selected, onSelect, onJezero, lun
           <Row label="Share of the area steeper than 20°">{((v.fraction_of_area_steeper_than?.["20"] ?? 0) * 100).toFixed(1)}%</Row>
           <Row label="Share of the rover's path steeper than 20°">{((v.fraction_of_traverse_steeper_than?.["20"] ?? 0) * 100).toFixed(1)}%</Row>
           <p className="mt-2 text-[11.5px] leading-snug text-muted">{v.note}</p>
+          {terrain?.validation_1m && (
+            <div className="mt-2.5 border-t border-line pt-2.5">
+              <p className="mb-1.5 text-[12px] leading-snug text-muted">
+                The same path measured on NASA&apos;s 1 m HiRISE elevation model, which is what planned routes are checked against:
+              </p>
+              <Row label={`99% of the ${(terrain.validation_1m.length_m / 1000).toFixed(1)} km path is under`}>{terrain.validation_1m.slope_deg.p99?.toFixed(1)}°</Row>
+              <Row label="Steepest point on the path at 1 m">{terrain.validation_1m.slope_deg.max?.toFixed(1)}°</Row>
+              <Row label="Share of the path steeper than 20° at 1 m">{((terrain.validation_1m.fraction_steeper_than?.["20"] ?? 0) * 100).toFixed(1)}%</Row>
+            </div>
+          )}
         </Section>
       )}
 
@@ -303,10 +313,14 @@ export const GOALS: { label: string; objective: string; dwell_min: number }[] = 
   { label: "Set up a weather station", objective: "Set up a weather station", dwell_min: 30 },
 ];
 
-export function StepRoute({ mission, profiles, placing, setPlacing, onPlan, onClear, busy, goal, setGoal }: {
+export function StepRoute({ mission, profiles, placing, setPlacing, onPlan, onClear, busy, goal, setGoal, onFine, fineBusy, onWorld }: {
   mission: Mission; profiles: Profile[]; placing: boolean; setPlacing: (v: boolean) => void;
   onPlan: (mover: string, objective: string, risk: number) => void; onClear: () => void; busy: boolean;
   goal: number; setGoal: (i: number) => void;
+  /** Measure the plan on the 1 m elevation model; with true, also move the route off steep ground. */
+  onFine: (avoid: boolean) => void; fineBusy: boolean;
+  /** Open the 3D world on this mission; absent when that service is not running. */
+  onWorld?: () => void;
 }) {
   const locked = mission.sim.phase !== "idle";
   const prof = profiles.find((q) => q.key === mission.mover);
@@ -388,7 +402,112 @@ export function StepRoute({ mission, profiles, placing, setPlacing, onPlan, onCl
           </ul>
         </Section>
       )}
+
+      {plan && <FineCheckCard mission={mission} limit={prof?.max_slope_deg ?? 20} locked={locked} busy={busy} fineBusy={fineBusy} onFine={onFine} />}
+
+      {plan && onWorld && (
+        <Section title="See it in 3D">
+          <p className="text-[12px] leading-snug text-muted">
+            The 3D world draws this same plan on the ground: every leg, each target, and the stretches the 1 m check found too steep.
+            Fly along the whole route, or drive its first leg on 5 m terrain.
+          </p>
+          <button className="btn mt-2.5 w-full" onClick={onWorld}>Open this route in the 3D world</button>
+        </Section>
+      )}
     </>
+  );
+}
+
+/** The plan measured on NASA's 1 m HiRISE elevation model, with the option to move the route off steep ground. */
+function FineCheckCard({ mission, limit, locked, busy, fineBusy, onFine }: {
+  mission: Mission; limit: number; locked: boolean; busy: boolean; fineBusy: boolean; onFine: (avoid: boolean) => void;
+}) {
+  const plan = mission.plan!;
+  const f = mission.fine_check && mission.fine_check.revision === plan.revision ? mission.fine_check : null;
+  const movable = f ? f.stretches.length - f.unavoidable.length : 0;
+  const ref = f?.perseverance;
+  return (
+    <Section title="Checked at 1 m" kind="calc">
+      {!f ? (
+        <>
+          <p className="text-[12px] leading-snug text-muted">
+            This route was planned on 20 m cells, which average away a bank or scarp a few metres across. NASA&apos;s HiRISE elevation model of Jezero has a post every 1 m. Check the route against it before the crew relies on it.
+          </p>
+          <button className="btn btn-primary mt-2.5 w-full" disabled={locked || busy} onClick={() => onFine(false)}>
+            {fineBusy ? "Reading NASA’s 1 m elevation…" : "Check this route at 1 m"}
+          </button>
+          <p className="mt-2 text-[11px] leading-snug text-faint">The first check of new ground downloads the elevation under the route from NASA and can take up to a minute.</p>
+        </>
+      ) : (
+        <>
+          <Note tone={f.clear ? "good" : "warn"}>{f.summary}</Note>
+          <div className="mt-3">
+            <Grid>
+              <Stat label="Checked" value={fmtDistance(f.checked_m)} />
+              <Stat label="Steepest at 1 m" value={(f.slope_deg.max ?? 0).toFixed(1)} unit="°" tone={(f.slope_deg.max ?? 0) > limit ? "bad" : (f.slope_deg.max ?? 0) > 0.75 * limit ? "warn" : "good"} />
+              <Stat label="Steepest at 20 m" value={plan.max_slope_deg.toFixed(1)} unit="°" />
+              <Stat label="Over the limit" value={f.over_limit_m.toFixed(0)} unit="m" tone={f.over_limit_m > 0 ? "bad" : "good"} />
+              <Stat label="Typical slope" value={(f.slope_deg.median ?? 0).toFixed(1)} unit="°" />
+              <Stat label="Keep-outs added" value={mission.hazards.filter((h) => h.source === "hirise_1m").length} />
+            </Grid>
+          </div>
+          {f.profile && <div className="mt-3"><FineProfile slope={f.profile.slope_deg} spacing={f.profile.spacing_m} limit={limit} /></div>}
+          {f.stretches.length > 0 && (
+            <ol className="mt-2.5 flex flex-col gap-1 text-[12px] leading-snug text-muted">
+              {f.stretches.slice(0, 8).map((s, i) => (
+                <li key={i} className="flex items-baseline justify-between gap-2">
+                  <span><span className="text-faint">{i + 1}.</span> {s.length_m.toFixed(0)} m, starting {fmtDistance(s.start_m)} along the route</span>
+                  <span className="num text-[#f3a79f]">{s.max_slope_deg.toFixed(1)}°</span>
+                </li>
+              ))}
+              {f.stretches.length > 8 && <li className="text-faint">and {f.stretches.length - 8} more, marked on the map</li>}
+            </ol>
+          )}
+          {movable > 0 && (
+            <button className="btn btn-primary mt-2.5 w-full" disabled={locked || busy} onClick={() => onFine(true)}>
+              {fineBusy ? "Replanning and checking again…" : "Move the route around them"}
+            </button>
+          )}
+          {f.no_data_m > 0 && <p className="mt-2 text-[11.5px] leading-snug text-warn">NASA&apos;s 1 m model has no data under {f.no_data_m.toFixed(0)} m of this route; that part was not checked.</p>}
+          {ref && (
+            <p className="mt-2.5 text-[11.5px] leading-snug text-muted">
+              For comparison, the same measure on the <span className="num">{(ref.length_m / 1000).toFixed(1)} km</span> Perseverance drove here: 99% of it is under <span className="num">{ref.slope_deg.p99?.toFixed(1)}°</span>, and its steepest point reads <span className="num">{ref.slope_deg.max?.toFixed(1)}°</span>.
+            </p>
+          )}
+          <p className="mt-2 text-[11px] leading-snug text-faint">
+            {f.source ? `${f.source.title} (${f.source.mission}, ${f.source.instrument}), doi:${f.source.doi}. ` : ""}Slope is the tilt of a plane fitted to the posts in a 4 m window. {f.limits}
+          </p>
+        </>
+      )}
+    </Section>
+  );
+}
+
+/** Slope along the route on the 1 m model, with the mover's limit drawn across it. */
+function FineProfile({ slope, spacing, limit }: { slope: (number | null)[]; spacing: number; limit: number }) {
+  if (slope.length < 2) return null;
+  const W = 352, H = 64, pad = 4;
+  const top = Math.max(limit * 1.25, ...slope.map((v) => v ?? 0));
+  const X = (i: number) => pad + (i / (slope.length - 1)) * (W - 2 * pad);
+  const Y = (v: number) => H - pad - (v / top) * (H - 2 * pad);
+  let line = "", pen = false;
+  slope.forEach((v, i) => {
+    if (v === null) { pen = false; return; }
+    line += `${pen ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`;
+    pen = true;
+  });
+  return (
+    <figure>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img"
+           aria-label={`Slope along the route on the 1 metre elevation model, against the ${limit} degree limit`}>
+        <line x1={pad} x2={W - pad} y1={Y(limit)} y2={Y(limit)} stroke="#ef6a5e" strokeWidth="1" strokeDasharray="4 3" />
+        <path d={line} fill="none" stroke="#5fd4e0" strokeWidth="1.2" />
+        {slope.map((v, i) => (v !== null && v > limit ? <circle key={i} cx={X(i)} cy={Y(v)} r="1.8" fill="#ef6a5e" /> : null))}
+      </svg>
+      <figcaption className="text-[10.5px] leading-snug text-faint">
+        Slope on the 1 m model, sampled every {spacing.toFixed(0)} m along the route. The dashed line is the <span className="num">{limit}°</span> limit.
+      </figcaption>
+    </figure>
   );
 }
 

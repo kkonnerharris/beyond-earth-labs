@@ -1,0 +1,101 @@
+{
+  "region": {
+    "name": "Garden of the Gods, Shawnee National Forest, Illinois (Earth analog)",
+    "planet": "earth",
+    "centre_lat_deg": 37.604,
+    "centre_lon_deg": -88.3833,
+    "size_m": 2000.0,
+    "grid_n": 401,
+    "cell_m": 5.0,
+    "local_crs": "+proj=tmerc +lat_0=37.604 +lon_0=-88.3833 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs=True",
+    "frame": "x = east (m), z = south (m), origin at region centre; row 0 = north edge",
+    "datum_offset_m": 148.0,
+    "elevation_reference": "NAVD88 (3DEP)",
+    "elevation_min_m": 148.074951171875,
+    "elevation_max_m": 264.13623046875,
+    "nasadem_minus_3dep_median_m": 8.51,
+    "nasadem_minus_3dep_mad_m": 2.97
+  },
+  "sources": {
+    "usgs_3dep": {
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/13/TIFF/current/n38w089/USGS_13_n38w089.tif",
+      "title": "USGS 3D Elevation Program (3DEP) 1/3 arc-second DEM, tile n38w089",
+      "mission": "USGS 3D Elevation Program",
+      "instrument": "Airborne lidar and other sources",
+      "publisher": "U.S. Geological Survey",
+      "year": 2024,
+      "doi": "https://www.usgs.gov/3d-elevation-program",
+      "citation": "U.S. Geological Survey, 3D Elevation Program 1/3 arc-second DEM.",
+      "read_meta": {
+        "crs": "EPSG:4269",
+        "res": [
+          9.259259269220167e-05,
+          9.259259269219641e-05
+        ],
+        "nodata": -999999.0,
+        "window": [
+          6536,
+          4179,
+          259,
+          206
+        ]
+      }
+    },
+    "nasadem": {
+      "url": "https://opentopography.s3.sdsc.edu/raster/NASADEM/NASADEM_be/NASADEM_HGT_n37w089.tif",
+      "title": "NASADEM Merged DEM Global 1 arc second (reprocessed SRTM)",
+      "mission": "Shuttle Radar Topography Mission (NASA)",
+      "instrument": "SRTM C-band radar (Space Shuttle Endeavour, 2000)",
+      "publisher": "NASA JPL / LP DAAC, via OpenTopography",
+      "year": 2020,
+      "doi": "https://doi.org/10.5067/MEaSUREs/NASADEM/NASADEM_HGT.001",
+      "citation": "NASA JPL (2020). NASADEM Merged DEM Global 1 arc second V001. NASA EOSDIS LP DAAC.",
+      "read_meta": {
+        "crs": "EPSG:4326",
+        "res": [
+          0.0002777777777777778,
+          0.0002777777777777778
+        ],
+        "nodata": -32768.0,
+        "window": [
+          2177,
+          1391,
+          86,
+          69
+        ]
+      }
+    },
+    "sentinel2": {
+      "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/16/S/CG/2025/10/S2A_16SCG_20251008_1_L2A/TCI.tif",
+      "title": "Sentinel-2A L2A true colour, 8 Oct 2025, tile 16SCG (cloud cover 0.003%)",
+      "mission": "Copernicus Sentinel-2 (ESA)",
+      "instrument": "MultiSpectral Instrument (MSI)",
+      "publisher": "ESA / Copernicus, via AWS Open Data (Element 84)",
+      "year": 2025,
+      "doi": "https://registry.opendata.aws/sentinel-2-l2a-cogs/",
+      "citation": "Contains modified Copernicus Sentinel data (2025).",
+      "read_meta": {
+        "crs": "EPSG:32616",
+        "res": [
+          10.0,
+          10.0
+        ],
+        "nodata": 0.0,
+        "window": [
+          7682,
+          3614,
+          215,
+          215
+        ]
+      }
+    }
+  },
+  "processing": [
+    "Region bounds transformed into each source CRS; only the window is read (HTTP range requests).",
+    "USGS 3DEP 1/3 arc-second DEM resampled (cubic) onto a 401 x 401, 5 m local transverse-Mercator grid: the planner's terrain.",
+    "NASADEM (Space Shuttle radar, reprocessed by NASA JPL) resampled the same way and compared with 3DEP.",
+    "Sentinel-2 L2A true-colour image (8 Oct 2025) resampled to 1024 x 1024 and contrast-stretched."
+  ],
+  "retrieved": "2026-10-26",
+  "script": "scripts/import_earth.py"
+}
